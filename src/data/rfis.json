@@ -1,0 +1,223 @@
+{
+    "rfis": [
+        {
+            "id": "rfi-001",
+            "rfiNumber": "RFI-2025-001",
+            "title": "Clarificación sobre instalaciones eléctricas en Piso 3",
+            "description": "Necesitamos clarificación sobre la ubicación exacta de los tableros eléctricos en el Piso 3, específicamente en las áreas de oficinas. Los planos actuales muestran conflictos con las instalaciones de HVAC.",
+            "discipline": "electrical",
+            "priority": "high",
+            "status": "open",
+            "category": "Clarificación Técnica",
+            "location": "Piso 3, Área Oficinas",
+            "drawingReference": "E-003, E-004",
+            "assignedTo": "ing-maria-gonzalez",
+            "requestedBy": "user-001",
+            "dueDate": "2025-05-30",
+            "attachments": [
+                {
+                    "id": "att-001",
+                    "name": "Plano_Electrico_Piso3.pdf",
+                    "size": 2048576,
+                    "type": "application/pdf",
+                    "url": "/files/plano-electrico.pdf",
+                    "uploadedAt": "2025-05-23T09:00:00Z",
+                    "uploadedBy": "user-001"
+                }
+            ],
+            "comments": [],
+            "tags": [
+                "eléctrico",
+                "coordinación",
+                "planos"
+            ],
+            "createdAt": "2025-05-23T09:00:00Z",
+            "updatedAt": "2025-05-23T09:00:00Z",
+            "createdBy": "user-001"
+        },
+        {
+            "id": "rfi-002",
+            "rfiNumber": "RFI-2025-002",
+            "title": "Especificaciones de ductos HVAC en zona A",
+            "description": "Requerimos especificaciones detalladas sobre el tipo de ductos a utilizar en la zona A del sótano. Los documentos actuales no especifican si deben ser galvanizados o de acero inoxidable.",
+            "discipline": "hvac",
+            "priority": "medium",
+            "status": "in_review",
+            "category": "Especificaciones",
+            "location": "Sótano, Zona A",
+            "drawingReference": "M-101, M-102",
+            "assignedTo": "ing-luis-torres",
+            "requestedBy": "user-002",
+            "dueDate": "2025-05-28",
+            "attachments": [],
+            "comments": [
+                {
+                    "id": "comment-001",
+                    "rfiId": "rfi-002",
+                    "comment": "Revisando especificaciones con el proveedor",
+                    "author": "ing-luis-torres",
+                    "isInternal": false,
+                    "createdAt": "2025-05-23T10:30:00Z",
+                    "updatedAt": "2025-05-23T10:30:00Z",
+                    "createdBy": "ing-luis-torres"
+                }
+            ],
+            "tags": [
+                "hvac",
+                "materiales",
+                "especificaciones"
+            ],
+            "createdAt": "2025-05-22T14:00:00Z",
+            "updatedAt": "2025-05-23T10:30:00Z",
+            "createdBy": "user-002"
+        },
+        {
+            "id": "rfi-003",
+            "rfiNumber": "RFI-2025-003",
+            "title": "Coordinación de tuberías de plomería con estructura",
+            "description": "Las tuberías de agua fría en el Piso 2 presentan interferencia con las vigas estructurales según el modelo BIM. Necesitamos definir la ruta alternativa.",
+            "discipline": "plumbing",
+            "priority": "critical",
+            "status": "responded",
+            "category": "Coordinación",
+            "location": "Piso 2, Toda la planta",
+            "drawingReference": "P-201, S-201",
+            "assignedTo": "ing-ana-lopez",
+            "requestedBy": "user-003",
+            "dueDate": "2025-05-25",
+            "responseDate": "2025-05-24T16:00:00Z",
+            "response": "Se ha definido nueva ruta por el cielo falso. Ver planos actualizados P-201-Rev02.",
+            "responseBy": "ing-ana-lopez",
+            "attachments": [
+                {
+                    "id": "att-002",
+                    "name": "Interferencias_BIM.pdf",
+                    "size": 5242880,
+                    "type": "application/pdf",
+                    "url": "/files/interferencias-bim.pdf",
+                    "uploadedAt": "2025-05-21T11:00:00Z",
+                    "uploadedBy": "user-003"
+                }
+            ],
+            "comments": [],
+            "tags": [
+                "plomería",
+                "bim",
+                "coordinación",
+                "resuelto"
+            ],
+            "createdAt": "2025-05-21T11:00:00Z",
+            "updatedAt": "2025-05-24T16:00:00Z",
+            "createdBy": "user-003"
+        },
+        {
+            "id": "rfi-004",
+            "rfiNumber": "RFI-2025-004",
+            "title": "Materiales para sistema contra incendios",
+            "description": "Confirmación de materiales específicos para el sistema de rociadores en áreas de almacenamiento. Necesitamos saber si se requieren rociadores de respuesta rápida.",
+            "discipline": "fire_protection",
+            "priority": "high",
+            "status": "open",
+            "category": "Materiales",
+            "location": "Piso 1, Área de Almacenamiento",
+            "drawingReference": "FP-101",
+            "assignedTo": "ing-sofia-ramirez",
+            "requestedBy": "user-004",
+            "dueDate": "2025-05-27",
+            "attachments": [],
+            "comments": [],
+            "tags": [
+                "contra-incendios",
+                "rociadores",
+                "materiales"
+            ],
+            "createdAt": "2025-05-20T09:30:00Z",
+            "updatedAt": "2025-05-20T09:30:00Z",
+            "createdBy": "user-004"
+        },
+        {
+            "id": "rfi-005",
+            "rfiNumber": "RFI-2025-005",
+            "title": "Instalación de equipos mecánicos en azotea",
+            "description": "Aclaración sobre el procedimiento de izaje e instalación de los equipos de aire acondicionado en la azotea. Coordinar con grúa y permisos municipales.",
+            "discipline": "mechanical",
+            "priority": "medium",
+            "status": "closed",
+            "category": "Instalación",
+            "location": "Azotea",
+            "drawingReference": "M-401, M-402",
+            "assignedTo": "ing-carlos-perez",
+            "requestedBy": "user-005",
+            "dueDate": "2025-05-22",
+            "responseDate": "2025-05-22T14:00:00Z",
+            "response": "Procedimiento aprobado. Izaje programado para el 29 de mayo. Permisos ya gestionados.",
+            "responseBy": "ing-carlos-perez",
+            "attachments": [],
+            "comments": [
+                {
+                    "id": "comment-002",
+                    "rfiId": "rfi-005",
+                    "comment": "Confirmado con municipalidad",
+                    "author": "ing-carlos-perez",
+                    "isInternal": true,
+                    "createdAt": "2025-05-22T12:00:00Z",
+                    "updatedAt": "2025-05-22T12:00:00Z",
+                    "createdBy": "ing-carlos-perez"
+                }
+            ],
+            "tags": [
+                "mecánico",
+                "izaje",
+                "permisos",
+                "completado"
+            ],
+            "createdAt": "2025-05-19T16:00:00Z",
+            "updatedAt": "2025-05-22T14:00:00Z",
+            "createdBy": "user-005"
+        }
+    ],
+    "users": [
+        {
+            "id": "user-001",
+            "name": "Ing. Roberto Silva",
+            "email": "roberto.silva@proyecto.com",
+            "role": "engineer",
+            "department": "Coordinación MEP"
+        },
+        {
+            "id": "ing-maria-gonzalez",
+            "name": "Ing. María González",
+            "email": "maria.gonzalez@proyecto.com",
+            "role": "engineer",
+            "department": "Eléctrico"
+        },
+        {
+            "id": "ing-luis-torres",
+            "name": "Ing. Luis Torres",
+            "email": "luis.torres@proyecto.com",
+            "role": "engineer",
+            "department": "HVAC"
+        },
+        {
+            "id": "ing-ana-lopez",
+            "name": "Ing. Ana López",
+            "email": "ana.lopez@proyecto.com",
+            "role": "engineer",
+            "department": "Plomería"
+        },
+        {
+            "id": "ing-sofia-ramirez",
+            "name": "Ing. Sofia Ramírez",
+            "email": "sofia.ramirez@proyecto.com",
+            "role": "engineer",
+            "department": "Protección Contra Incendios"
+        },
+        {
+            "id": "ing-carlos-perez",
+            "name": "Ing. Carlos Pérez",
+            "email": "carlos.perez@proyecto.com",
+            "role": "engineer",
+            "department": "Mecánico"
+        }
+    ]
+}

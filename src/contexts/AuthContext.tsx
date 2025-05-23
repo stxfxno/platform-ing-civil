@@ -1,0 +1,100 @@
+// src/contexts/AuthContext.tsx
+import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import type { User } from '../types/common';
+
+interface AuthContextType {
+    user: User | null;
+    isAuthenticated: boolean;
+    login: (email: string, password: string) => Promise<boolean>;
+    logout: () => void;
+    isLoading: boolean;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Usuario mock para desarrollo
+const MOCK_USER: User = {
+    id: '1',
+    name: 'Ing. Carlos Rodríguez',
+    email: 'carlos.rodriguez@ingenieriacivil.com',
+    role: 'engineer',
+    department: 'Gestión de Proyectos MEP',
+    avatar: '/avatar-placeholder.jpg',
+    isActive: true,
+};
+
+interface AuthProviderProps {
+    children: ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
+    const [user, setUser] = useState<User | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Simular verificación de autenticación al cargar
+        const checkAuth = () => {
+            const savedUser = localStorage.getItem('civil_eng_user');
+            if (savedUser) {
+                try {
+                    const parsedUser = JSON.parse(savedUser);
+                    setUser(parsedUser);
+                } catch (error) {
+                    console.error('Error parsing saved user:', error);
+                    localStorage.removeItem('civil_eng_user');
+                }
+            }
+            setIsLoading(false);
+        };
+
+        // Simular delay de red
+        setTimeout(checkAuth, 500);
+    }, []);
+
+    const login = async (email: string, password: string): Promise<boolean> => {
+        setIsLoading(true);
+
+        // Simular llamada a API
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                // Validación simple para demo
+                if (email === 'admin@civil.com' && password === 'admin123') {
+                    setUser(MOCK_USER);
+                    localStorage.setItem('civil_eng_user', JSON.stringify(MOCK_USER));
+                    setIsLoading(false);
+                    resolve(true);
+                } else {
+                    setIsLoading(false);
+                    resolve(false);
+                }
+            }, 1000);
+        });
+    };
+
+    const logout = () => {
+        setUser(null);
+        localStorage.removeItem('civil_eng_user');
+    };
+
+    const value: AuthContextType = {
+        user,
+        isAuthenticated: !!user,
+        login,
+        logout,
+        isLoading,
+    };
+
+    return (
+        <AuthContext.Provider value={value}>
+            {children}
+        </AuthContext.Provider>
+    );
+}
+
+export function useAuth() {
+    const context = useContext(AuthContext);
+    if (context === undefined) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
+}
