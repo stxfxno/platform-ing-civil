@@ -1,7 +1,7 @@
 // src/App.tsx
 import React from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { useAuth } from './contexts/AuthContext';
 import Layout from './components/common/Layout';
 import LoadingSpinner from './components/common/LoadingSpinner';
 
@@ -25,11 +25,7 @@ const ProtectedApp: React.FC = () => {
 };
 
 function App() {
-  return (
-    <AuthProvider>
-      <ProtectedApp />
-    </AuthProvider>
-  );
+  return <ProtectedApp />;
 }
 
 export default App;

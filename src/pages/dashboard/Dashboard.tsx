@@ -233,9 +233,10 @@ const Dashboard: React.FC = () => {
                 </div>
             </div>
 
-            {/* Recent Activities and Project Progress */}
+
+            {/* Recent Activities and Project Progress *
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Recent Activities */}
+                {/* Recent Activities 
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     <h2 className="text-lg font-semibold text-gray-900 mb-4">Actividad Reciente</h2>
                     <div className="space-y-4">
@@ -262,11 +263,11 @@ const Dashboard: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Project Progress */}
+                {/* Project Progress 
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     <h2 className="text-lg font-semibold text-gray-900 mb-4">Progreso del Proyecto</h2>
 
-                    {/* Overall Progress */}
+                    {/* Overall Progress 
                     <div className="mb-6">
                         <div className="flex items-center justify-between mb-2">
                             <span className="text-sm font-medium text-gray-700">Progreso General</span>
@@ -280,7 +281,7 @@ const Dashboard: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Phase Progress */}
+                    {/* Phase Progress 
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
@@ -307,7 +308,7 @@ const Dashboard: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Key Metrics */}
+                    {/* Key Metrics 
                     <div className="mt-6 pt-4 border-t border-gray-200">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="text-center">
@@ -322,6 +323,7 @@ const Dashboard: React.FC = () => {
                     </div>
                 </div>
             </div>
+            */}
 
             {/* Upcoming Deadlines */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
