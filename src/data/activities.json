@@ -1,0 +1,412 @@
+{
+    "activities": [
+        {
+            "id": "act-001",
+            "activityId": "HVAC-001",
+            "title": "Instalación ductos HVAC - Área A",
+            "description": "Instalación de ductos principales del sistema HVAC en el área A del sótano, incluyendo conexiones y soportería",
+            "discipline": "hvac",
+            "assignedTo": "team-hvac-001",
+            "subcontractor": "Plomería Industrial SAC",
+            "startDate": "2025-06-01",
+            "endDate": "2025-06-12",
+            "status": "planned",
+            "progress": 0,
+            "dependencies": [
+                "plumb-002",
+                "plumb-004"
+            ],
+            "location": "Todo el edificio",
+            "plannedHours": 80,
+            "actualHours": 0,
+            "priority": "critical",
+            "tags": [
+                "pruebas",
+                "hidráulicas",
+                "certificación"
+            ],
+            "equipment": [
+                "Bomba de pruebas",
+                "Manómetros",
+                "Equipos medición"
+            ],
+            "materials": [
+                "Tapones de prueba",
+                "Válvulas temporales"
+            ],
+            "certifications": [
+                "Certificado hidráulico",
+                "Protocolo de pruebas"
+            ],
+            "createdAt": "2025-05-22T12:00:00Z",
+            "updatedAt": "2025-05-23T12:00:00Z",
+            "createdBy": "user-008"
+        }
+    ],
+    "teams": [
+        {
+            "id": "team-hvac-001",
+            "name": "Equipo HVAC Principal",
+            "discipline": "hvac",
+            "lead": "Ing. Carlos Mendoza",
+            "members": [
+                "Carlos Mendoza",
+                "Luis Vargas",
+                "Ana Reyes",
+                "Miguel Torres"
+            ],
+            "contractor": "HVAC Solutions S.A.C.",
+            "specialties": [
+                "Instalación ductos",
+                "Equipos principales",
+                "Balanceo"
+            ],
+            "active": true
+        },
+        {
+            "id": "team-elec-001",
+            "name": "Equipo Eléctrico A",
+            "discipline": "electrical",
+            "lead": "Ing. María Santos",
+            "members": [
+                "María Santos",
+                "Roberto Díaz",
+                "Carmen López"
+            ],
+            "contractor": "Electro Instalaciones Perú",
+            "specialties": [
+                "Cableado",
+                "Iluminación",
+                "Circuitos menores"
+            ],
+            "active": true
+        },
+        {
+            "id": "team-elec-002",
+            "name": "Equipo Eléctrico Principal",
+            "discipline": "electrical",
+            "lead": "Ing. Jorge Ramírez",
+            "members": [
+                "Jorge Ramírez",
+                "Patricia Vega",
+                "Carlos Ruiz",
+                "Elena Morales"
+            ],
+            "contractor": "Electro Instalaciones Perú",
+            "specialties": [
+                "Tableros principales",
+                "Subestaciones",
+                "Media tensión"
+            ],
+            "active": true
+        },
+        {
+            "id": "team-plumb-001",
+            "name": "Equipo Plomería A",
+            "discipline": "plumbing",
+            "lead": "Ing. Alberto Silva",
+            "members": [
+                "Alberto Silva",
+                "Rosa Medina",
+                "Felipe Castro"
+            ],
+            "contractor": "Plomería Industrial SAC",
+            "specialties": [
+                "Agua fría",
+                "Agua caliente",
+                "Desagües"
+            ],
+            "active": true
+        },
+        {
+            "id": "team-fire-001",
+            "name": "Equipo Protección Contra Incendios",
+            "discipline": "fire_protection",
+            "lead": "Ing. Sofía Herrera",
+            "members": [
+                "Sofía Herrera",
+                "Manuel Ochoa",
+                "Claudia Paz"
+            ],
+            "contractor": "Fire Protection Corp.",
+            "specialties": [
+                "Rociadores",
+                "Detección",
+                "Supresión"
+            ],
+            "active": true
+        },
+        {
+            "id": "team-mech-001",
+            "name": "Equipo Mecánico Principal",
+            "discipline": "mechanical",
+            "lead": "Ing. Fernando Rojas",
+            "members": [
+                "Fernando Rojas",
+                "Andrea Campos",
+                "Diego Núñez",
+                "Valeria Soto"
+            ],
+            "contractor": "MEP Contractors Inc.",
+            "specialties": [
+                "Equipos principales",
+                "Izajes",
+                "Conexiones"
+            ],
+            "active": true
+        }
+    ],
+    "weeklyReports": [
+        {
+            "id": "report-001",
+            "week": "2025-05-19/2025-05-25",
+            "reportDate": "2025-05-23",
+            "submittedBy": "team-hvac-001",
+            "activities": [
+                {
+                    "activityId": "act-001",
+                    "plannedProgress": 80,
+                    "actualProgress": 85,
+                    "issues": [],
+                    "comments": "Avance según cronograma, se adelantó 5% por optimización de procesos",
+                    "nextWeekPlan": "Completar instalación y realizar pruebas iniciales"
+                }
+            ],
+            "overallProgress": 85,
+            "delays": [],
+            "materialRequests": [
+                "Ductos adicionales 12 pulgadas"
+            ],
+            "safetyIncidents": [],
+            "status": "on_track"
+        },
+        {
+            "id": "report-002",
+            "week": "2025-05-19/2025-05-25",
+            "reportDate": "2025-05-23",
+            "submittedBy": "team-plumb-001",
+            "activities": [
+                {
+                    "activityId": "act-003",
+                    "plannedProgress": 70,
+                    "actualProgress": 45,
+                    "issues": [
+                        "Retraso en entrega de materiales",
+                        "Interferencia estructural"
+                    ],
+                    "comments": "Retraso significativo por problemas de suministro y coordinación",
+                    "nextWeekPlan": "Resolver interferencias y acelerar instalación"
+                }
+            ],
+            "overallProgress": 45,
+            "delays": [
+                {
+                    "reason": "Materiales",
+                    "impact": "3 días",
+                    "mitigation": "Proveedor alternativo contactado"
+                }
+            ],
+            "materialRequests": [
+                "Tubería CPVC 4 pulgadas",
+                "Válvulas especiales"
+            ],
+            "safetyIncidents": [],
+            "status": "delayed"
+        }
+    ],
+    "dependencies": [
+        {
+            "id": "dep-001",
+            "fromActivity": "struct-001",
+            "toActivity": "act-001",
+            "type": "finish_to_start",
+            "lag": 0,
+            "description": "Estructura debe estar completa antes de instalación ductos"
+        },
+        {
+            "id": "dep-002",
+            "fromActivity": "act-001",
+            "toActivity": "act-007",
+            "type": "finish_to_start",
+            "lag": 2,
+            "description": "Ductos principales deben estar antes de unidades manejadoras"
+        },
+        {
+            "id": "dep-003",
+            "fromActivity": "act-005",
+            "toActivity": "act-007",
+            "type": "finish_to_start",
+            "lag": 0,
+            "description": "Chiller debe estar instalado antes de unidades manejadoras"
+        },
+        {
+            "id": "dep-004",
+            "fromActivity": "act-002",
+            "toActivity": "act-006",
+            "type": "finish_to_start",
+            "lag": 1,
+            "description": "Cableado básico antes de tableros principales"
+        }
+    ],
+    "materials": [
+        {
+            "id": "mat-001",
+            "name": "Ductos galvanizados 12 pulgadas",
+            "category": "HVAC",
+            "unit": "metro",
+            "plannedQuantity": 150,
+            "receivedQuantity": 120,
+            "usedQuantity": 100,
+            "status": "partial",
+            "supplier": "Ductos y Ventilación SAC",
+            "deliveryDate": "2025-05-15",
+            "nextDelivery": "2025-05-28"
+        },
+        {
+            "id": "mat-002",
+            "name": "Cable THW 12 AWG",
+            "category": "Eléctrico",
+            "unit": "metro",
+            "plannedQuantity": 2000,
+            "receivedQuantity": 2000,
+            "usedQuantity": 1800,
+            "status": "available",
+            "supplier": "Cables del Perú",
+            "deliveryDate": "2025-05-10"
+        },
+        {
+            "id": "mat-003",
+            "name": "Tubería CPVC 4 pulgadas",
+            "category": "Plomería",
+            "unit": "metro",
+            "plannedQuantity": 200,
+            "receivedQuantity": 100,
+            "usedQuantity": 80,
+            "status": "insufficient",
+            "supplier": "Tuberías Industriales",
+            "deliveryDate": "2025-05-12",
+            "nextDelivery": "2025-05-26"
+        }
+    ],
+    "equipment": [
+        {
+            "id": "eq-001",
+            "name": "Grúa telescópica 50 ton",
+            "category": "Izaje",
+            "status": "reserved",
+            "availableFrom": "2025-05-25",
+            "availableTo": "2025-06-05",
+            "assignedTo": "act-005",
+            "operator": "Grúas y Equipos SAC",
+            "dailyRate": 1200,
+            "requirements": [
+                "Operador certificado",
+                "Permiso municipal"
+            ]
+        },
+        {
+            "id": "eq-002",
+            "name": "Montacargas 3 ton",
+            "category": "Transporte",
+            "status": "available",
+            "assignedTo": "act-007",
+            "operator": "Interno",
+            "dailyRate": 200
+        }
+    ],
+    "contractors": [
+        {
+            "id": "cont-001",
+            "name": "HVAC Solutions S.A.C.",
+            "discipline": "HVAC",
+            "contact": "Ing. Ricardo Fernández",
+            "phone": "+51-1-234-5678",
+            "email": "contacto@hvacsolutions.pe",
+            "teams": [
+                "team-hvac-001",
+                "team-hvac-002"
+            ],
+            "activeActivities": 2,
+            "totalActivities": 8,
+            "performance": {
+                "onTimeDelivery": 85,
+                "qualityScore": 92,
+                "safetyScore": 88
+            }
+        },
+        {
+            "id": "cont-002",
+            "name": "Electro Instalaciones Perú",
+            "discipline": "Eléctrico",
+            "contact": "Ing. Carmen Vásquez",
+            "phone": "+51-1-345-6789",
+            "email": "info@electroinstalaciones.pe",
+            "teams": [
+                "team-elec-001",
+                "team-elec-002"
+            ],
+            "activeActivities": 2,
+            "totalActivities": 6,
+            "performance": {
+                "onTimeDelivery": 95,
+                "qualityScore": 89,
+                "safetyScore": 94
+            }
+        },
+        {
+            "id": "cont-003",
+            "name": "Plomería Industrial SAC",
+            "discipline": "Plomería",
+            "contact": "Ing. Manuel Gutiérrez",
+            "phone": "+51-1-456-7890",
+            "email": "ventas@plomeriaindustrial.pe",
+            "teams": [
+                "team-plumb-001",
+                "team-plumb-002"
+            ],
+            "activeActivities": 2,
+            "totalActivities": 5,
+            "performance": {
+                "onTimeDelivery": 70,
+                "qualityScore": 85,
+                "safetyScore": 90
+            }
+        },
+        {
+            "id": "cont-004",
+            "name": "Fire Protection Corp.",
+            "discipline": "Protección Contra Incendios",
+            "contact": "Ing. Laura Mendoza",
+            "phone": "+51-1-567-8901",
+            "email": "proyectos@fireprotection.pe",
+            "teams": [
+                "team-fire-001"
+            ],
+            "activeActivities": 1,
+            "totalActivities": 3,
+            "performance": {
+                "onTimeDelivery": 90,
+                "qualityScore": 96,
+                "safetyScore": 92
+            }
+        },
+        {
+            "id": "cont-005",
+            "name": "MEP Contractors Inc.",
+            "discipline": "Mecánico",
+            "contact": "Ing. Pablo Morales",
+            "phone": "+51-1-678-9012",
+            "email": "contacto@mepcontractors.pe",
+            "teams": [
+                "team-mech-001"
+            ],
+            "activeActivities": 1,
+            "totalActivities": 4,
+            "performance": {
+                "onTimeDelivery": 88,
+                "qualityScore": 91,
+                "safetyScore": 86
+            }
+        }
+    ]
+}
