@@ -24,6 +24,20 @@ import ScopeMenu from './pages/scope/ScopeMenu';
 // Schedules (Cronogramas)
 import SchedulesMenu from './pages/schedules/SchedulesMenu';
 
+// Documentation (Documentación)
+import DocumentationMenu from './pages/documentation/DocumentationMenu';
+import DrawingsControl from './pages/documentation/DrawingsControl';
+import TechnicalSpecs from './pages/documentation/TechnicalSpecs';
+import GeneralDocuments from './pages/documentation/GeneralDocuments';
+import SubmittalsManagement from './pages/documentation/SubmittalsManagement';
+
+// Mensajes
+import MessagesMenu from './pages/messages/MessagesMenu';
+import MeetingMinutes from './pages/messages/MeetingMinutes';
+import FormalCommunications from './pages/messages/FormalCommunications';
+import NotificationsSystem from './pages/messages/NotificationsSystem';
+import DirectMessaging from './pages/messages/DirectMessaging';
+
 // Páginas placeholder temporales
 const PlaceholderPage = ({ title }: { title: string }) => (
     <div className="p-6">
@@ -60,7 +74,7 @@ export const router = createBrowserRouter([
                 path: 'dashboard',
                 element: <Dashboard />,
             },
-            
+
             // ==================== RFIs Routes ====================
             {
                 path: 'rfis',
@@ -71,129 +85,130 @@ export const router = createBrowserRouter([
                     { path: 'historial', element: <RFIHistory /> },
                 ],
             },
-            
+
             // ==================== Programación Semanal Routes ====================
             {
                 path: 'programacion-semanal',
                 children: [
                     { index: true, element: <ScheduleMenu /> },
-                    { 
-                        path: 'actividades', 
+                    {
+                        path: 'actividades',
                         element: <WeeklyActivities />
                     },
-                    { 
-                        path: 'seguimiento', 
+                    {
+                        path: 'seguimiento',
                         element: <ProgressTracking />
                     },
-                    { 
-                        path: 'dependencias', 
+                    {
+                        path: 'dependencias',
                         element: <DependenciesCoordination />
                     },
-                    { 
-                        path: 'reportes-subcontratistas', 
+                    {
+                        path: 'reportes-subcontratistas',
                         element: <ContractorReports />
                     },
                 ],
             },
-            
+
             // ==================== Alcance Routes ====================
             {
                 path: 'alcance',
                 children: [
                     { index: true, element: <ScopeMenu /> },
-                    { 
-                        path: 'repositorio', 
-                        element: <PlaceholderPage title="Carga e Integración del Cronograma Maestro" /> 
+                    {
+                        path: 'repositorio',
+                        element: <PlaceholderPage title="Carga e Integración del Cronograma Maestro" />
                     },
-                    { 
-                        path: 'licitaciones', 
-                        element: <PlaceholderPage title="Carga e Integración del Cronograma Maestro" /> 
+                    {
+                        path: 'licitaciones',
+                        element: <PlaceholderPage title="Carga e Integración del Cronograma Maestro" />
                     },
-                    { 
-                        path: 'clarificaciones', 
-                        element: <PlaceholderPage title="Carga e Integración del Cronograma Maestro" /> 
+                    {
+                        path: 'clarificaciones',
+                        element: <PlaceholderPage title="Carga e Integración del Cronograma Maestro" />
                     },
-                    { 
-                        path: 'qa', 
-                        element: <PlaceholderPage title="Carga e Integración del Cronograma Maestro" /> 
+                    {
+                        path: 'qa',
+                        element: <PlaceholderPage title="Carga e Integración del Cronograma Maestro" />
                     },
                 ],
             },
-            
+
             // ==================== Cronogramas Routes ====================
             {
                 path: 'cronogramas',
                 children: [
                     { index: true, element: <SchedulesMenu /> },
-                    { 
-                        path: 'maestro', 
-                        element: <PlaceholderPage title="Carga e Integración del Cronograma Maestro" /> 
+                    {
+                        path: 'maestro',
+                        element: <PlaceholderPage title="Carga e Integración del Cronograma Maestro" />
                     },
-                    { 
-                        path: 'general', 
-                        element: <PlaceholderPage title="Visualización General del Proyecto" /> 
+                    {
+                        path: 'general',
+                        element: <PlaceholderPage title="Visualización General del Proyecto" />
                     },
-                    { 
-                        path: 'ruta-critica', 
-                        element: <PlaceholderPage title="Identificación y Monitoreo de la Ruta Crítica" /> 
+                    {
+                        path: 'ruta-critica',
+                        element: <PlaceholderPage title="Identificación y Monitoreo de la Ruta Crítica" />
                     },
-                    { 
-                        path: 'fechas-importantes', 
-                        element: <PlaceholderPage title="Seguimiento de Fechas Importantes" /> 
+                    {
+                        path: 'fechas-importantes',
+                        element: <PlaceholderPage title="Seguimiento de Fechas Importantes" />
                     },
                 ],
             },
-            
+
             // ==================== Documentación Routes ====================
             {
                 path: 'documentacion',
                 children: [
-                    { 
-                        index: true, 
-                        element: <PlaceholderPage title="Documentación" /> 
+                    {
+                        index: true,
+                        element: <DocumentationMenu />
                     },
-                    { 
-                        path: 'planos', 
-                        element: <PlaceholderPage title="Control de Planos" /> 
+                    {
+                        path: 'planos',
+                        element: <DrawingsControl />
+
                     },
-                    { 
-                        path: 'especificaciones', 
-                        element: <PlaceholderPage title="Gestión de Especificaciones Técnicas" /> 
+                    {
+                        path: 'especificaciones',
+                        element: <TechnicalSpecs />
                     },
-                    { 
-                        path: 'entregables', 
-                        element: <PlaceholderPage title="Gestión de Submittals (Entregables MEP)" /> 
+                    {
+                        path: 'entregables',
+                        element: <SubmittalsManagement />
                     },
-                    { 
-                        path: 'generales', 
-                        element: <PlaceholderPage title="Documentos Generales del Proyecto" /> 
+                    {
+                        path: 'generales',
+                        element: <GeneralDocuments />
                     },
                 ],
             },
-            
+
             // ==================== Mensajes Routes ====================
             {
                 path: 'mensajes',
                 children: [
-                    { 
-                        index: true, 
-                        element: <PlaceholderPage title="Mensajes Pendientes" /> 
+                    {
+                        index: true,
+                        element: <MessagesMenu />
                     },
-                    { 
-                        path: 'actas', 
-                        element: <PlaceholderPage title="Actas de Reunión (Meeting Minutes)" /> 
+                    {
+                        path: 'actas',
+                        element: <MeetingMinutes />
                     },
-                    { 
-                        path: 'comunicaciones', 
-                        element: <PlaceholderPage title="Registro de Comunicaciones Formales" /> 
+                    {
+                        path: 'comunicaciones',
+                        element: <FormalCommunications />
                     },
-                    { 
-                        path: 'notificaciones', 
-                        element: <PlaceholderPage title="Sistema de Notificaciones" /> 
+                    {
+                        path: 'notificaciones',
+                        element: <NotificationsSystem />
                     },
-                    { 
-                        path: 'chat', 
-                        element: <PlaceholderPage title="Mensajería Directa y Hilos de Conversación" /> 
+                    {
+                        path: 'chat',
+                        element: <DirectMessaging />
                     },
                 ],
             },
