@@ -48,7 +48,7 @@ import BidPackages from './pages/scope/BidPackages';
 import QAModule from './pages/scope/QAModule';
 import ScopeClarifications from './pages/scope/ScopeClarifications';
 
-// Páginas placeholder temporales
+/* Páginas placeholder temporales
 const PlaceholderPage = ({ title }: { title: string }) => (
     <div className="p-6">
         <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
@@ -61,6 +61,7 @@ const PlaceholderPage = ({ title }: { title: string }) => (
         </div>
     </div>
 );
+*/
 
 // Wrapper component to provide AuthContext
 function RootLayout({ children }: { children: React.ReactNode }) {
