@@ -8,18 +8,12 @@ import {
     Route, 
     Calendar,
     TrendingUp,
-    AlertCircle,
-    CheckCircle,
-    //Target,
-    //Activity,
-    Flag,
-    Zap,
+    AlertTriangle,
+    Target,
+    Activity,
+    FileText,
     Users,
-    //FileText,
-    Download,
-    RefreshCw,
-    Eye,
-    Settings
+    CheckCircle
 } from 'lucide-react';
 
 interface MenuOption {
@@ -29,7 +23,7 @@ interface MenuOption {
     icon: React.ComponentType<{ className?: string }>;
     color: string;
     stats?: {
-        count: number | string;
+        count: number;
         label: string;
         trend?: 'up' | 'down' | 'stable';
     };
@@ -38,50 +32,50 @@ interface MenuOption {
 const menuOptions: MenuOption[] = [
     {
         title: 'Carga e Integración del Cronograma Maestro',
-        description: 'Herramientas para cargar, actualizar e integrar el cronograma maestro del proyecto con todas las actividades MEP planificadas.',
+        description: 'Importar cronogramas desde MS Project, Primavera P6 y otros sistemas de planificación. Sincronización automática y control de versiones.',
         path: '/cronogramas/maestro',
         icon: Upload,
         color: 'bg-blue-500',
         stats: {
-            count: '2.1',
-            label: 'Versión actual',
-            trend: 'up'
+            count: 3,
+            label: 'Cronogramas activos',
+            trend: 'stable'
         }
     },
     {
         title: 'Visualización General del Proyecto',
-        description: 'Vista panorámica del estado del proyecto con indicadores de progreso, hitos cumplidos y desviaciones del cronograma planificado.',
+        description: 'Vista integral del cronograma con diagramas de Gantt, timeline y calendarios. Análisis de progreso por disciplinas y equipos.',
         path: '/cronogramas/general',
         icon: BarChart3,
         color: 'bg-green-500',
         stats: {
-            count: '74%',
-            label: 'Progreso general',
+            count: 247,
+            label: 'Actividades totales',
             trend: 'up'
         }
     },
     {
         title: 'Identificación y Monitoreo de la Ruta Crítica',
-        description: 'Análisis automático de la ruta crítica del proyecto con alertas tempranas sobre posibles retrasos en actividades críticas.',
+        description: 'Análisis de la ruta crítica del proyecto, identificación de actividades sin holgura y gestión de riesgos de cronograma.',
         path: '/cronogramas/ruta-critica',
         icon: Route,
         color: 'bg-red-500',
         stats: {
             count: 12,
             label: 'Actividades críticas',
-            trend: 'stable'
+            trend: 'down'
         }
     },
     {
         title: 'Seguimiento de Fechas Importantes',
-        description: 'Monitoreo de hitos clave, entregas importantes y fechas contractuales con sistema de alertas y notificaciones automáticas.',
+        description: 'Monitoreo de hitos, fechas límite, inspecciones y entregas críticas. Sistema de notificaciones y recordatorios automáticos.',
         path: '/cronogramas/fechas-importantes',
-        icon: Flag,
+        icon: Calendar,
         color: 'bg-purple-500',
         stats: {
-            count: 8,
-            label: 'Hitos próximos',
-            trend: 'stable'
+            count: 18,
+            label: 'Fechas próximas',
+            trend: 'up'
         }
     }
 ];
@@ -89,192 +83,109 @@ const menuOptions: MenuOption[] = [
 const projectStats = [
     {
         label: 'Progreso General',
-        value: 74,
-        target: 78,
+        value: 68,
+        total: 100,
         icon: TrendingUp,
-        color: 'text-green-600 bg-green-50',
+        color: 'text-blue-600 bg-blue-50',
         unit: '%'
     },
     {
         label: 'Actividades Completadas',
-        value: 145,
-        target: 186,
+        value: 89,
+        total: 247,
         icon: CheckCircle,
-        color: 'text-blue-600 bg-blue-50',
-        unit: ''
-    },
-    {
-        label: 'Días Restantes',
-        value: 42,
-        target: 38,
-        icon: Clock,
-        color: 'text-yellow-600 bg-yellow-50',
-        unit: ''
+        color: 'text-green-600 bg-green-50',
+        unit: 'act'
     },
     {
         label: 'Actividades Críticas',
         value: 12,
-        target: 15,
-        icon: AlertCircle,
+        total: 247,
+        icon: AlertTriangle,
         color: 'text-red-600 bg-red-50',
-        unit: ''
+        unit: 'act'
+    },
+    {
+        label: 'Equipos Activos',
+        value: 8,
+        total: 12,
+        icon: Users,
+        color: 'text-purple-600 bg-purple-50',
+        unit: 'equipos'
+    }
+];
+
+const recentUpdates = [
+    {
+        id: 'update-001',
+        title: 'Cronograma maestro actualizado',
+        description: 'Nueva versión 2.1 con ajustes en ruta crítica',
+        timestamp: '2025-05-23T10:30:00Z',
+        type: 'update',
+        impact: 'medium'
+    },
+    {
+        id: 'update-002',
+        title: 'Actividad crítica completada',
+        description: 'Instalación ductos HVAC - Área A finalizada',
+        timestamp: '2025-05-23T09:15:00Z',
+        type: 'completion',
+        impact: 'high'
+    },
+    {
+        id: 'update-003',
+        title: 'Nueva fecha límite agregada',
+        description: 'Inspección eléctrica programada para 2 Jun',
+        timestamp: '2025-05-22T16:45:00Z',
+        type: 'milestone',
+        impact: 'medium'
+    },
+    {
+        id: 'update-004',
+        title: 'Retraso identificado',
+        description: 'Tuberías agua fría con 2 días de retraso',
+        timestamp: '2025-05-22T14:20:00Z',
+        type: 'delay',
+        impact: 'high'
     }
 ];
 
 const upcomingMilestones = [
     {
-        id: 'M001',
-        title: 'Finalización Instalaciones HVAC Torre A',
+        id: 'mil-001',
+        title: 'Entrega Submittals HVAC',
+        date: '2025-05-28',
+        status: 'upcoming',
+        priority: 'critical',
+        daysLeft: 5
+    },
+    {
+        id: 'mil-002',
+        title: 'Inspección Eléctrica Principal',
+        date: '2025-06-02',
+        status: 'upcoming',
+        priority: 'high',
+        daysLeft: 10
+    },
+    {
+        id: 'mil-003',
+        title: 'Finalización Fase MEP Sótano',
         date: '2025-06-15',
-        discipline: 'HVAC',
-        status: 'on_track',
-        progress: 85,
-        daysRemaining: 23,
-        contractor: 'HVAC Solutions S.A.C.',
-        importance: 'critical'
+        status: 'upcoming',
+        priority: 'critical',
+        daysLeft: 23
     },
     {
-        id: 'M002',
-        title: 'Pruebas Sistema Eléctrico Principal',
-        date: '2025-06-08',
-        discipline: 'Eléctrico',
+        id: 'mil-004',
+        title: 'Pruebas Hidráulicas Completas',
+        date: '2025-06-25',
         status: 'at_risk',
-        progress: 60,
-        daysRemaining: 16,
-        contractor: 'Electro Instalaciones Perú',
-        importance: 'high'
-    },
-    {
-        id: 'M003',
-        title: 'Entrega Final Sistema Contra Incendios',
-        date: '2025-06-30',
-        discipline: 'Protección Contra Incendios',
-        status: 'on_track',
-        progress: 70,
-        daysRemaining: 38,
-        contractor: 'Fire Protection Corp.',
-        importance: 'high'
-    },
-    {
-        id: 'M004',
-        title: 'Certificación MEP Completa',
-        date: '2025-07-15',
-        discipline: 'General',
-        status: 'planned',
-        progress: 45,
-        daysRemaining: 53,
-        contractor: 'Coordinación General',
-        importance: 'critical'
-    }
-];
-
-const criticalActivities = [
-    {
-        id: 'CA001',
-        name: 'Instalación Chiller Principal',
-        startDate: '2025-05-25',
-        endDate: '2025-06-05',
-        discipline: 'Mecánico',
-        slack: 0,
-        progress: 30,
-        responsible: 'HVAC Solutions S.A.C.',
-        riskLevel: 'critical',
-        impact: 'Retraso directo en fecha de entrega'
-    },
-    {
-        id: 'CA002',
-        name: 'Conexión Subestación Eléctrica',
-        startDate: '2025-05-28',
-        endDate: '2025-06-10',
-        discipline: 'Eléctrico',
-        slack: 1,
-        progress: 15,
-        responsible: 'Electro Instalaciones Perú',
-        riskLevel: 'high',
-        impact: 'Afecta energización general'
-    },
-    {
-        id: 'CA003',
-        name: 'Pruebas Hidráulicas Sistema Principal',
-        startDate: '2025-06-01',
-        endDate: '2025-06-12',
-        discipline: 'Plomería',
-        slack: 0,
-        progress: 0,
-        responsible: 'Plomería Industrial SAC',
-        riskLevel: 'critical',
-        impact: 'Certificación del sistema'
-    },
-    {
-        id: 'CA004',
-        name: 'Instalación Central de Detección Incendios',
-        startDate: '2025-06-05',
-        endDate: '2025-06-18',
-        discipline: 'Protección Contra Incendios',
-        slack: 2,
-        progress: 0,
-        responsible: 'Fire Protection Corp.',
-        riskLevel: 'medium',
-        impact: 'Certificado de bomberos'
-    }
-];
-
-const scheduleMetrics = [
-    {
-        label: 'Eficiencia del Cronograma',
-        value: 89,
-        benchmark: 85,
-        unit: '%',
-        trend: 'up',
-        description: 'Actividades completadas a tiempo'
-    },
-    {
-        label: 'Desviación de Fechas',
-        value: 5.2,
-        benchmark: 7.0,
-        unit: 'días',
-        trend: 'down',
-        description: 'Promedio de retraso por actividad'
-    },
-    {
-        label: 'Float Promedio',
-        value: 3.8,
-        benchmark: 5.0,
-        unit: 'días',
-        trend: 'down',
-        description: 'Holgura disponible en actividades'
-    },
-    {
-        label: 'Actividades en Ruta Crítica',
-        value: 15,
-        benchmark: 12,
-        unit: '%',
-        trend: 'up',
-        description: 'Porcentaje del total de actividades'
+        priority: 'critical',
+        daysLeft: 33
     }
 ];
 
 const SchedulesMenu: React.FC = () => {
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'on_track': return 'bg-green-100 text-green-800';
-            case 'at_risk': return 'bg-yellow-100 text-yellow-800';
-            case 'delayed': return 'bg-red-100 text-red-800';
-            case 'planned': return 'bg-blue-100 text-blue-800';
-            default: return 'bg-gray-100 text-gray-800';
-        }
-    };
-
-    const getStatusLabel = (status: string) => {
-        switch (status) {
-            case 'on_track': return 'En Tiempo';
-            case 'at_risk': return 'En Riesgo';
-            case 'delayed': return 'Retrasado';
-            case 'planned': return 'Planificado';
-            default: return status;
-        }
-    };
-
     const getTrendIcon = (trend?: string) => {
         switch (trend) {
             case 'up': return '↗';
@@ -284,141 +195,99 @@ const SchedulesMenu: React.FC = () => {
         }
     };
 
-    const getSlackColor = (slack: number) => {
-        if (slack === 0) return 'text-red-600';
-        if (slack <= 2) return 'text-yellow-600';
-        return 'text-green-600';
-    };
-
-    const getRiskColor = (risk: string) => {
-        switch (risk) {
-            case 'critical': return 'bg-red-100 text-red-800 border-red-200';
-            case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
-            case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-            case 'low': return 'bg-green-100 text-green-800 border-green-200';
-            default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    const getUpdateIcon = (type: string) => {
+        switch (type) {
+            case 'update': return <FileText className="w-4 h-4 text-blue-600" />;
+            case 'completion': return <CheckCircle className="w-4 h-4 text-green-600" />;
+            case 'milestone': return <Target className="w-4 h-4 text-purple-600" />;
+            case 'delay': return <AlertTriangle className="w-4 h-4 text-red-600" />;
+            default: return <Activity className="w-4 h-4 text-gray-600" />;
         }
     };
 
-    const getImportanceIcon = (importance: string) => {
-        switch (importance) {
-            case 'critical': return <Flag className="w-4 h-4 text-red-600" />;
-            case 'high': return <Flag className="w-4 h-4 text-orange-600" />;
-            case 'medium': return <Flag className="w-4 h-4 text-yellow-600" />;
-            default: return <Flag className="w-4 h-4 text-gray-600" />;
+    const formatTime = (timestamp: string) => {
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+
+        if (diffInHours < 1) return 'Hace unos minutos';
+        if (diffInHours < 24) return `Hace ${diffInHours}h`;
+        return date.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit' });
+    };
+
+    const getPriorityColor = (priority: string) => {
+        switch (priority) {
+            case 'critical': return 'text-red-600 bg-red-50 border-red-200';
+            case 'high': return 'text-orange-600 bg-orange-50 border-orange-200';
+            case 'medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+            case 'low': return 'text-green-600 bg-green-50 border-green-200';
+            default: return 'text-gray-600 bg-gray-50 border-gray-200';
+        }
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'upcoming': return 'text-blue-600';
+            case 'at_risk': return 'text-red-600';
+            case 'completed': return 'text-green-600';
+            default: return 'text-gray-600';
         }
     };
 
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                    <div className="p-3 bg-blue-500 rounded-lg">
-                        <Clock className="w-8 h-8 text-white" />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Cronogramas</h1>
-                        <p className="text-gray-600">Gestión y monitoreo del cronograma maestro del proyecto</p>
-                    </div>
+            <div className="flex items-center space-x-3">
+                <div className="p-3 bg-blue-500 rounded-lg">
+                    <Clock className="w-8 h-8 text-white" />
                 </div>
-                <div className="flex items-center space-x-3">
-                    <button className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors flex items-center">
-                        <RefreshCw className="w-4 h-4 mr-2" />
-                        Actualizar
-                    </button>
-                    <button className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center">
-                        <Download className="w-4 h-4 mr-2" />
-                        Exportar
-                    </button>
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900">Gestión de Cronogramas</h1>
+                    <p className="text-gray-600">Control integral del cronograma maestro y seguimiento de la ruta crítica</p>
                 </div>
             </div>
 
             {/* Project Overview */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-gray-900">Estado General del Proyecto</h2>
-                    <div className="flex items-center text-sm text-gray-500">
-                        <Clock className="w-4 h-4 mr-1" />
-                        Última actualización: 23 Mayo 2025, 14:30
-                    </div>
-                </div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Resumen del Proyecto</h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     {projectStats.map((stat, index) => {
                         const Icon = stat.icon;
-                        const isOnTarget = stat.value >= stat.target;
-                        const percentage = Math.min((stat.value / stat.target) * 100, 100);
+                        const percentage = stat.total ? Math.round((stat.value / stat.total) * 100) : stat.value;
                         
                         return (
                             <div key={index} className="relative">
-                                <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                <div className="bg-white border border-gray-200 rounded-lg p-4">
                                     <div className="flex items-center justify-between">
                                         <div>
                                             <p className="text-sm font-medium text-gray-600">{stat.label}</p>
-                                            <div className="flex items-baseline mt-1">
-                                                <p className="text-2xl font-bold text-gray-900">
-                                                    {stat.value}{stat.unit}
-                                                </p>
-                                                <span className="text-sm text-gray-500 ml-2">
-                                                    / {stat.target}{stat.unit}
-                                                </span>
-                                            </div>
+                                            <p className="text-2xl font-bold text-gray-900 mt-1">
+                                                {stat.value}
+                                                {stat.total && stat.unit !== '%' && (
+                                                    <span className="text-sm text-gray-500">/{stat.total}</span>
+                                                )}
+                                                {stat.unit === '%' && <span className="text-sm text-gray-500">%</span>}
+                                            </p>
                                         </div>
                                         <div className={`p-3 rounded-lg ${stat.color}`}>
                                             <Icon className="w-6 h-6" />
                                         </div>
                                     </div>
-                                    {/* Progress indicator */}
-                                    <div className="mt-3">
-                                        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-                                            <span>Meta: {stat.target}{stat.unit}</span>
-                                            <span className={isOnTarget ? 'text-green-600' : 'text-yellow-600'}>
-                                                {isOnTarget ? '✓ En meta' : '△ Bajo meta'}
-                                            </span>
+                                    
+                                    {/* Progress bar */}
+                                    {stat.total && stat.unit !== '%' && (
+                                        <div className="mt-3">
+                                            <div className="w-full bg-gray-200 rounded-full h-2">
+                                                <div
+                                                    className="bg-primary-600 h-2 rounded-full transition-all duration-300"
+                                                    style={{ width: `${percentage}%` }}
+                                                ></div>
+                                            </div>
+                                            <p className="text-xs text-gray-500 mt-1">{percentage}% completado</p>
                                         </div>
-                                        <div className="w-full bg-gray-200 rounded-full h-2">
-                                            <div
-                                                className={`h-2 rounded-full transition-all duration-300 ${
-                                                    isOnTarget ? 'bg-green-500' : 'bg-yellow-500'
-                                                }`}
-                                                style={{ width: `${percentage}%` }}
-                                            ></div>
-                                        </div>
-                                    </div>
+                                    )}
                                 </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
-
-            {/* Schedule Metrics */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Métricas del Cronograma</h2>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {scheduleMetrics.map((metric, index) => {
-                        const isGood = metric.trend === 'up' ? metric.value >= metric.benchmark : metric.value <= metric.benchmark;
-                        return (
-                            <div key={index} className="border border-gray-200 rounded-lg p-4">
-                                <div className="flex items-center justify-between mb-2">
-                                    <p className="text-sm font-medium text-gray-600">{metric.label}</p>
-                                    <span className={`text-sm ${
-                                        metric.trend === 'up' ? 'text-green-600' :
-                                        metric.trend === 'down' ? 'text-red-600' : 'text-gray-600'
-                                    }`}>
-                                        {getTrendIcon(metric.trend)}
-                                    </span>
-                                </div>
-                                <div className="flex items-baseline">
-                                    <span className={`text-xl font-bold ${isGood ? 'text-green-600' : 'text-yellow-600'}`}>
-                                        {metric.value}{metric.unit}
-                                    </span>
-                                    <span className="text-sm text-gray-500 ml-2">
-                                        vs {metric.benchmark}{metric.unit}
-                                    </span>
-                                </div>
-                                <p className="text-xs text-gray-500 mt-1">{metric.description}</p>
                             </div>
                         );
                     })}
@@ -471,295 +340,86 @@ const SchedulesMenu: React.FC = () => {
                 })}
             </div>
 
-            {/* Two Column Layout for Milestones and Critical Path */}
+            {/* Two Column Layout for Recent Activities */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Recent Updates */}
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-semibold text-gray-900">Actualizaciones Recientes</h2>
+                        <Link
+                            to="/cronogramas/general"
+                            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                        >
+                            Ver todas →
+                        </Link>
+                    </div>
+
+                    <div className="space-y-3">
+                        {recentUpdates.map((update) => (
+                            <div key={update.id} className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                                <div className="flex-shrink-0 mt-1">
+                                    {getUpdateIcon(update.type)}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h4 className="text-sm font-medium text-gray-900">{update.title}</h4>
+                                    <p className="text-sm text-gray-600 mt-1">{update.description}</p>
+                                    <div className="flex items-center justify-between mt-2">
+                                        <span className="text-xs text-gray-500">{formatTime(update.timestamp)}</span>
+                                        <span className={`px-2 py-1 text-xs font-medium rounded ${
+                                            update.impact === 'high' ? 'bg-red-100 text-red-600' :
+                                            update.impact === 'medium' ? 'bg-yellow-100 text-yellow-600' :
+                                            'bg-green-100 text-green-600'
+                                        }`}>
+                                            {update.impact === 'high' ? 'Alto Impacto' :
+                                             update.impact === 'medium' ? 'Medio Impacto' : 'Bajo Impacto'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
                 {/* Upcoming Milestones */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg font-semibold text-gray-900">Próximos Hitos</h2>
                         <Link
                             to="/cronogramas/fechas-importantes"
-                            className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center"
+                            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                         >
-                            Ver todos <Eye className="w-4 h-4 ml-1" />
+                            Ver todos →
                         </Link>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                         {upcomingMilestones.map((milestone) => (
-                            <div key={milestone.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                                <div className="flex items-start justify-between mb-2">
-                                    <div className="flex-1">
-                                        <div className="flex items-center space-x-2 mb-1">
-                                            <span className="text-sm font-medium text-gray-500">{milestone.id}</span>
-                                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(milestone.status)}`}>
-                                                {getStatusLabel(milestone.status)}
-                                            </span>
-                                            {getImportanceIcon(milestone.importance)}
-                                        </div>
-                                        <h4 className="font-medium text-gray-900">{milestone.title}</h4>
-                                        <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
-                                            <span>{milestone.discipline}</span>
-                                            <span>•</span>
-                                            <span>{milestone.contractor}</span>
-                                        </div>
-                                    </div>
+                            <div key={milestone.id} className={`p-4 rounded-lg border ${getPriorityColor(milestone.priority)}`}>
+                                <div className="flex items-center justify-between mb-2">
+                                    <h4 className="font-medium text-gray-900">{milestone.title}</h4>
+                                    <span className={`text-sm font-medium ${getStatusColor(milestone.status)}`}>
+                                        {milestone.daysLeft} días
+                                    </span>
                                 </div>
-                                
-                                {/* Progress bar */}
-                                <div className="mb-3">
-                                    <div className="flex items-center justify-between text-sm mb-1">
-                                        <span className="text-gray-600">Progreso</span>
-                                        <span className="font-medium">{milestone.progress}%</span>
-                                    </div>
-                                    <div className="w-full bg-gray-200 rounded-full h-2">
-                                        <div
-                                            className={`h-2 rounded-full transition-all duration-300 ${
-                                                milestone.status === 'on_track' ? 'bg-green-500' :
-                                                milestone.status === 'at_risk' ? 'bg-yellow-500' : 
-                                                milestone.status === 'delayed' ? 'bg-red-500' : 'bg-blue-500'
-                                            }`}
-                                            style={{ width: `${milestone.progress}%` }}
-                                        ></div>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center justify-between text-sm text-gray-500">
-                                    <span className="flex items-center">
-                                        <Calendar className="w-4 h-4 mr-1" />
+                                <div className="flex items-center justify-between text-sm">
+                                    <span className="text-gray-600">
                                         {new Date(milestone.date).toLocaleDateString('es-PE', {
                                             day: '2-digit',
                                             month: '2-digit',
                                             year: 'numeric'
                                         })}
                                     </span>
-                                    <span className={`font-medium ${
-                                        milestone.daysRemaining <= 7 ? 'text-red-600' :
-                                        milestone.daysRemaining <= 21 ? 'text-yellow-600' : 'text-green-600'
+                                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                        milestone.priority === 'critical' ? 'bg-red-100 text-red-600' :
+                                        milestone.priority === 'high' ? 'bg-orange-100 text-orange-600' :
+                                        'bg-yellow-100 text-yellow-600'
                                     }`}>
-                                        {milestone.daysRemaining} días restantes
+                                        {milestone.priority === 'critical' ? 'CRÍTICO' :
+                                         milestone.priority === 'high' ? 'ALTO' : 'MEDIO'}
                                     </span>
                                 </div>
                             </div>
                         ))}
-                    </div>
-                </div>
-
-                {/* Critical Path Activities */}
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-semibold text-gray-900">Actividades Críticas</h2>
-                        <Link
-                            to="/cronogramas/ruta-critica"
-                            className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center"
-                        >
-                            Ver ruta completa <Route className="w-4 h-4 ml-1" />
-                        </Link>
-                    </div>
-
-                    <div className="space-y-4">
-                        {criticalActivities.map((activity) => (
-                            <div key={activity.id} className={`border rounded-lg p-4 hover:bg-gray-50 transition-colors ${getRiskColor(activity.riskLevel)}`}>
-                                <div className="flex items-start justify-between mb-2">
-                                    <div className="flex-1">
-                                        <div className="flex items-center space-x-2 mb-1">
-                                            <span className="text-sm font-medium text-gray-500">{activity.id}</span>
-                                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                                                activity.slack === 0 ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
-                                            }`}>
-                                                Slack: {activity.slack} días
-                                            </span>
-                                            <span className={`text-xs font-medium uppercase ${getSlackColor(activity.slack)}`}>
-                                                {activity.riskLevel}
-                                            </span>
-                                        </div>
-                                        <h4 className="font-medium text-gray-900">{activity.name}</h4>
-                                        <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
-                                            <span>{activity.discipline}</span>
-                                            <span>•</span>
-                                            <span>{activity.responsible}</span>
-                                        </div>
-                                        <p className="text-xs text-gray-500 mt-1">{activity.impact}</p>
-                                    </div>
-                                    <div className={`p-2 rounded-lg ${activity.slack === 0 ? 'bg-red-50' : 'bg-yellow-50'}`}>
-                                        <Zap className={`w-4 h-4 ${getSlackColor(activity.slack)}`} />
-                                    </div>
-                                </div>
-                                
-                                {/* Progress bar */}
-                                <div className="mb-3">
-                                    <div className="flex items-center justify-between text-sm mb-1">
-                                        <span className="text-gray-600">Progreso</span>
-                                        <span className="font-medium">{activity.progress}%</span>
-                                    </div>
-                                    <div className="w-full bg-gray-200 rounded-full h-2">
-                                        <div
-                                            className={`h-2 rounded-full transition-all duration-300 ${
-                                                activity.slack === 0 ? 'bg-red-500' : 'bg-yellow-500'
-                                            }`}
-                                            style={{ width: `${activity.progress}%` }}
-                                        ></div>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center justify-between text-sm text-gray-500">
-                                    <span className="flex items-center">
-                                        <Calendar className="w-4 h-4 mr-1" />
-                                        {new Date(activity.startDate).toLocaleDateString('es-PE', {
-                                            day: '2-digit',
-                                            month: '2-digit'
-                                        })} - {new Date(activity.endDate).toLocaleDateString('es-PE', {
-                                            day: '2-digit',
-                                            month: '2-digit'
-                                        })}
-                                    </span>
-                                    <button className="text-blue-600 hover:text-blue-700 text-xs font-medium">
-                                        Ver detalles
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            {/* Critical Path Alert */}
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-                <div className="flex items-start space-x-3">
-                    <AlertCircle className="w-6 h-6 text-red-600 mt-0.5 flex-shrink-0" />
-                    <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-red-900 mb-2">Alerta de Ruta Crítica</h3>
-                        <p className="text-red-800 mb-3">
-                            Se han identificado <strong>2 actividades críticas</strong> con slack cero que requieren atención inmediata. 
-                            Cualquier retraso en estas actividades impactará directamente la fecha de entrega del proyecto.
-                        </p>
-                        <div className="bg-red-100 border border-red-200 rounded-lg p-3 mb-3">
-                            <h4 className="font-medium text-red-900 mb-2">Actividades de Mayor Riesgo:</h4>
-                            <ul className="text-sm text-red-800 space-y-1">
-                                <li>• <strong>Instalación Chiller Principal</strong> - 0 días de holgura, 30% progreso</li>
-                                <li>• <strong>Pruebas Hidráulicas Sistema Principal</strong> - 0 días de holgura, sin iniciar</li>
-                            </ul>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                            <Link
-                                to="/cronogramas/ruta-critica"
-                                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                            >
-                                Ver Análisis Completo
-                            </Link>
-                            <Link
-                                to="/programacion-semanal/seguimiento"
-                                className="px-4 py-2 bg-white text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
-                            >
-                                Actualizar Progreso
-                            </Link>
-                            <button className="px-4 py-2 bg-white text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors flex items-center">
-                                <Settings className="w-4 h-4 mr-2" />
-                                Configurar Alertas
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Performance Summary */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Resumen de Rendimiento</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Schedule Performance Index */}
-                    <div className="text-center">
-                        <div className="relative inline-flex items-center justify-center w-24 h-24 mb-3">
-                            <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                                <circle
-                                    cx="50"
-                                    cy="50"
-                                    r="40"
-                                    stroke="#e5e7eb"
-                                    strokeWidth="8"
-                                    fill="none"
-                                />
-                                <circle
-                                    cx="50"
-                                    cy="50"
-                                    r="40"
-                                    stroke="#10b981"
-                                    strokeWidth="8"
-                                    fill="none"
-                                    strokeDasharray={`${0.91 * 251.2} 251.2`}
-                                    strokeLinecap="round"
-                                />
-                            </svg>
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <span className="text-xl font-bold text-gray-900">0.91</span>
-                            </div>
-                        </div>
-                        <h3 className="font-medium text-gray-900">SPI (Schedule Performance Index)</h3>
-                        <p className="text-sm text-gray-600 mt-1">Por encima de 0.8 es aceptable</p>
-                        <p className="text-xs text-green-600 mt-1">✓ Rendimiento bueno</p>
-                    </div>
-
-                    {/* Cost Performance Index */}
-                    <div className="text-center">
-                        <div className="relative inline-flex items-center justify-center w-24 h-24 mb-3">
-                            <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                                <circle
-                                    cx="50"
-                                    cy="50"
-                                    r="40"
-                                    stroke="#e5e7eb"
-                                    strokeWidth="8"
-                                    fill="none"
-                                />
-                                <circle
-                                    cx="50"
-                                    cy="50"
-                                    r="40"
-                                    stroke="#f59e0b"
-                                    strokeWidth="8"
-                                    fill="none"
-                                    strokeDasharray={`${0.87 * 251.2} 251.2`}
-                                    strokeLinecap="round"
-                                />
-                            </svg>
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <span className="text-xl font-bold text-gray-900">0.87</span>
-                            </div>
-                        </div>
-                        <h3 className="font-medium text-gray-900">CPI (Cost Performance Index)</h3>
-                        <p className="text-sm text-gray-600 mt-1">Relación costo vs avance</p>
-                        <p className="text-xs text-yellow-600 mt-1">△ Monitorear de cerca</p>
-                    </div>
-
-                    {/* Overall Health */}
-                    <div className="text-center">
-                        <div className="relative inline-flex items-center justify-center w-24 h-24 mb-3">
-                            <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
-                                <circle
-                                    cx="50"
-                                    cy="50"
-                                    r="40"
-                                    stroke="#e5e7eb"
-                                    strokeWidth="8"
-                                    fill="none"
-                                />
-                                <circle
-                                    cx="50"
-                                    cy="50"
-                                    r="40"
-                                    stroke="#3b82f6"
-                                    strokeWidth="8"
-                                    fill="none"
-                                    strokeDasharray={`${0.83 * 251.2} 251.2`}
-                                    strokeLinecap="round"
-                                />
-                            </svg>
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                <span className="text-xl font-bold text-gray-900">83%</span>
-                            </div>
-                        </div>
-                        <h3 className="font-medium text-gray-900">Salud General del Proyecto</h3>
-                        <p className="text-sm text-gray-600 mt-1">Índice compuesto de rendimiento</p>
-                        <p className="text-xs text-blue-600 mt-1">◉ Proyecto saludable</p>
                     </div>
                 </div>
             </div>
@@ -773,90 +433,29 @@ const SchedulesMenu: React.FC = () => {
                         className="flex items-center p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors"
                     >
                         <Upload className="w-5 h-5 text-blue-600 mr-3" />
-                        <span className="text-sm font-medium text-blue-900">Actualizar Cronograma</span>
-                    </Link>
-                    <Link
-                        to="/cronogramas/general"
-                        className="flex items-center p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors"
-                    >
-                        <BarChart3 className="w-5 h-5 text-blue-600 mr-3" />
-                        <span className="text-sm font-medium text-blue-900">Generar Reporte</span>
+                        <span className="text-sm font-medium text-blue-900">Cargar Cronograma</span>
                     </Link>
                     <Link
                         to="/cronogramas/ruta-critica"
                         className="flex items-center p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors"
                     >
                         <Route className="w-5 h-5 text-blue-600 mr-3" />
-                        <span className="text-sm font-medium text-blue-900">Analizar Críticas</span>
+                        <span className="text-sm font-medium text-blue-900">Ruta Crítica</span>
+                    </Link>
+                    <Link
+                        to="/cronogramas/general"
+                        className="flex items-center p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors"
+                    >
+                        <BarChart3 className="w-5 h-5 text-blue-600 mr-3" />
+                        <span className="text-sm font-medium text-blue-900">Vista General</span>
                     </Link>
                     <Link
                         to="/cronogramas/fechas-importantes"
                         className="flex items-center p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors"
                     >
-                        <Flag className="w-5 h-5 text-blue-600 mr-3" />
-                        <span className="text-sm font-medium text-blue-900">Revisar Hitos</span>
+                        <Calendar className="w-5 h-5 text-blue-600 mr-3" />
+                        <span className="text-sm font-medium text-blue-900">Fechas Importantes</span>
                     </Link>
-                </div>
-            </div>
-
-            {/* Team Performance */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Rendimiento por Equipo</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {[
-                        { team: 'HVAC Solutions S.A.C.', discipline: 'HVAC', performance: 92, activities: 8, onTime: 87 },
-                        { team: 'Electro Instalaciones Perú', discipline: 'Eléctrico', performance: 88, activities: 6, onTime: 95 },
-                        { team: 'Plomería Industrial SAC', discipline: 'Plomería', performance: 76, activities: 5, onTime: 70 },
-                        { team: 'Fire Protection Corp.', discipline: 'Protección Contra Incendios', performance: 94, activities: 3, onTime: 90 },
-                        { team: 'MEP Contractors Inc.', discipline: 'Mecánico', performance: 85, activities: 4, onTime: 88 },
-                        { team: 'Coordinación General', discipline: 'Gestión', performance: 91, activities: 12, onTime: 85 }
-                    ].map((team, index) => (
-                        <div key={index} className="border border-gray-200 rounded-lg p-4">
-                            <div className="flex items-center space-x-3 mb-3">
-                                <div className={`p-2 rounded-lg ${
-                                    team.performance >= 90 ? 'bg-green-100' :
-                                    team.performance >= 80 ? 'bg-blue-100' :
-                                    team.performance >= 70 ? 'bg-yellow-100' : 'bg-red-100'
-                                }`}>
-                                    <Users className={`w-4 h-4 ${
-                                        team.performance >= 90 ? 'text-green-600' :
-                                        team.performance >= 80 ? 'text-blue-600' :
-                                        team.performance >= 70 ? 'text-yellow-600' : 'text-red-600'
-                                    }`} />
-                                </div>
-                                <div className="flex-1">
-                                    <h4 className="font-medium text-gray-900 text-sm">{team.team}</h4>
-                                    <p className="text-xs text-gray-500">{team.discipline}</p>
-                                </div>
-                            </div>
-                            
-                            <div className="space-y-2">
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-gray-600">Rendimiento</span>
-                                    <span className={`font-medium ${
-                                        team.performance >= 90 ? 'text-green-600' :
-                                        team.performance >= 80 ? 'text-blue-600' :
-                                        team.performance >= 70 ? 'text-yellow-600' : 'text-red-600'
-                                    }`}>{team.performance}%</span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div
-                                        className={`h-2 rounded-full transition-all duration-300 ${
-                                            team.performance >= 90 ? 'bg-green-500' :
-                                            team.performance >= 80 ? 'bg-blue-500' :
-                                            team.performance >= 70 ? 'bg-yellow-500' : 'bg-red-500'
-                                        }`}
-                                        style={{ width: `${team.performance}%` }}
-                                    ></div>
-                                </div>
-                                
-                                <div className="flex justify-between text-xs text-gray-500 pt-1">
-                                    <span>{team.activities} actividades</span>
-                                    <span>{team.onTime}% a tiempo</span>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
                 </div>
             </div>
 
@@ -865,39 +464,29 @@ const SchedulesMenu: React.FC = () => {
                 <h3 className="text-lg font-semibold text-blue-900 mb-3">Gestión de Cronogramas MEP</h3>
                 <div className="text-sm text-blue-800 space-y-3">
                     <p>
-                        <strong>Gestión de Cronogramas</strong> proporciona herramientas avanzadas para el control y monitoreo 
-                        del cronograma maestro, con análisis automático de ruta crítica y seguimiento de hitos clave.
+                        <strong>Gestión de Cronogramas</strong> centraliza el control del cronograma maestro del proyecto, 
+                        permitiendo la integración con herramientas como MS Project y Primavera P6, análisis de ruta crítica 
+                        y seguimiento de fechas importantes.
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                         <div>
-                            <h4 className="font-medium mb-2">Funcionalidades avanzadas:</h4>
+                            <h4 className="font-medium mb-2">Características principales:</h4>
                             <ul className="space-y-1 text-sm">
+                                <li>• Importación desde múltiples formatos</li>
                                 <li>• Análisis automático de ruta crítica</li>
-                                <li>• Integración con cronograma maestro</li>
-                                <li>• Alertas tempranas de retrasos</li>
-                                <li>• Seguimiento de hitos contractuales</li>
-                                <li>• Métricas de rendimiento (SPI/CPI)</li>
-                                <li>• Análisis de tendencias y proyecciones</li>
+                                <li>• Visualizaciones interactivas</li>
+                                <li>• Sistema de notificaciones</li>
                             </ul>
                         </div>
                         <div>
-                            <h4 className="font-medium mb-2">Beneficios del control:</h4>
+                            <h4 className="font-medium mb-2">Beneficios:</h4>
                             <ul className="space-y-1 text-sm">
-                                <li>• Cumplimiento de fechas contractuales</li>
-                                <li>• Optimización de recursos</li>
-                                <li>• Reducción de tiempos muertos</li>
-                                <li>• Mejor coordinación interdisciplinaria</li>
-                                <li>• Detección temprana de problemas</li>
-                                <li>• Toma de decisiones basada en datos</li>
+                                <li>• Control centralizado del cronograma</li>
+                                <li>• Identificación temprana de riesgos</li>
+                                <li>• Mejor coordinación de equipos</li>
+                                <li>• Seguimiento automatizado</li>
                             </ul>
                         </div>
-                    </div>
-                    <div className="mt-4 p-3 bg-blue-100 rounded-lg">
-                        <h4 className="font-medium text-blue-900 mb-1">Recomendación:</h4>
-                        <p className="text-sm">
-                            Revisar semanalmente las actividades críticas y actualizar el progreso para mantener 
-                            la precisión del análisis de ruta crítica.
-                        </p>
                     </div>
                 </div>
             </div>

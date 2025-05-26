@@ -38,6 +38,16 @@ import FormalCommunications from './pages/messages/FormalCommunications';
 import NotificationsSystem from './pages/messages/NotificationsSystem';
 import DirectMessaging from './pages/messages/DirectMessaging';
 
+import MasterScheduleUpload from './pages/schedules/MasterScheduleUpload';
+import CriticalPathAnalysis from './pages/schedules/CriticalPathAnalysis';
+import ImportantDatesTracking from './pages/schedules/ImportantDatesTracking';
+import ProjectOverview from './pages/schedules/ProjectOverview';
+
+import DocumentRepository from './pages/scope/DocumentRepository';
+import BidPackages from './pages/scope/BidPackages';
+import QAModule from './pages/scope/QAModule';
+import ScopeClarifications from './pages/scope/ScopeClarifications';
+
 // Páginas placeholder temporales
 const PlaceholderPage = ({ title }: { title: string }) => (
     <div className="p-6">
@@ -117,19 +127,19 @@ export const router = createBrowserRouter([
                     { index: true, element: <ScopeMenu /> },
                     {
                         path: 'repositorio',
-                        element: <PlaceholderPage title="Carga e Integración del Cronograma Maestro" />
+                        element: <DocumentRepository />
                     },
                     {
                         path: 'licitaciones',
-                        element: <PlaceholderPage title="Carga e Integración del Cronograma Maestro" />
+                        element: <BidPackages />
                     },
                     {
                         path: 'clarificaciones',
-                        element: <PlaceholderPage title="Carga e Integración del Cronograma Maestro" />
+                        element: <ScopeClarifications />
                     },
                     {
                         path: 'qa',
-                        element: <PlaceholderPage title="Carga e Integración del Cronograma Maestro" />
+                        element: <QAModule />
                     },
                 ],
             },
@@ -141,19 +151,19 @@ export const router = createBrowserRouter([
                     { index: true, element: <SchedulesMenu /> },
                     {
                         path: 'maestro',
-                        element: <PlaceholderPage title="Carga e Integración del Cronograma Maestro" />
+                        element: <MasterScheduleUpload />
                     },
                     {
                         path: 'general',
-                        element: <PlaceholderPage title="Visualización General del Proyecto" />
+                        element: <ProjectOverview />
                     },
                     {
                         path: 'ruta-critica',
-                        element: <PlaceholderPage title="Identificación y Monitoreo de la Ruta Crítica" />
+                        element: <CriticalPathAnalysis />
                     },
                     {
                         path: 'fechas-importantes',
-                        element: <PlaceholderPage title="Seguimiento de Fechas Importantes" />
+                        element: <ImportantDatesTracking />
                     },
                 ],
             },
