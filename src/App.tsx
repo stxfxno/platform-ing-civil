@@ -1,6 +1,6 @@
 // src/App.tsx
 import React from 'react';
-import { Outlet, Navigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import Layout from './components/common/Layout';
 import LoadingSpinner from './components/common/LoadingSpinner';

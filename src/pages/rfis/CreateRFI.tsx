@@ -6,8 +6,8 @@ import {
     ArrowLeft,
     Upload,
     X,
-    Calendar,
-    User,
+    //Calendar,
+    //User,
     AlertTriangle,
     Save,
     Send

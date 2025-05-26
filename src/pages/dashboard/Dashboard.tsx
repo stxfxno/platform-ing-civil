@@ -4,14 +4,14 @@ import { Link } from 'react-router-dom';
 import {
     FileQuestion,
     Calendar,
-    Target,
+    //Target,
     Clock,
     FileText,
     MessageCircle,
     AlertTriangle,
-    CheckCircle,
+    //CheckCircle,
     TrendingUp,
-    Users
+    //Users
 } from 'lucide-react';
 
 interface DashboardCard {
@@ -97,6 +97,7 @@ const quickActions: QuickAction[] = [
     }
 ];
 
+/*
 const recentActivities = [
     {
         id: 1,
@@ -131,6 +132,7 @@ const recentActivities = [
         status: 'warning'
     }
 ];
+*/
 
 const Dashboard: React.FC = () => {
     const getChangeColor = (type?: string) => {
@@ -140,7 +142,7 @@ const Dashboard: React.FC = () => {
             default: return 'text-gray-500';
         }
     };
-
+    /*
     const getActivityIcon = (type: string) => {
         switch (type) {
             case 'rfi': return <FileQuestion className="w-4 h-4" />;
@@ -158,7 +160,7 @@ const Dashboard: React.FC = () => {
             case 'updated': return 'text-blue-600 bg-blue-50';
             default: return 'text-gray-600 bg-gray-50';
         }
-    };
+    };*/
 
     return (
         <div className="space-y-6">

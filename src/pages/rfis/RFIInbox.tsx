@@ -19,7 +19,7 @@ import {
     Paperclip
 } from 'lucide-react';
 import type { RFI } from '../../types/rfi';
-import { MEP_DISCIPLINES, SYSTEM_PRIORITIES } from '../../types/common';
+import { MEP_DISCIPLINES } from '../../types/common';
 import rfisData from '../../data/rfis.json';
 
 interface RFIFilters {
@@ -63,7 +63,7 @@ const RFIInbox: React.FC = () => {
 
     // Filter and sort RFIs
     const filteredAndSortedRFIs = useMemo(() => {
-        let filtered = rfis.filter(rfi => {
+        const filtered = rfis.filter(rfi => {
             // Search term filter
             if (filters.searchTerm) {
                 const searchLower = filters.searchTerm.toLowerCase();
@@ -99,8 +99,8 @@ const RFIInbox: React.FC = () => {
 
         // Sort
         filtered.sort((a, b) => {
-            let aValue: any = a[sortField as keyof RFI];
-            let bValue: any = b[sortField as keyof RFI];
+            let aValue: string | number | undefined = a[sortField as keyof RFI] as string | number | undefined;
+            let bValue: string | number | undefined = b[sortField as keyof RFI] as string | number | undefined;
 
             if (sortField === 'priority') {
                 const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
@@ -108,8 +108,12 @@ const RFIInbox: React.FC = () => {
                 bValue = priorityOrder[b.priority as keyof typeof priorityOrder];
             }
 
-            if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-            if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+            // Provide fallback values if undefined
+            const aComp = aValue !== undefined ? aValue : '';
+            const bComp = bValue !== undefined ? bValue : '';
+
+            if (aComp < bComp) return sortDirection === 'asc' ? -1 : 1;
+            if (aComp > bComp) return sortDirection === 'asc' ? 1 : -1;
             return 0;
         });
 
