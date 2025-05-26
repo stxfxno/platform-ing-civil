@@ -13,6 +13,10 @@ import RFIHistory from './pages/rfis/RFIHistory';
 
 // Schedule (Programación Semanal)
 import ScheduleMenu from './pages/schedules/ScheduleMenu';
+import WeeklyActivities from './pages/schedules/WeeklyActivities';
+import ProgressTracking from './pages/schedules/ProgressTracking';
+import DependenciesCoordination from './pages/schedules/DependenciesCoordination';
+import ContractorReports from './pages/schedules/ContractorReports';
 
 // Scope (Alcance)
 import ScopeMenu from './pages/scope/ScopeMenu';
@@ -75,19 +79,19 @@ export const router = createBrowserRouter([
                     { index: true, element: <ScheduleMenu /> },
                     { 
                         path: 'actividades', 
-                        element: <PlaceholderPage title="Creación y Gestión de Actividades Semanales" /> 
+                        element: <WeeklyActivities />
                     },
                     { 
                         path: 'seguimiento', 
-                        element: <PlaceholderPage title="Seguimiento del Avance Diario/Semanal" /> 
+                        element: <ProgressTracking />
                     },
                     { 
                         path: 'dependencias', 
-                        element: <PlaceholderPage title="Dependencias y Coordinación" /> 
+                        element: <DependenciesCoordination />
                     },
                     { 
                         path: 'reportes-subcontratistas', 
-                        element: <PlaceholderPage title="Reporte de Subcontratistas" /> 
+                        element: <ContractorReports />
                     },
                 ],
             },
@@ -99,19 +103,19 @@ export const router = createBrowserRouter([
                     { index: true, element: <ScopeMenu /> },
                     { 
                         path: 'repositorio', 
-                        element: <PlaceholderPage title="Repositorio de Documentos de Alcance" /> 
+                        element: <PlaceholderPage title="Carga e Integración del Cronograma Maestro" /> 
                     },
                     { 
                         path: 'licitaciones', 
-                        element: <PlaceholderPage title="Gestión de Paquetes de Licitación MEP" /> 
+                        element: <PlaceholderPage title="Carga e Integración del Cronograma Maestro" /> 
                     },
                     { 
                         path: 'clarificaciones', 
-                        element: <PlaceholderPage title="Clarificación del Alcance" /> 
+                        element: <PlaceholderPage title="Carga e Integración del Cronograma Maestro" /> 
                     },
                     { 
                         path: 'qa', 
-                        element: <PlaceholderPage title="Módulo de Preguntas y Respuestas (Q&A)" /> 
+                        element: <PlaceholderPage title="Carga e Integración del Cronograma Maestro" /> 
                     },
                 ],
             },
