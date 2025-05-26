@@ -42,9 +42,9 @@ interface NotificationSetting {
 
 const ImportantDatesTracking: React.FC = () => {
     const [selectedView, setSelectedView] = useState<'calendar' | 'list' | 'timeline'>('calendar');
-    const [selectedMonth, setSelectedMonth] = useState(new Date());
+    const [selectedMonth,] = useState(new Date()); //setSelectedMonth
     const [selectedType, setSelectedType] = useState<string>('all');
-    const [showAddModal, setShowAddModal] = useState(false);
+    const [, setShowAddModal] = useState(false); //showAddModal
 
     const importantDates: ImportantDate[] = [
         {

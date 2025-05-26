@@ -23,7 +23,7 @@ interface UploadedFile {
 }
 
 const MasterScheduleUpload: React.FC = () => {
-    const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([
+    const [uploadedFiles, ] = useState<UploadedFile[]>([ //setUploadedFiles
         {
             name: 'Cronograma_MEP_Master_v2.1.mpp',
             size: 2048000,
