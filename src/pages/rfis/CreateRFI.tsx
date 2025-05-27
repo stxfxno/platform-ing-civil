@@ -214,8 +214,10 @@ const CreateRFI: React.FC = () => {
         setConsultaData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value, type, checked } = e.target;
+        const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value, type } = e.target;
+        const checked = (e.target as HTMLInputElement).checked;
+        
         if (type === 'checkbox') {
             setEmailData(prev => ({ ...prev, [name]: checked }));
         } else {
