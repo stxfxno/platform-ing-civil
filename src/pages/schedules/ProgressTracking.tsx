@@ -183,7 +183,7 @@ const ProgressTracking: React.FC = () => {
                         <TrendingUp className="w-8 h-8 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Seguimiento del Avance Diario/Semanal</h1>
+                        <h1 className="text-2xl font-bold text-gray-900">Seguimiento del Avance Semanal</h1>
                         <p className="text-gray-600">Registro y comparación del progreso real vs. planificado</p>
                     </div>
                 </div>
@@ -613,7 +613,7 @@ const ProgressTracking: React.FC = () => {
                 <h3 className="text-lg font-semibold text-blue-900 mb-3">Seguimiento del Avance MEP</h3>
                 <div className="text-sm text-blue-800 space-y-3">
                     <p>
-                        <strong>Seguimiento del Avance Diario/Semanal</strong> permite registrar y comparar el progreso 
+                        <strong>Seguimiento del Avance Semanal</strong> permite registrar y comparar el progreso 
                         real de las actividades MEP contra lo planificado, identificando desviaciones tempranas.
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">

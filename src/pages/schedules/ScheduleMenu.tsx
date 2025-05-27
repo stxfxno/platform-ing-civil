@@ -41,7 +41,7 @@ const menuOptions: MenuOption[] = [
         }
     },
     {
-        title: 'Seguimiento del Avance Diario/Semanal',
+        title: 'Seguimiento del Avance Semanal',
         description: 'Registro del progreso real de las actividades. Comparación visual del avance real vs. planificado. Identificación de retrasos y posibles desviaciones para las actividades MEP.',
         path: '/programacion-semanal/seguimiento',
         icon: TrendingUp,

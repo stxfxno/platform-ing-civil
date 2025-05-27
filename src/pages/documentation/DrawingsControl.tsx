@@ -12,6 +12,7 @@ import {
     AlertCircle,
     ArrowLeft
 } from 'lucide-react';
+import { downloadFile, previewFile } from '../../utils/fileUtils'; //canPreviewInBrowser
 
 interface Drawing {
     id: string;
@@ -116,6 +117,16 @@ const DrawingsControl: React.FC = () => {
             case 'superseded': return 'Superseded';
             default: return status;
         }
+    };
+
+    const handleDownload = (drawing: Drawing) => {
+        // Usar el archivo de prueba para todas las descargas
+        downloadFile('documento_prueba.docx', `${drawing.drawingNumber}_${drawing.title}.docx`);
+    };
+
+    const handlePreview = (drawing: Drawing) => {
+        // Usar la nueva función de vista previa que no descarga permanentemente
+        previewFile('documento_prueba.docx', `${drawing.drawingNumber} - ${drawing.title}`);
     };
 
     const filteredDrawings = mockDrawings.filter(drawing => {
@@ -316,13 +327,21 @@ const DrawingsControl: React.FC = () => {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div className="flex items-center justify-end space-x-2">
-                                            <button className="text-blue-600 hover:text-blue-900 p-1 rounded">
+                                            <button 
+                                                onClick={() => handlePreview(drawing)}
+                                                className="text-blue-600 hover:text-blue-900 p-1 rounded transition-colors"
+                                                title="Vista previa"
+                                            >
                                                 <Eye className="w-4 h-4" />
                                             </button>
-                                            <button className="text-green-600 hover:text-green-900 p-1 rounded">
+                                            <button 
+                                                onClick={() => handleDownload(drawing)}
+                                                className="text-green-600 hover:text-green-900 p-1 rounded transition-colors"
+                                                title="Descargar"
+                                            >
                                                 <Download className="w-4 h-4" />
                                             </button>
-                                            <button className="text-gray-600 hover:text-gray-900 p-1 rounded">
+                                            <button className="text-gray-600 hover:text-gray-900 p-1 rounded transition-colors">
                                                 <Edit className="w-4 h-4" />
                                             </button>
                                         </div>
