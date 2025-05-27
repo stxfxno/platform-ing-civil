@@ -326,7 +326,7 @@ const RFIHistory: React.FC = () => {
                         <div className="absolute left-8 top-0 bottom-0 w-px bg-gray-200"></div>
                         
                         <div className="space-y-8">
-                            {filteredRFIs.map((rfi, index) => (
+                            {filteredRFIs.map((rfi) => (  //index
                                 <div key={rfi.id} className="relative flex items-start space-x-4">
                                     {/* Timeline dot */}
                                     <div className={`relative z-10 flex items-center justify-center w-8 h-8 rounded-full ${statusConfig[rfi.status as keyof typeof statusConfig]?.color || 'bg-gray-100'}`}>
