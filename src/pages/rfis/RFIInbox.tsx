@@ -16,7 +16,12 @@ import {
     Eye,
     Edit,
     MessageSquare,
-    Paperclip
+    Paperclip,
+    Trash2,
+    Reply,
+    Send,
+    X,
+    Check
 } from 'lucide-react';
 import type { RFI } from '../../types/rfi';
 import { MEP_DISCIPLINES } from '../../types/common';
@@ -28,6 +33,18 @@ interface RFIFilters {
     discipline: string[];
     assignedTo: string[];
     searchTerm: string;
+}
+
+interface ReplyModalData {
+    isOpen: boolean;
+    rfi: RFI | null;
+    response: string;
+    responseStatus: string;
+    followUpPriority: string;
+    notifyOthers: boolean;
+    attachFiles: boolean;
+    isSubmitting: boolean;
+    showSuccess: boolean;
 }
 
 const RFIInbox: React.FC = () => {
@@ -42,6 +59,17 @@ const RFIInbox: React.FC = () => {
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
     const [showFilters, setShowFilters] = useState(false);
     const [selectedRFIs, setSelectedRFIs] = useState<string[]>([]);
+    const [replyModal, setReplyModal] = useState<ReplyModalData>({
+        isOpen: false,
+        rfi: null,
+        response: '',
+        responseStatus: 'responded',
+        followUpPriority: 'none',
+        notifyOthers: false,
+        attachFiles: false,
+        isSubmitting: false,
+        showSuccess: false
+    });
 
     const rfis: RFI[] = rfisData.rfis as RFI[];
     const users = rfisData.users;
@@ -160,6 +188,89 @@ const RFIInbox: React.FC = () => {
                 ? []
                 : filteredAndSortedRFIs.map(rfi => rfi.id)
         );
+    };
+
+    const handleDeleteRFI = (rfiId: string) => {
+        const rfi = rfis.find(r => r.id === rfiId);
+        if (confirm(`¿Está seguro de que desea eliminar la RFI "${rfi?.rfiNumber}"? Esta acción no se puede deshacer.`)) {
+            // Aquí iría la lógica para eliminar la RFI
+            console.log('Eliminando RFI:', rfiId);
+            alert('RFI eliminada correctamente');
+        }
+    };
+
+    const handleReplyRFI = (rfi: RFI) => {
+        setReplyModal({
+            isOpen: true,
+            rfi: rfi,
+            response: '',
+            responseStatus: 'responded',
+            followUpPriority: 'none',
+            notifyOthers: false,
+            attachFiles: false,
+            isSubmitting: false,
+            showSuccess: false
+        });
+    };
+
+    const handleSubmitReply = async () => {
+        if (!replyModal.response.trim()) {
+            alert('Por favor, escriba una respuesta');
+            return;
+        }
+
+        if (replyModal.response.trim().length < 10) {
+            alert('La respuesta debe tener al menos 10 caracteres');
+            return;
+        }
+
+        setReplyModal(prev => ({ ...prev, isSubmitting: true }));
+
+        // Simular envío
+        setTimeout(() => {
+            setReplyModal(prev => ({ 
+                ...prev, 
+                isSubmitting: false, 
+                showSuccess: true 
+            }));
+
+            setTimeout(() => {
+                setReplyModal({
+                    isOpen: false,
+                    rfi: null,
+                    response: '',
+                    responseStatus: 'responded',
+                    followUpPriority: 'none',
+                    notifyOthers: false,
+                    attachFiles: false,
+                    isSubmitting: false,
+                    showSuccess: false
+                });
+            }, 2000);
+        }, 1500);
+    };
+
+    const closeReplyModal = () => {
+        if (replyModal.isSubmitting) return;
+        
+        setReplyModal({
+            isOpen: false,
+            rfi: null,
+            response: '',
+            responseStatus: 'responded',
+            followUpPriority: 'none',
+            notifyOthers: false,
+            attachFiles: false,
+            isSubmitting: false,
+            showSuccess: false
+        });
+    };
+
+    const handleReplyModalChange = (field: string, value: string | boolean) => {
+        setReplyModal(prev => ({
+            ...prev,
+            [field]: value
+        }));
     };
 
     const getUserName = (userId: string) => {
@@ -475,13 +586,33 @@ const RFIInbox: React.FC = () => {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div className="flex items-center space-x-2">
-                                                <button className="text-blue-600 hover:text-blue-900 p-1 rounded">
+                                                <button 
+                                                    className="text-blue-600 hover:text-blue-900 p-1 rounded transition-colors"
+                                                    title="Ver"
+                                                >
                                                     <Eye className="w-4 h-4" />
                                                 </button>
-                                                <button className="text-gray-600 hover:text-gray-900 p-1 rounded">
+                                                <button 
+                                                    onClick={() => handleReplyRFI(rfi)}
+                                                    className="text-green-600 hover:text-green-900 p-1 rounded transition-colors"
+                                                    title="Responder"
+                                                >
+                                                    <Reply className="w-4 h-4" />
+                                                </button>
+                                                <button 
+                                                    className="text-gray-600 hover:text-gray-900 p-1 rounded transition-colors"
+                                                    title="Editar"
+                                                >
                                                     <Edit className="w-4 h-4" />
                                                 </button>
-                                                <button className="text-gray-600 hover:text-gray-900 p-1 rounded">
+                                                <button 
+                                                    onClick={() => handleDeleteRFI(rfi.id)}
+                                                    className="text-red-600 hover:text-red-900 p-1 rounded transition-colors"
+                                                    title="Eliminar"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                                <button className="text-gray-600 hover:text-gray-900 p-1 rounded transition-colors">
                                                     <MoreHorizontal className="w-4 h-4" />
                                                 </button>
                                             </div>
@@ -575,6 +706,214 @@ const RFIInbox: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Reply Modal */}
+            {replyModal.isOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                        {replyModal.showSuccess ? (
+                            // Success State
+                            <div className="p-8 text-center">
+                                <div className="animate-bounce mb-6">
+                                    <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto">
+                                        <Check className="w-8 h-8 text-white" />
+                                    </div>
+                                </div>
+                                <h2 className="text-2xl font-bold text-gray-900 mb-2">¡Mensaje enviado correctamente!</h2>
+                                <p className="text-gray-600">
+                                    La respuesta a la RFI {replyModal.rfi?.rfiNumber} ha sido enviada exitosamente.
+                                </p>
+                            </div>
+                        ) : (
+                            // Reply Form
+                            <>
+                                {/* Modal Header */}
+                                <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                                    <div className="flex items-center space-x-3">
+                                        <div className="p-2 bg-green-100 rounded-lg">
+                                            <Reply className="w-5 h-5 text-green-600" />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-lg font-semibold text-gray-900">Responder RFI</h2>
+                                            <p className="text-sm text-gray-600">{replyModal.rfi?.rfiNumber}</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={closeReplyModal}
+                                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                                        disabled={replyModal.isSubmitting}
+                                    >
+                                        <X className="w-6 h-6" />
+                                    </button>
+                                </div>
+
+                                {/* Modal Body */}
+                                <div className="p-6 space-y-6">
+                                    {/* RFI Info */}
+                                    <div className="bg-gray-50 rounded-lg p-4">
+                                        <h3 className="font-medium text-gray-900 mb-3">Información de la RFI</h3>
+                                        <div className="space-y-2 text-sm">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div><span className="font-medium">Título:</span> {replyModal.rfi?.title}</div>
+                                                <div><span className="font-medium">Número:</span> {replyModal.rfi?.rfiNumber}</div>
+                                                <div><span className="font-medium">Solicitado por:</span> {getUserName(replyModal.rfi?.requestedBy || '')}</div>
+                                                <div><span className="font-medium">Fecha:</span> {formatDate(replyModal.rfi?.createdAt || '')}</div>
+                                                <div><span className="font-medium">Prioridad:</span> 
+                                                    <span className={`ml-2 px-2 py-1 text-xs rounded-full ${priorityConfig[replyModal.rfi?.priority as keyof typeof priorityConfig]?.color || 'bg-gray-100 text-gray-800'}`}>
+                                                        {priorityConfig[replyModal.rfi?.priority as keyof typeof priorityConfig]?.label || replyModal.rfi?.priority}
+                                                    </span>
+                                                </div>
+                                                <div><span className="font-medium">Ubicación:</span> {replyModal.rfi?.location || 'No especificada'}</div>
+                                            </div>
+                                        </div>
+                                        <div className="mt-3">
+                                            <span className="font-medium text-sm">Descripción:</span>
+                                            <p className="text-sm text-gray-700 mt-1 bg-white p-3 rounded border">{replyModal.rfi?.description}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Response Form */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                                            Escriba su respuesta *
+                                        </label>
+                                        <textarea
+                                            value={replyModal.response}
+                                            onChange={(e) => handleReplyModalChange('response', e.target.value)}
+                                            rows={8}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
+                                            placeholder="Proporcione una respuesta detallada a la consulta..."
+                                            disabled={replyModal.isSubmitting}
+                                        />
+                                        <div className="flex items-center justify-between mt-2">
+                                            <p className="text-xs text-gray-500">
+                                                Mínimo 10 caracteres. Se enviará automáticamente por correo al solicitante.
+                                            </p>
+                                            <p className="text-xs text-gray-500">
+                                                {replyModal.response.length} caracteres
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Response Details */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Estado de respuesta
+                                            </label>
+                                            <select 
+                                                value={replyModal.responseStatus}
+                                                onChange={(e) => handleReplyModalChange('responseStatus', e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                                disabled={replyModal.isSubmitting}
+                                            >
+                                                <option value="responded">Respondida</option>
+                                                <option value="needs_clarification">Necesita aclaración</option>
+                                                <option value="closed">Cerrada</option>
+                                                <option value="in_review">En revisión</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Prioridad de seguimiento
+                                            </label>
+                                            <select 
+                                                value={replyModal.followUpPriority}
+                                                onChange={(e) => handleReplyModalChange('followUpPriority', e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                                disabled={replyModal.isSubmitting}
+                                            >
+                                                <option value="none">Sin seguimiento</option>
+                                                <option value="low">Seguimiento bajo</option>
+                                                <option value="medium">Seguimiento medio</option>
+                                                <option value="high">Seguimiento alto</option>
+                                                <option value="urgent">Seguimiento urgente</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {/* Additional Options */}
+                                    <div className="space-y-3">
+                                        <div className="flex items-center">
+                                            <input
+                                                type="checkbox"
+                                                id="notify-others"
+                                                checked={replyModal.notifyOthers}
+                                                onChange={(e) => handleReplyModalChange('notifyOthers', e.target.checked)}
+                                                className="h-4 w-4 text-primary-600 rounded"
+                                                disabled={replyModal.isSubmitting}
+                                            />
+                                            <label htmlFor="notify-others" className="ml-2 text-sm text-gray-700">
+                                                Notificar a otros miembros del equipo
+                                            </label>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <input
+                                                type="checkbox"
+                                                id="attach-files"
+                                                checked={replyModal.attachFiles}
+                                                onChange={(e) => handleReplyModalChange('attachFiles', e.target.checked)}
+                                                className="h-4 w-4 text-primary-600 rounded"
+                                                disabled={replyModal.isSubmitting}
+                                            />
+                                            <label htmlFor="attach-files" className="ml-2 text-sm text-gray-700">
+                                                Incluir archivos adjuntos en la respuesta
+                                            </label>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <input
+                                                type="checkbox"
+                                                id="schedule-meeting"
+                                                className="h-4 w-4 text-primary-600 rounded"
+                                                disabled={replyModal.isSubmitting}
+                                            />
+                                            <label htmlFor="schedule-meeting" className="ml-2 text-sm text-gray-700">
+                                                Programar reunión de seguimiento
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Modal Footer */}
+                                <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
+                                    <div className="text-sm text-gray-500">
+                                        <div className="flex items-center space-x-1">
+                                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                            <span>La respuesta se enviará por correo electrónico automáticamente</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center space-x-3">
+                                        <button
+                                            onClick={closeReplyModal}
+                                            className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                                            disabled={replyModal.isSubmitting}
+                                        >
+                                            Cancelar
+                                        </button>
+                                        <button
+                                            onClick={handleSubmitReply}
+                                            disabled={replyModal.isSubmitting || !replyModal.response.trim() || replyModal.response.trim().length < 10}
+                                            className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors flex items-center space-x-2"
+                                        >
+                                            {replyModal.isSubmitting ? (
+                                                <>
+                                                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
+                                                    <span>Enviando...</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Send className="w-4 h-4" />
+                                                    <span>Enviar Respuesta</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
