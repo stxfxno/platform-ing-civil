@@ -44,7 +44,7 @@ const menuOptions: MenuOption[] = [
             trend: 'up'
         }
     },
-    {
+    /*{}
         title: 'Gestión de Paquetes de Licitación MEP',
         description: 'Creación y distribución de paquetes de documentos y requisitos específicos para la licitación de subcontratos MEP.',
         path: '/alcance/licitaciones',
@@ -55,7 +55,7 @@ const menuOptions: MenuOption[] = [
             label: 'Paquetes activos',
             trend: 'stable'
         }
-    },
+    },*/
     {
         title: 'Clarificación del Alcance',
         description: 'Sección para registrar y formalizar las clarificaciones y acuerdos sobre el alcance con cada subcontratista MEP.',

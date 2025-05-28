@@ -381,7 +381,7 @@ const ScheduleMenu: React.FC = () => {
                 </div>
             </div>
 
-            {/* Information Panel 
+            {/* Information Panel */}
             <div className="bg-green-50 border border-green-200 rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-green-900 mb-3">Gestión de Programación Semanal MEP</h3>
                 <div className="text-sm text-green-800 space-y-3">
@@ -410,7 +410,7 @@ const ScheduleMenu: React.FC = () => {
                         </div>
                     </div>
                 </div>
-            </div>*/}
+            </div>
         </div>
     );
 };
