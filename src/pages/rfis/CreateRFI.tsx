@@ -185,7 +185,20 @@ const CreateRFI: React.FC = () => {
         'Santiago Pacheco - Ing. de Producción',
         'Diego Villagómez - Ing. Estructural',
         'Luis Gamarra - Arquitecto',
-        'Víctor Solano - Ing. Residente'
+        'Víctor Solano - Ing. Residente',
+        'Ing. Carlos Mendoza - Instalaciones Mecánicas',
+        'Ing. María Santos - Instalaciones Eléctricas',
+        'Ing. Alberto Silva - Plomería',
+        'Ing. Jorge Ramírez - Sistema Contra Incendios',
+        'Ing. Ana López - HVAC',
+        'Ing. Luis Torres - Bombas y Equipos',
+        'Ing. Patricia Vega - Instalación de Gas',
+        'Arq. Carmen López - Arquitectura',
+        'Ing. Roberto Díaz - Estructuras',
+        'Ing. Elena Morales - SSOMA',
+        'Ing. Diego Molero - Modelado BIM',
+        'Ing. Fernando Rojas - Costos y Presupuestos'
+        
     ];
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
