@@ -1,6 +1,6 @@
 // src/pages/rfis/RFIInbox.tsx
 import React, { useState, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
     ArrowLeft,
     Search,
@@ -69,7 +69,6 @@ interface EditModalData {
 }
 
 const RFIInbox: React.FC = () => {
-    const navigate = useNavigate();
     const [filters, setFilters] = useState<RFIFilters>({
         status: [],
         priority: [],
@@ -80,7 +79,6 @@ const RFIInbox: React.FC = () => {
     const [sortField, setSortField] = useState<string>('createdAt');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
     const [showFilters, setShowFilters] = useState(false);
-    const [selectedRFIs, setSelectedRFIs] = useState<string[]>([]);
     const [replyModal, setReplyModal] = useState<ReplyModalData>({
         isOpen: false,
         rfi: null,
@@ -240,22 +238,6 @@ const RFIInbox: React.FC = () => {
             setSortField(field);
             setSortDirection('asc');
         }
-    };
-
-    const toggleSelectRFI = (rfiId: string) => {
-        setSelectedRFIs(prev =>
-            prev.includes(rfiId)
-                ? prev.filter(id => id !== rfiId)
-                : [...prev, rfiId]
-        );
-    };
-
-    const selectAllRFIs = () => {
-        setSelectedRFIs(
-            selectedRFIs.length === filteredAndSortedRFIs.length
-                ? []
-                : filteredAndSortedRFIs.map(rfi => rfi.id)
-        );
     };
 
     const handleDeleteRFI = (rfiId: string) => {
@@ -670,33 +652,6 @@ const RFIInbox: React.FC = () => {
 
             {/* RFIs Table */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                            <label className="flex items-center">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedRFIs.length === filteredAndSortedRFIs.length && filteredAndSortedRFIs.length > 0}
-                                    onChange={selectAllRFIs}
-                                    className="mr-2"
-                                />
-                                <span className="text-sm text-gray-700">
-                                    {selectedRFIs.length > 0 ? `${selectedRFIs.length} seleccionadas` : 'Seleccionar todas'}
-                                </span>
-                            </label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <button
-                                onClick={() => handleSort('createdAt')}
-                                className="flex items-center space-x-1 text-sm text-gray-600 hover:text-gray-900"
-                            >
-                                <SortAsc className="w-4 h-4" />
-                                <span>Ordenar por fecha</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead className="bg-gray-50">
@@ -747,12 +702,7 @@ const RFIInbox: React.FC = () => {
                                     <tr key={rfi.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={selectedRFIs.includes(rfi.id)}
-                                                    onChange={() => toggleSelectRFI(rfi.id)}
-                                                    className="mr-3"
-                                                />
+                                                
                                                 <div>
                                                     <div className="text-sm font-medium text-gray-900">{rfi.rfiNumber}</div>
                                                     <div className="text-xs text-gray-500">{formatDate(rfi.createdAt)}</div>
@@ -1495,47 +1445,6 @@ const RFIInbox: React.FC = () => {
                                                 <option value="high">Seguimiento alto</option>
                                                 <option value="urgent">Seguimiento urgente</option>
                                             </select>
-                                        </div>
-                                    </div>
-
-                                    {/* Additional Options */}
-                                    <div className="space-y-3">
-                                        <div className="flex items-center">
-                                            <input
-                                                type="checkbox"
-                                                id="notify-others"
-                                                checked={replyModal.notifyOthers}
-                                                onChange={(e) => handleReplyModalChange('notifyOthers', e.target.checked)}
-                                                className="h-4 w-4 text-primary-600 rounded"
-                                                disabled={replyModal.isSubmitting}
-                                            />
-                                            <label htmlFor="notify-others" className="ml-2 text-sm text-gray-700">
-                                                Notificar a otros miembros del equipo
-                                            </label>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <input
-                                                type="checkbox"
-                                                id="attach-files"
-                                                checked={replyModal.attachFiles}
-                                                onChange={(e) => handleReplyModalChange('attachFiles', e.target.checked)}
-                                                className="h-4 w-4 text-primary-600 rounded"
-                                                disabled={replyModal.isSubmitting}
-                                            />
-                                            <label htmlFor="attach-files" className="ml-2 text-sm text-gray-700">
-                                                Incluir archivos adjuntos en la respuesta
-                                            </label>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <input
-                                                type="checkbox"
-                                                id="schedule-meeting"
-                                                className="h-4 w-4 text-primary-600 rounded"
-                                                disabled={replyModal.isSubmitting}
-                                            />
-                                            <label htmlFor="schedule-meeting" className="ml-2 text-sm text-gray-700">
-                                                Programar reunión de seguimiento
-                                            </label>
                                         </div>
                                     </div>
                                 </div>

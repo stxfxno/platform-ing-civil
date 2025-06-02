@@ -22,10 +22,6 @@ const menuOptions: MenuOption[] = [
         path: '/rfis/crear',
         icon: Plus,
         color: 'bg-green-500',
-        stats: {
-            count: 0,
-            label: 'Nueva solicitud'
-        }
     },
     {
         title: 'Bandeja de RFIs',
@@ -33,10 +29,6 @@ const menuOptions: MenuOption[] = [
         path: '/rfis/bandeja',
         icon: Inbox,
         color: 'bg-blue-500',
-        stats: {
-            count: 12,
-            label: 'RFIs pendientes'
-        }
     },
     {
         title: 'Historial de RFIs',
@@ -44,10 +36,6 @@ const menuOptions: MenuOption[] = [
         path: '/rfis/historial',
         icon: History,
         color: 'bg-purple-500',
-        stats: {
-            count: 245,
-            label: 'RFIs totales'
-        }
     }
 ];
 

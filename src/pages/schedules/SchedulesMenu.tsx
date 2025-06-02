@@ -424,41 +424,6 @@ const SchedulesMenu: React.FC = () => {
                 </div>
             </div>
 
-            {/* Quick Actions */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-blue-900 mb-3">Acciones Rápidas</h3>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <Link
-                        to="/cronogramas/maestro"
-                        className="flex items-center p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors"
-                    >
-                        <Upload className="w-5 h-5 text-blue-600 mr-3" />
-                        <span className="text-sm font-medium text-blue-900">Cargar Cronograma</span>
-                    </Link>
-                    <Link
-                        to="/cronogramas/ruta-critica"
-                        className="flex items-center p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors"
-                    >
-                        <Route className="w-5 h-5 text-blue-600 mr-3" />
-                        <span className="text-sm font-medium text-blue-900">Ruta Crítica</span>
-                    </Link>
-                    <Link
-                        to="/cronogramas/general"
-                        className="flex items-center p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors"
-                    >
-                        <BarChart3 className="w-5 h-5 text-blue-600 mr-3" />
-                        <span className="text-sm font-medium text-blue-900">Vista General</span>
-                    </Link>
-                    <Link
-                        to="/cronogramas/fechas-importantes"
-                        className="flex items-center p-3 bg-white rounded-lg border border-blue-200 hover:bg-blue-50 transition-colors"
-                    >
-                        <Calendar className="w-5 h-5 text-blue-600 mr-3" />
-                        <span className="text-sm font-medium text-blue-900">Fechas Importantes</span>
-                    </Link>
-                </div>
-            </div>
-
             {/* Information Panel */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-blue-900 mb-3">Gestión de Cronogramas MEP</h3>

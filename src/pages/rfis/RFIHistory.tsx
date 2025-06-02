@@ -15,7 +15,10 @@ import {
     XCircle,
     Eye,
     MessageSquare,
-    Paperclip
+    Paperclip,
+    X,
+    Globe,
+    EyeOff
 } from 'lucide-react';
 import type { RFI } from '../../types/rfi';
 import { MEP_DISCIPLINES } from '../../types/common';
@@ -28,6 +31,11 @@ interface HistoryFilters {
     searchTerm: string;
 }
 
+interface ViewModalData {
+    isOpen: boolean;
+    rfi: RFI | null;
+}
+
 const RFIHistory: React.FC = () => {
     const [filters, setFilters] = useState<HistoryFilters>({
         status: [],
@@ -37,8 +45,30 @@ const RFIHistory: React.FC = () => {
     });
     const [showFilters, setShowFilters] = useState(false);
     const [viewMode, setViewMode] = useState<'list' | 'timeline'>('list');
+    const [allRFIs, setAllRFIs] = useState<RFI[]>([]);
+    const [viewModal, setViewModal] = useState<ViewModalData>({
+        isOpen: false,
+        rfi: null
+    });
 
-    const rfis: RFI[] = rfisData.rfis as RFI[];
+    // Cargar RFIs del localStorage y combinar con las mock
+    React.useEffect(() => {
+        try {
+            const storedRFIs = JSON.parse(localStorage.getItem('civil_eng_rfis') || '[]');
+            const mockRFIs: RFI[] = rfisData.rfis as RFI[];
+
+            // Combinar RFIs almacenadas localmente con las mock
+            const combinedRFIs = [...storedRFIs, ...mockRFIs];
+            setAllRFIs(combinedRFIs);
+
+            console.log('RFIs cargadas en historial:', combinedRFIs.length);
+        } catch (error) {
+            console.error('Error al cargar RFIs del localStorage:', error);
+            setAllRFIs(rfisData.rfis as RFI[]);
+        }
+    }, []);
+
+    const rfis: RFI[] = allRFIs;
     const users = rfisData.users;
 
     // Status configuration
@@ -55,7 +85,7 @@ const RFIHistory: React.FC = () => {
             // Search term filter
             if (filters.searchTerm) {
                 const searchLower = filters.searchTerm.toLowerCase();
-                const matchesSearch = 
+                const matchesSearch =
                     rfi.title.toLowerCase().includes(searchLower) ||
                     rfi.rfiNumber.toLowerCase().includes(searchLower) ||
                     rfi.description.toLowerCase().includes(searchLower);
@@ -77,7 +107,7 @@ const RFIHistory: React.FC = () => {
                 const rfiDate = new Date(rfi.createdAt);
                 const now = new Date();
                 const daysAgo = Math.floor((now.getTime() - rfiDate.getTime()) / (1000 * 60 * 60 * 24));
-                
+
                 switch (filters.dateRange) {
                     case '7': if (daysAgo > 7) return false; break;
                     case '30': if (daysAgo > 30) return false; break;
@@ -101,6 +131,20 @@ const RFIHistory: React.FC = () => {
                 return { ...prev, [filterType]: newValues };
             });
         }
+    };
+
+    const handleViewRFI = (rfi: RFI) => {
+        setViewModal({
+            isOpen: true,
+            rfi: rfi
+        });
+    };
+
+    const closeViewModal = () => {
+        setViewModal({
+            isOpen: false,
+            rfi: null
+        });
     };
 
     const getUserName = (userId: string) => {
@@ -135,6 +179,14 @@ const RFIHistory: React.FC = () => {
         const config = statusConfig[status as keyof typeof statusConfig];
         const Icon = config?.icon || FileQuestion;
         return <Icon className="w-4 h-4" />;
+    };
+
+    const getPrivacyIcon = (privacy: string) => {
+        return privacy === 'privado' ? <EyeOff className="w-4 h-4" /> : <Globe className="w-4 h-4" />;
+    };
+
+    const getPrivacyColor = (privacy: string) => {
+        return privacy === 'privado' ? 'text-yellow-600 bg-yellow-50' : 'text-green-600 bg-green-50';
     };
 
     return (
@@ -192,9 +244,8 @@ const RFIHistory: React.FC = () => {
                     </div>
                     <button
                         onClick={() => setShowFilters(!showFilters)}
-                        className={`px-4 py-2 border rounded-lg transition-colors flex items-center space-x-2 ${
-                            showFilters ? 'bg-primary-50 border-primary-200 text-primary-700' : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-                        }`}
+                        className={`px-4 py-2 border rounded-lg transition-colors flex items-center space-x-2 ${showFilters ? 'bg-primary-50 border-primary-200 text-primary-700' : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                            }`}
                     >
                         <Filter className="w-4 h-4" />
                         <span>Filtros</span>
@@ -263,60 +314,77 @@ const RFIHistory: React.FC = () => {
             {viewMode === 'list' ? (
                 // List View
                 <div className="space-y-4">
-                    {filteredRFIs.map((rfi) => (
-                        <div key={rfi.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                            <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                    <div className="flex items-center space-x-3 mb-2">
-                                        <span className="text-sm font-mono text-gray-600">{rfi.rfiNumber}</span>
-                                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusConfig[rfi.status as keyof typeof statusConfig]?.color || 'bg-gray-100 text-gray-800'}`}>
-                                            {statusConfig[rfi.status as keyof typeof statusConfig]?.label || rfi.status}
-                                        </span>
-                                        <span className="text-xs text-gray-500">
-                                            {MEP_DISCIPLINES[rfi.discipline as keyof typeof MEP_DISCIPLINES]?.label || rfi.discipline}
-                                        </span>
-                                    </div>
-                                    
-                                    <h3 className="text-lg font-medium text-gray-900 mb-2">{rfi.title}</h3>
-                                    
-                                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">{rfi.description}</p>
-                                    
-                                    <div className="flex items-center space-x-4 text-xs text-gray-500">
-                                        <div className="flex items-center space-x-1">
-                                            <User className="w-3 h-3" />
-                                            <span>Por: {getUserName(rfi.requestedBy)}</span>
-                                        </div>
-                                        <div className="flex items-center space-x-1">
-                                            <User className="w-3 h-3" />
-                                            <span>Para: {getUserName(rfi.assignedTo)}</span>
-                                        </div>
-                                        <div className="flex items-center space-x-1">
-                                            <Calendar className="w-3 h-3" />
-                                            <span>{formatDate(rfi.createdAt)}</span>
-                                        </div>
-                                        {rfi.attachments.length > 0 && (
-                                            <div className="flex items-center space-x-1">
-                                                <Paperclip className="w-3 h-3" />
-                                                <span>{rfi.attachments.length}</span>
+                    {filteredRFIs.map((rfi) => {
+                        const privacy = (rfi as any).privacy || 'publico';
+                        return (
+                            <div key={rfi.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                                <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                        <div className="flex items-center space-x-3 mb-2">
+                                            <span className="text-sm font-mono text-gray-600">{rfi.rfiNumber}</span>
+                                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusConfig[rfi.status as keyof typeof statusConfig]?.color || 'bg-gray-100 text-gray-800'}`}>
+                                                {statusConfig[rfi.status as keyof typeof statusConfig]?.label || rfi.status}
+                                            </span>
+                                            <span className="text-xs text-gray-500">
+                                                {MEP_DISCIPLINES[rfi.discipline as keyof typeof MEP_DISCIPLINES]?.label || rfi.discipline}
+                                            </span>
+                                            <div className={`inline-flex items-center space-x-1 px-2 py-1 text-xs font-semibold rounded-full ${getPrivacyColor(privacy)}`}>
+                                                {getPrivacyIcon(privacy)}
+                                                <span>{privacy === 'privado' ? 'Privado' : 'Público'}</span>
                                             </div>
-                                        )}
-                                        {rfi.comments.length > 0 && (
+                                        </div>
+
+                                        <h3 className="text-lg font-medium text-gray-900 mb-2">{rfi.title}</h3>
+
+                                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">{rfi.description}</p>
+
+                                        <div className="flex items-center space-x-4 text-xs text-gray-500">
                                             <div className="flex items-center space-x-1">
-                                                <MessageSquare className="w-3 h-3" />
-                                                <span>{rfi.comments.length}</span>
+                                                <User className="w-3 h-3" />
+                                                <span>Por: {getUserName(rfi.requestedBy)}</span>
                                             </div>
-                                        )}
+                                            <div className="flex items-center space-x-1">
+                                                <User className="w-3 h-3" />
+                                                <span>Para: {getUserName(rfi.assignedTo)}</span>
+                                            </div>
+                                            <div className="flex items-center space-x-1">
+                                                <Calendar className="w-3 h-3" />
+                                                <span>{formatDate(rfi.createdAt)}</span>
+                                            </div>
+                                            {rfi.attachments && rfi.attachments.length > 0 && (
+                                                <div className="flex items-center space-x-1">
+                                                    <Paperclip className="w-3 h-3" />
+                                                    <span>{rfi.attachments.length}</span>
+                                                </div>
+                                            )}
+                                            {rfi.comments && rfi.comments.length > 0 && (
+                                                <div className="flex items-center space-x-1">
+                                                    <MessageSquare className="w-3 h-3" />
+                                                    <span>{rfi.comments.length}</span>
+                                                </div>
+                                            )}
+                                            {rfi.location && (
+                                                <div className="flex items-center space-x-1">
+                                                    <span>📍</span>
+                                                    <span>{rfi.location}</span>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                                
-                                <div className="flex items-center space-x-2">
-                                    <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                                        <Eye className="w-4 h-4" />
-                                    </button>
+
+                                    <div className="flex items-center space-x-2">
+                                        <button
+                                            onClick={() => handleViewRFI(rfi)}
+                                            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                            title="Ver detalles"
+                                        >
+                                            <Eye className="w-4 h-4" />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             ) : (
                 // Timeline View
@@ -324,38 +392,59 @@ const RFIHistory: React.FC = () => {
                     <div className="relative">
                         {/* Timeline line */}
                         <div className="absolute left-8 top-0 bottom-0 w-px bg-gray-200"></div>
-                        
+
                         <div className="space-y-8">
-                            {filteredRFIs.map((rfi) => (  //index
-                                <div key={rfi.id} className="relative flex items-start space-x-4">
-                                    {/* Timeline dot */}
-                                    <div className={`relative z-10 flex items-center justify-center w-8 h-8 rounded-full ${statusConfig[rfi.status as keyof typeof statusConfig]?.color || 'bg-gray-100'}`}>
-                                        {getStatusIcon(rfi.status)}
-                                    </div>
-                                    
-                                    {/* Content */}
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between mb-1">
-                                            <div className="flex items-center space-x-2">
-                                                <span className="text-sm font-medium text-gray-900">{rfi.rfiNumber}</span>
-                                                <span className="text-xs text-gray-500">
-                                                    {MEP_DISCIPLINES[rfi.discipline as keyof typeof MEP_DISCIPLINES]?.label}
-                                                </span>
+                            {filteredRFIs.map((rfi) => {
+                                const privacy = (rfi as any).privacy || 'publico';
+                                return (
+                                    <div key={rfi.id} className="relative flex items-start space-x-4">
+                                        {/* Timeline dot */}
+                                        <div className={`relative z-10 flex items-center justify-center w-8 h-8 rounded-full ${statusConfig[rfi.status as keyof typeof statusConfig]?.color || 'bg-gray-100'}`}>
+                                            {getStatusIcon(rfi.status)}
+                                        </div>
+
+                                        {/* Content */}
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center justify-between mb-1">
+                                                <div className="flex items-center space-x-2">
+                                                    <span className="text-sm font-medium text-gray-900">{rfi.rfiNumber}</span>
+                                                    <span className="text-xs text-gray-500">
+                                                        {MEP_DISCIPLINES[rfi.discipline as keyof typeof MEP_DISCIPLINES]?.label}
+                                                    </span>
+                                                    <div className={`inline-flex items-center space-x-1 px-1 py-0.5 text-xs rounded ${getPrivacyColor(privacy)}`}>
+                                                        {getPrivacyIcon(privacy)}
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <span className="text-xs text-gray-500">{formatRelativeDate(rfi.createdAt)}</span>
+                                                    <button
+                                                        onClick={() => handleViewRFI(rfi)}
+                                                        className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                                        title="Ver detalles"
+                                                    >
+                                                        <Eye className="w-3 h-3" />
+                                                    </button>
+                                                </div>
                                             </div>
-                                            <span className="text-xs text-gray-500">{formatRelativeDate(rfi.createdAt)}</span>
-                                        </div>
-                                        
-                                        <h4 className="text-sm font-medium text-gray-900 mb-1">{rfi.title}</h4>
-                                        
-                                        <p className="text-xs text-gray-600 mb-2">{rfi.description.substring(0, 150)}...</p>
-                                        
-                                        <div className="flex items-center space-x-3 text-xs text-gray-500">
-                                            <span>{getUserName(rfi.requestedBy)} → {getUserName(rfi.assignedTo)}</span>
-                                            {rfi.location && <span>📍 {rfi.location}</span>}
+
+                                            <h4 className="text-sm font-medium text-gray-900 mb-1">{rfi.title}</h4>
+
+                                            <p className="text-xs text-gray-600 mb-2">{rfi.description.substring(0, 150)}...</p>
+
+                                            <div className="flex items-center space-x-3 text-xs text-gray-500">
+                                                <span>{getUserName(rfi.requestedBy)} → {getUserName(rfi.assignedTo)}</span>
+                                                {rfi.location && <span>📍 {rfi.location}</span>}
+                                                {rfi.attachments && rfi.attachments.length > 0 && (
+                                                    <span>📎 {rfi.attachments.length}</span>
+                                                )}
+                                                {rfi.comments && rfi.comments.length > 0 && (
+                                                    <span>💬 {rfi.comments.length}</span>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
@@ -434,6 +523,259 @@ const RFIHistory: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {/* View Modal */}
+            {viewModal.isOpen && viewModal.rfi && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                        {/* Modal Header */}
+                        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                            <div className="flex items-center space-x-3">
+                                <div className="p-2 bg-blue-100 rounded-lg">
+                                    <Eye className="w-5 h-5 text-blue-600" />
+                                </div>
+                                <div>
+                                    <h2 className="text-lg font-semibold text-gray-900">Detalles de RFI - Historial</h2>
+                                    <p className="text-sm text-gray-600">{viewModal.rfi.rfiNumber}</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={closeViewModal}
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="p-6 space-y-6">
+                            {/* Basic Info */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h3 className="text-lg font-medium text-gray-900 mb-4">Información General</h3>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <span className="text-sm font-medium text-gray-500">Título:</span>
+                                            <p className="text-sm text-gray-900 mt-1">{viewModal.rfi.title}</p>
+                                        </div>
+                                        <div>
+                                            <span className="text-sm font-medium text-gray-500">Estado:</span>
+                                            <div className="mt-1">
+                                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusConfig[viewModal.rfi.status as keyof typeof statusConfig]?.color}`}>
+                                                    {statusConfig[viewModal.rfi.status as keyof typeof statusConfig]?.label}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span className="text-sm font-medium text-gray-500">Prioridad:</span>
+                                            <div className="mt-1">
+                                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                                    ['critical', 'urgente'].includes(viewModal.rfi.priority) ? 'bg-red-100 text-red-800' :
+                                                    ['high', 'Alta'].includes(viewModal.rfi.priority) ? 'bg-orange-100 text-orange-800' :
+                                                    ['medium', 'Media'].includes(viewModal.rfi.priority) ? 'bg-yellow-100 text-yellow-800' :
+                                                    'bg-green-100 text-green-800'
+                                                }`}>
+                                                    {viewModal.rfi.priority === 'critical' || viewModal.rfi.priority === 'urgente' ? 'Crítica' :
+                                                    viewModal.rfi.priority === 'high' || viewModal.rfi.priority === 'Alta' ? 'Alta' :
+                                                    viewModal.rfi.priority === 'medium' || viewModal.rfi.priority === 'Media' ? 'Media' :
+                                                    viewModal.rfi.priority === 'low' || viewModal.rfi.priority === 'Baja' ? 'Baja' :
+                                                    viewModal.rfi.priority}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span className="text-sm font-medium text-gray-500">Visibilidad:</span>
+                                            <div className="mt-1">
+                                                <span className={`inline-flex items-center space-x-1 px-2 py-1 text-xs font-semibold rounded-full ${getPrivacyColor((viewModal.rfi as any).privacy || 'publico')}`}>
+                                                    {getPrivacyIcon((viewModal.rfi as any).privacy || 'publico')}
+                                                    <span>{(viewModal.rfi as any).privacy === 'privado' ? 'Privado' : 'Público'}</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span className="text-sm font-medium text-gray-500">Disciplina:</span>
+                                            <p className="text-sm text-gray-900 mt-1">
+                                                {MEP_DISCIPLINES[viewModal.rfi.discipline as keyof typeof MEP_DISCIPLINES]?.label || viewModal.rfi.discipline}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <span className="text-sm font-medium text-gray-500">Ubicación:</span>
+                                            <p className="text-sm text-gray-900 mt-1">{viewModal.rfi.location || 'No especificada'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 className="text-lg font-medium text-gray-900 mb-4">Asignación y Fechas</h3>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <span className="text-sm font-medium text-gray-500">Solicitado por:</span>
+                                            <p className="text-sm text-gray-900 mt-1">{getUserName(viewModal.rfi.requestedBy)}</p>
+                                        </div>
+                                        <div>
+                                            <span className="text-sm font-medium text-gray-500">Asignado a:</span>
+                                            <p className="text-sm text-gray-900 mt-1">{getUserName(viewModal.rfi.assignedTo)}</p>
+                                        </div>
+                                        <div>
+                                            <span className="text-sm font-medium text-gray-500">Fecha de creación:</span>
+                                            <p className="text-sm text-gray-900 mt-1">{formatDate(viewModal.rfi.createdAt)}</p>
+                                        </div>
+                                        {viewModal.rfi.dueDate && (
+                                            <div>
+                                                <span className="text-sm font-medium text-gray-500">Fecha límite:</span>
+                                                <p className="text-sm text-gray-900 mt-1">{formatDate(viewModal.rfi.dueDate)}</p>
+                                            </div>
+                                        )}
+                                        {viewModal.rfi.responseDate && (
+                                            <div>
+                                                <span className="text-sm font-medium text-gray-500">Fecha de respuesta:</span>
+                                                <p className="text-sm text-gray-900 mt-1">{formatDate(viewModal.rfi.responseDate)}</p>
+                                            </div>
+                                        )}
+                                        <div>
+                                            <span className="text-sm font-medium text-gray-500">Categoría:</span>
+                                            <p className="text-sm text-gray-900 mt-1">{viewModal.rfi.category || 'No especificada'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Description */}
+                            <div>
+                                <h3 className="text-lg font-medium text-gray-900 mb-3">Descripción</h3>
+                                <div className="bg-gray-50 rounded-lg p-4">
+                                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{viewModal.rfi.description}</p>
+                                </div>
+                            </div>
+
+                            {/* Response */}
+                            {viewModal.rfi.response && (
+                                <div>
+                                    <h3 className="text-lg font-medium text-gray-900 mb-3">Respuesta</h3>
+                                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                                        <p className="text-sm text-gray-700 whitespace-pre-wrap">{viewModal.rfi.response}</p>
+                                        {viewModal.rfi.responseBy && (
+                                            <div className="mt-3 pt-3 border-t border-green-200">
+                                                <p className="text-xs text-gray-600">
+                                                    Respondido por: {getUserName(viewModal.rfi.responseBy)} • {formatDate(viewModal.rfi.responseDate!)}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Attachments */}
+                            {viewModal.rfi.attachments && viewModal.rfi.attachments.length > 0 && (
+                                <div>
+                                    <h3 className="text-lg font-medium text-gray-900 mb-3">Archivos Adjuntos</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        {viewModal.rfi.attachments.map((attachment, index) => (
+                                            <div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg">
+                                                <Paperclip className="w-4 h-4 text-gray-400 mr-3" />
+                                                <div className="flex-1">
+                                                    <p className="text-sm font-medium text-gray-900">{attachment.name}</p>
+                                                    <p className="text-xs text-gray-500">{formatDate(attachment.uploadedAt)}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Tags */}
+                            {viewModal.rfi.tags && viewModal.rfi.tags.length > 0 && (
+                                <div>
+                                    <h3 className="text-lg font-medium text-gray-900 mb-3">Etiquetas</h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {viewModal.rfi.tags.map((tag, index) => (
+                                            <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Email Data if sent as email */}
+                            {(viewModal.rfi as any).emailData && (viewModal.rfi as any).emailData.sentAsEmail && (
+                                <div>
+                                    <h3 className="text-lg font-medium text-gray-900 mb-3">Información del Correo</h3>
+                                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                            <div>
+                                                <span className="font-medium text-blue-900">Para:</span>
+                                                <p className="text-blue-800">{(viewModal.rfi as any).emailData.para}</p>
+                                            </div>
+                                            <div>
+                                                <span className="font-medium text-blue-900">Asunto:</span>
+                                                <p className="text-blue-800">{(viewModal.rfi as any).emailData.asunto}</p>
+                                            </div>
+                                            {(viewModal.rfi as any).emailData.cc && (viewModal.rfi as any).emailData.cc.length > 0 && (
+                                                <div className="md:col-span-2">
+                                                    <span className="font-medium text-blue-900">CC:</span>
+                                                    <p className="text-blue-800">{(viewModal.rfi as any).emailData.cc.join(', ')}</p>
+                                                </div>
+                                            )}
+                                            {(viewModal.rfi as any).emailData.otherEmails && (
+                                                <div className="md:col-span-2">
+                                                    <span className="font-medium text-blue-900">Otros emails:</span>
+                                                    <p className="text-blue-800">{(viewModal.rfi as any).emailData.otherEmails}</p>
+                                                </div>
+                                            )}
+                                            <div className="md:col-span-2">
+                                                <span className="font-medium text-blue-900">Enviado:</span>
+                                                <p className="text-blue-800">{formatDate((viewModal.rfi as any).emailData.sentAt)}</p>
+                                            </div>
+                                        </div>
+                                        {(viewModal.rfi as any).emailData.texto && (
+                                            <div className="mt-3 pt-3 border-t border-blue-200">
+                                                <span className="font-medium text-blue-900">Mensaje del correo:</span>
+                                                <p className="text-blue-800 mt-1 whitespace-pre-wrap">{(viewModal.rfi as any).emailData.texto}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Metadata for created RFIs */}
+                            <div className="border-t border-gray-200 pt-4">
+                                <h4 className="text-sm font-medium text-gray-500 mb-2">Información del Registro</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-gray-500">
+                                    <div>
+                                        <span className="font-medium">ID:</span> {viewModal.rfi.id}
+                                    </div>
+                                    <div>
+                                        <span className="font-medium">Creado:</span> {formatDate(viewModal.rfi.createdAt)}
+                                    </div>
+                                    <div>
+                                        <span className="font-medium">Última actualización:</span> {formatDate(viewModal.rfi.updatedAt)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="flex items-center justify-end p-6 border-t border-gray-200 bg-gray-50">
+                            <div className="flex items-center space-x-3">
+                                <button
+                                    onClick={closeViewModal}
+                                    className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                                >
+                                    Cerrar
+                                </button>
+                                <Link
+                                    to="/rfis/bandeja"
+                                    className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                                    onClick={closeViewModal}
+                                >
+                                    Ver en Bandeja
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
