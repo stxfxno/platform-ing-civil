@@ -37,7 +37,7 @@ const Sidebar: React.FC = () => {
     };
 
     return (
-        <div className="w-64 bg-slate-800 text-white h-screen flex flex-col">
+        <div className="w-64 bg-slate-800 text-white min-h-screen flex flex-col">
             {/* Logo/Brand */}
             <div className="p-6 border-b border-slate-700">
                 <h2 className="text-xl font-bold text-white">

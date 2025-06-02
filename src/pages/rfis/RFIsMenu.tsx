@@ -142,67 +142,6 @@ const RFIsMenu: React.FC = () => {
                 })}
             </div>
 
-            {/* Recent RFIs Preview */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-gray-900">RFIs Recientes</h2>
-                    <Link
-                        to="/rfis/bandeja"
-                        className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                    >
-                        Ver todas →
-                    </Link>
-                </div>
-
-                <div className="space-y-3">
-                    {[
-                        {
-                            id: 'RFI-2025-001',
-                            title: 'Instalaciones eléctricas - Piso 3',
-                            status: 'Pendiente',
-                            priority: 'Alta',
-                            date: '23 Mayo 2025',
-                            statusColor: 'text-yellow-600 bg-yellow-50'
-                        },
-                        {
-                            id: 'RFI-2025-002',
-                            title: 'Especificaciones HVAC - Zona A',
-                            status: 'En Revisión',
-                            priority: 'Media',
-                            date: '22 Mayo 2025',
-                            statusColor: 'text-blue-600 bg-blue-50'
-                        },
-                        {
-                            id: 'RFI-2025-003',
-                            title: 'Ductos de ventilación - Sótano',
-                            status: 'Respondida',
-                            priority: 'Baja',
-                            date: '21 Mayo 2025',
-                            statusColor: 'text-green-600 bg-green-50'
-                        }
-                    ].map((rfi, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
-                            <div className="flex-1">
-                                <div className="flex items-center space-x-3">
-                                    <span className="text-sm font-medium text-gray-900">{rfi.id}</span>
-                                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${rfi.statusColor}`}>
-                                        {rfi.status}
-                                    </span>
-                                </div>
-                                <h4 className="text-sm font-medium text-gray-900 mt-1">{rfi.title}</h4>
-                                <p className="text-xs text-gray-500">Prioridad: {rfi.priority} • {rfi.date}</p>
-                            </div>
-                            <Link
-                                to={`/rfis/bandeja`}
-                                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                            >
-                                Ver
-                            </Link>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
             {/* Information Panel */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-blue-900 mb-3">¿Qué es una RFI?</h3>

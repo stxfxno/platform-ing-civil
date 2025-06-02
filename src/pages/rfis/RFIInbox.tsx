@@ -70,8 +70,26 @@ const RFIInbox: React.FC = () => {
         isSubmitting: false,
         showSuccess: false
     });
+    const [allRFIs, setAllRFIs] = useState<RFI[]>([]);
 
-    const rfis: RFI[] = rfisData.rfis as RFI[];
+    // Cargar RFIs del localStorage y combinar con las mock
+    React.useEffect(() => {
+        try {
+            const storedRFIs = JSON.parse(localStorage.getItem('civil_eng_rfis') || '[]');
+            const mockRFIs: RFI[] = rfisData.rfis as RFI[];
+            
+            // Combinar RFIs almacenadas localmente con las mock
+            const combinedRFIs = [...storedRFIs, ...mockRFIs];
+            setAllRFIs(combinedRFIs);
+            
+            console.log('RFIs cargadas:', combinedRFIs.length);
+        } catch (error) {
+            console.error('Error al cargar RFIs del localStorage:', error);
+            setAllRFIs(rfisData.rfis as RFI[]);
+        }
+    }, []);
+
+    const rfis: RFI[] = allRFIs;
     const users = rfisData.users;
 
     // Status configuration
@@ -83,6 +101,11 @@ const RFIInbox: React.FC = () => {
     };
 
     const priorityConfig = {
+        urgente: { label: 'Urgente', color: 'bg-red-100 text-red-800' },
+        alta: { label: 'Alta', color: 'bg-orange-100 text-orange-800' },
+        media: { label: 'Media', color: 'bg-yellow-100 text-yellow-800' },
+        baja: { label: 'Baja', color: 'bg-green-100 text-green-800' },
+        // Compatibilidad con prioridades anteriores
         critical: { label: 'Crítica', color: 'bg-red-100 text-red-800' },
         high: { label: 'Alta', color: 'bg-orange-100 text-orange-800' },
         medium: { label: 'Media', color: 'bg-yellow-100 text-yellow-800' },
@@ -131,9 +154,14 @@ const RFIInbox: React.FC = () => {
             let bValue: string | number | undefined = b[sortField as keyof RFI] as string | number | undefined;
 
             if (sortField === 'priority') {
-                const priorityOrder = { critical: 4, high: 3, medium: 2, low: 1 };
-                aValue = priorityOrder[a.priority as keyof typeof priorityOrder];
-                bValue = priorityOrder[b.priority as keyof typeof priorityOrder];
+                const priorityOrder = { 
+                    urgente: 4, critical: 4, 
+                    alta: 3, high: 3, 
+                    media: 2, medium: 2, 
+                    baja: 1, low: 1 
+                };
+                aValue = priorityOrder[a.priority as keyof typeof priorityOrder] || 0;
+                bValue = priorityOrder[b.priority as keyof typeof priorityOrder] || 0;
             }
 
             // Provide fallback values if undefined
@@ -193,9 +221,21 @@ const RFIInbox: React.FC = () => {
     const handleDeleteRFI = (rfiId: string) => {
         const rfi = rfis.find(r => r.id === rfiId);
         if (confirm(`¿Está seguro de que desea eliminar la RFI "${rfi?.rfiNumber}"? Esta acción no se puede deshacer.`)) {
-            // Aquí iría la lógica para eliminar la RFI
-            console.log('Eliminando RFI:', rfiId);
-            alert('RFI eliminada correctamente');
+            try {
+                // Eliminar del localStorage
+                const storedRFIs = JSON.parse(localStorage.getItem('civil_eng_rfis') || '[]');
+                const updatedStoredRFIs = storedRFIs.filter((r: any) => r.id !== rfiId);
+                localStorage.setItem('civil_eng_rfis', JSON.stringify(updatedStoredRFIs));
+                
+                // Actualizar estado local
+                setAllRFIs(prev => prev.filter(r => r.id !== rfiId));
+                
+                console.log('RFI eliminada:', rfiId);
+                alert('RFI eliminada correctamente');
+            } catch (error) {
+                console.error('Error al eliminar RFI:', error);
+                alert('Error al eliminar la RFI');
+            }
         }
     };
 
@@ -226,28 +266,56 @@ const RFIInbox: React.FC = () => {
 
         setReplyModal(prev => ({ ...prev, isSubmitting: true }));
 
-        // Simular envío
-        setTimeout(() => {
-            setReplyModal(prev => ({ 
-                ...prev, 
-                isSubmitting: false, 
-                showSuccess: true 
-            }));
+        // Simular envío y actualizar RFI
+        try {
+            const updatedRFI: RFI = {
+                ...replyModal.rfi!,
+                status: replyModal.responseStatus as RFI['status'],
+                response: replyModal.response,
+                responseDate: new Date().toISOString(),
+                responseBy: 'user-current',
+                updatedAt: new Date().toISOString(),
+            };
+
+            // Actualizar en localStorage si es una RFI guardada localmente
+            const storedRFIs = JSON.parse(localStorage.getItem('civil_eng_rfis') || '[]');
+            const rfiIndex = storedRFIs.findIndex((r: any) => r.id === replyModal.rfi!.id);
+            if (rfiIndex !== -1) {
+                storedRFIs[rfiIndex] = updatedRFI;
+                localStorage.setItem('civil_eng_rfis', JSON.stringify(storedRFIs));
+            }
+
+            // Actualizar estado local
+            setAllRFIs(prev => prev.map(rfi => 
+                rfi.id === replyModal.rfi!.id ? updatedRFI : rfi
+            ));
 
             setTimeout(() => {
-                setReplyModal({
-                    isOpen: false,
-                    rfi: null,
-                    response: '',
-                    responseStatus: 'responded',
-                    followUpPriority: 'none',
-                    notifyOthers: false,
-                    attachFiles: false,
-                    isSubmitting: false,
-                    showSuccess: false
-                });
-            }, 2000);
-        }, 1500);
+                setReplyModal(prev => ({ 
+                    ...prev, 
+                    isSubmitting: false, 
+                    showSuccess: true 
+                }));
+
+                setTimeout(() => {
+                    setReplyModal({
+                        isOpen: false,
+                        rfi: null,
+                        response: '',
+                        responseStatus: 'responded',
+                        followUpPriority: 'none',
+                        notifyOthers: false,
+                        attachFiles: false,
+                        isSubmitting: false,
+                        showSuccess: false
+                    });
+                }, 2000);
+            }, 1500);
+        } catch (error) {
+            console.error('Error al responder RFI:', error);
+            setReplyModal(prev => ({ ...prev, isSubmitting: false }));
+            alert('Error al enviar la respuesta');
+        }
     };
 
     const closeReplyModal = () => {
@@ -523,16 +591,21 @@ const RFIInbox: React.FC = () => {
                                                 <div className="text-sm font-medium text-gray-900 truncate">{rfi.title}</div>
                                                 <div className="text-xs text-gray-500 truncate">{rfi.location}</div>
                                                 <div className="flex items-center space-x-2 mt-1">
-                                                    {rfi.attachments.length > 0 && (
+                                                    {rfi.attachments && rfi.attachments.length > 0 && (
                                                         <div className="flex items-center text-xs text-gray-500">
                                                             <Paperclip className="w-3 h-3 mr-1" />
                                                             {rfi.attachments.length}
                                                         </div>
                                                     )}
-                                                    {rfi.comments.length > 0 && (
+                                                    {rfi.comments && rfi.comments.length > 0 && (
                                                         <div className="flex items-center text-xs text-gray-500">
                                                             <MessageSquare className="w-3 h-3 mr-1" />
                                                             {rfi.comments.length}
+                                                        </div>
+                                                    )}
+                                                    {(rfi as any).privacy === 'privado' && (
+                                                        <div className="flex items-center text-xs text-yellow-600">
+                                                            🔒 Privado
                                                         </div>
                                                     )}
                                                 </div>

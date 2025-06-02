@@ -25,6 +25,7 @@ interface RFIFormData {
     location: string;
     drawingReference: string;
     category: string;
+    privacy: string; // Nuevo campo
 }
 
 interface ConsultaData {
@@ -63,7 +64,8 @@ const CreateRFI: React.FC = () => {
         dueDate: '',
         location: '',
         drawingReference: '',
-        category: ''
+        category: '',
+        privacy: 'publico' // Valor por defecto
     });
 
     const [consultaData, setConsultaData] = useState<ConsultaData>({
@@ -141,11 +143,30 @@ const CreateRFI: React.FC = () => {
     ];
 
     const priorities = [
-        { key: 'low', label: 'Baja' },
-        { key: 'medium', label: 'Media' },
-        { key: 'high', label: 'Alta' },
-        { key: 'critical', label: 'Crítica' }
+        { key: 'baja', label: 'Baja', days: 7 },
+        { key: 'media', label: 'Media', days: 5 },
+        { key: 'alta', label: 'Alta', days: 3 },
+        { key: 'urgente', label: 'Urgente', days: 1 }
     ];
+
+    const privacyOptions = [
+        { key: 'publico', label: 'Público' },
+        { key: 'privado', label: 'Privado' }
+    ];
+
+    // Función para calcular fecha límite automáticamente
+    const calculateDueDate = (priority: string, startDate: string = consultaData.fecha) => {
+        if (!priority || !startDate) return '';
+        
+        const priorityData = priorities.find(p => p.key === priority);
+        if (!priorityData) return '';
+        
+        const start = new Date(startDate);
+        const dueDate = new Date(start);
+        dueDate.setDate(start.getDate() + priorityData.days);
+        
+        return dueDate.toISOString().split('T')[0];
+    };
 
     const responsiblePersons = [
         'Ing. Carlos Mendoza - Instalaciones Mecánicas',
@@ -198,18 +219,26 @@ const CreateRFI: React.FC = () => {
         'Ing. Elena Morales - SSOMA',
         'Ing. Diego Molero - Modelado BIM',
         'Ing. Fernando Rojas - Costos y Presupuestos'
-        
     ];
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        
+        // Actualizar formData
+        const updatedFormData = { ...formData, [name]: value };
+        setFormData(updatedFormData);
+
+        // Auto-calcular fecha límite cuando cambia la prioridad
+        if (name === 'priority') {
+            const newDueDate = calculateDueDate(value, consultaData.fecha);
+            setFormData(prev => ({ ...prev, dueDate: newDueDate }));
+        }
 
         // Auto-populate consulta fields
         if (name === 'title' || name === 'description') {
             setConsultaData(prev => ({
                 ...prev,
-                consulta: formData.title || formData.description || value
+                consulta: updatedFormData.title || updatedFormData.description || value
             }));
         }
         if (name === 'location') {
@@ -219,10 +248,17 @@ const CreateRFI: React.FC = () => {
 
     const handleConsultaChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setConsultaData(prev => ({ ...prev, [name]: value }));
+        const updatedConsultaData = { ...consultaData, [name]: value };
+        setConsultaData(updatedConsultaData);
+
+        // Si cambia la fecha de consulta y hay prioridad, recalcular fecha límite
+        if (name === 'fecha' && formData.priority) {
+            const newDueDate = calculateDueDate(formData.priority, value);
+            setFormData(prev => ({ ...prev, dueDate: newDueDate }));
+        }
     };
 
-        const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
         const checked = (e.target as HTMLInputElement).checked;
         
@@ -280,6 +316,62 @@ const CreateRFI: React.FC = () => {
                 ...prev,
                 asunto: `${rfiNumber} - ${formData.title}`
             }));
+        }
+
+        // Crear objeto RFI para guardar
+        const newRFI = {
+            id: `rfi-${Date.now()}`,
+            rfiNumber: rfiNumber,
+            title: formData.title,
+            description: formData.description,
+            discipline: formData.discipline,
+            priority: formData.priority,
+            status: 'open',
+            category: formData.category,
+            location: formData.location,
+            drawingReference: formData.drawingReference,
+            assignedTo: consultaData.para,
+            requestedBy: user?.id || 'user-current',
+            dueDate: formData.dueDate,
+            privacy: formData.privacy,
+            attachments: attachedFiles.map(file => ({
+                id: file.id,
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                url: `/files/${file.name}`,
+                uploadedAt: new Date().toISOString(),
+                uploadedBy: user?.id || 'user-current'
+            })),
+            comments: [],
+            tags: [
+                formData.discipline,
+                formData.priority,
+                ...(formData.specialty ? [formData.specialty] : [])
+            ].filter(Boolean),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            createdBy: user?.id || 'user-current',
+            emailData: emailData.sendAsEmail ? {
+                sentAsEmail: true,
+                para: emailData.para,
+                asunto: emailData.asunto,
+                cc: emailData.cc,
+                otherEmails: emailData.otherEmails,
+                texto: emailData.texto,
+                sentAt: new Date().toISOString()
+            } : null
+        };
+
+        // Guardar en localStorage
+        try {
+            const existingRFIs = JSON.parse(localStorage.getItem('civil_eng_rfis') || '[]');
+            const updatedRFIs = [newRFI, ...existingRFIs];
+            localStorage.setItem('civil_eng_rfis', JSON.stringify(updatedRFIs));
+            
+            console.log('RFI guardada en localStorage:', newRFI);
+        } catch (error) {
+            console.error('Error al guardar RFI en localStorage:', error);
         }
 
         // Simulate submission
@@ -487,7 +579,7 @@ const CreateRFI: React.FC = () => {
                                                 <option value="">Seleccionar prioridad</option>
                                                 {priorities.map(priority => (
                                                     <option key={priority.key} value={priority.key}>
-                                                        {priority.label}
+                                                        {priority.label} ({priority.days} días)
                                                     </option>
                                                 ))}
                                             </select>
@@ -673,6 +765,30 @@ const CreateRFI: React.FC = () => {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Visibilidad
+                                    </label>
+                                    <select
+                                        name="privacy"
+                                        value={formData.privacy}
+                                        onChange={handleInputChange}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                    >
+                                        {privacyOptions.map(option => (
+                                            <option key={option.key} value={option.key}>
+                                                {option.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        {formData.privacy === 'publico' 
+                                            ? 'Visible para todos los miembros del proyecto' 
+                                            : 'Solo visible para el responsable asignado y el solicitante'
+                                        }
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
                                         Fecha límite de respuesta
                                     </label>
                                     <input
@@ -683,6 +799,11 @@ const CreateRFI: React.FC = () => {
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                         min={new Date().toISOString().split('T')[0]}
                                     />
+                                    {formData.priority && (
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Calculado automáticamente según prioridad: {priorities.find(p => p.key === formData.priority)?.days} días
+                                        </p>
+                                    )}
                                 </div>
 
                                 <div>
@@ -783,12 +904,17 @@ const CreateRFI: React.FC = () => {
                                     <div className={`w-3 h-3 rounded-full mr-3 ${consultaData.para ? 'bg-green-500' : 'bg-gray-300'}`}></div>
                                     Responsable asignado
                                 </div>
+                                <div className={`flex items-center text-sm ${formData.privacy ? 'text-green-600' : 'text-gray-400'}`}>
+                                    <div className={`w-3 h-3 rounded-full mr-3 ${formData.privacy ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                                    Visibilidad seleccionada
+                                </div>
                             </div>
 
                             <div className="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-500 space-y-1">
                                 <p>• Se generará un número único automáticamente</p>
                                 <p>• Se enviará notificación al responsable</p>
                                 <p>• Los campos marcados con * son obligatorios</p>
+                                <p>• Fecha límite se calcula según la prioridad</p>
                             </div>
                         </div>
                     </div>
