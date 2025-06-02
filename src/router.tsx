@@ -12,11 +12,11 @@ import RFIInbox from './pages/rfis/RFIInbox';
 import RFIHistory from './pages/rfis/RFIHistory';
 
 // Schedule (Programación Semanal)
-import ScheduleMenu from './pages/schedules/ScheduleMenu';
-import WeeklyActivities from './pages/schedules/WeeklyActivities';
-import ProgressTracking from './pages/schedules/ProgressTracking';
-import DependenciesCoordination from './pages/schedules/DependenciesCoordination';
-import ContractorReports from './pages/schedules/ContractorReports';
+import ScheduleMenu from './pages/scheduling/ScheduleMenu';
+import WeeklyActivities from './pages/scheduling/WeeklyActivities';
+import ProgressTracking from './pages/scheduling/ProgressTracking';
+import DependenciesCoordination from './pages/scheduling/DependenciesCoordination';
+import ContractorReports from './pages/scheduling/ContractorReports';
 
 // Scope (Alcance)
 import ScopeMenu from './pages/scope/ScopeMenu';

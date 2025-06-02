@@ -1,19 +1,14 @@
 // src/pages/schedules/WeeklyActivities.tsx
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import {
     Plus,
     Calendar,
-    Users,
     Filter,
     Search,
     MoreVertical,
     CheckCircle,
     Clock,
     AlertTriangle,
-    Copy,
-    Download,
-    Upload,
     Target,
     Activity
 } from 'lucide-react';
@@ -183,17 +178,6 @@ const WeeklyActivities: React.FC = () => {
         return matchesDiscipline && matchesStatus && matchesSearch;
     });
 
-    const weekStats = {
-        total: activities.length,
-        completed: activities.filter(a => a.status === 'completed').length,
-        inProgress: activities.filter(a => a.status === 'in_progress').length,
-        delayed: activities.filter(a => a.status === 'delayed').length,
-        notStarted: activities.filter(a => a.status === 'not_started').length,
-        totalHours: activities.reduce((sum, a) => sum + a.plannedHours, 0),
-        actualHours: activities.reduce((sum, a) => sum + a.actualHours, 0),
-        avgProgress: Math.round(activities.reduce((sum, a) => sum + a.progress, 0) / activities.length)
-    };
-
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -220,7 +204,7 @@ const WeeklyActivities: React.FC = () => {
 
             {/* Week Selector and Stats */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                         <Calendar className="w-5 h-5 text-gray-500" />
                         <h2 className="text-lg font-semibold text-gray-900">Semana: {selectedWeek}</h2>
@@ -230,19 +214,9 @@ const WeeklyActivities: React.FC = () => {
                             <option value="2025-06-09/2025-06-15">09 Junio - 15 Junio 2025</option>
                         </select>
                     </div>
-                    <div className="flex items-center space-x-3">
-                        <button className="px-3 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors flex items-center">
-                            <Upload className="w-4 h-4 mr-2" />
-                            Importar
-                        </button>
-                        <button className="px-3 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors flex items-center">
-                            <Download className="w-4 h-4 mr-2" />
-                            Exportar
-                        </button>
-                    </div>
                 </div>
 
-                {/* Stats Grid */}
+                {/* Stats Grid 
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
                     <div className="text-center p-3 bg-gray-50 rounded-lg">
                         <p className="text-2xl font-bold text-gray-900">{weekStats.total}</p>
@@ -272,7 +246,7 @@ const WeeklyActivities: React.FC = () => {
                         <p className="text-2xl font-bold text-indigo-600">{weekStats.avgProgress}%</p>
                         <p className="text-sm text-gray-600">Progreso Prom.</p>
                     </div>
-                </div>
+                </div>*/}
             </div>
 
             {/* Filters and Search */}
@@ -370,23 +344,6 @@ const WeeklyActivities: React.FC = () => {
                                             <div>
                                                 <span className="text-gray-500">Horas:</span>
                                                 <p className="font-medium">{activity.actualHours}/{activity.plannedHours}h</p>
-                                            </div>
-                                        </div>
-
-                                        {/* Progress Bar */}
-                                        <div className="mt-4">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <span className="text-sm text-gray-600">Progreso</span>
-                                                <span className="text-sm font-medium">{activity.progress}%</span>
-                                            </div>
-                                            <div className="w-full bg-gray-200 rounded-full h-3">
-                                                <div
-                                                    className={`h-3 rounded-full transition-all duration-300 ${activity.status === 'completed' ? 'bg-green-500' :
-                                                            activity.status === 'delayed' ? 'bg-red-500' :
-                                                                activity.status === 'in_progress' ? 'bg-yellow-500' : 'bg-gray-400'
-                                                        }`}
-                                                    style={{ width: `${activity.progress}%` }}
-                                                ></div>
                                             </div>
                                         </div>
 
@@ -566,31 +523,6 @@ const WeeklyActivities: React.FC = () => {
                 </div>
             )}
 
-            {/* Quick Actions */}
-            <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-green-900 mb-3">Acciones Rápidas</h3>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <button className="flex items-center p-3 bg-white rounded-lg border border-green-200 hover:bg-green-50 transition-colors">
-                        <Copy className="w-5 h-5 text-green-600 mr-3" />
-                        <span className="text-sm font-medium text-green-900">Duplicar Semana</span>
-                    </button>
-                    <Link
-                        to="/programacion-semanal/seguimiento"
-                        className="flex items-center p-3 bg-white rounded-lg border border-green-200 hover:bg-green-50 transition-colors"
-                    >
-                        <Activity className="w-5 h-5 text-green-600 mr-3" />
-                        <span className="text-sm font-medium text-green-900">Actualizar Progreso</span>
-                    </Link>
-                    <button className="flex items-center p-3 bg-white rounded-lg border border-green-200 hover:bg-green-50 transition-colors">
-                        <Users className="w-5 h-5 text-green-600 mr-3" />
-                        <span className="text-sm font-medium text-green-900">Asignar Equipos</span>
-                    </button>
-                    <button className="flex items-center p-3 bg-white rounded-lg border border-green-200 hover:bg-green-50 transition-colors">
-                        <Calendar className="w-5 h-5 text-green-600 mr-3" />
-                        <span className="text-sm font-medium text-green-900">Planificar Siguiente</span>
-                    </button>
-                </div>
-            </div>
 
             {/* Information Panel */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">

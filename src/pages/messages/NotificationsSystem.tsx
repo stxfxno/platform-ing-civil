@@ -218,46 +218,6 @@ const NotificationsSystem: React.FC = () => {
                         </div>
                     </div>
                 </div>
-
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                    <div className="flex items-center space-x-3">
-                        <div className="bg-yellow-500 p-2 rounded-lg">
-                            <Bell className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold text-yellow-600">{unreadCount}</p>
-                            <p className="text-sm text-gray-600">Sin Leer</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                    <div className="flex items-center space-x-3">
-                        <div className="bg-red-500 p-2 rounded-lg">
-                            <AlertTriangle className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold text-red-600">
-                                {mockNotifications.filter(n => n.severity === 'error').length}
-                            </p>
-                            <p className="text-sm text-gray-600">Críticas</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                    <div className="flex items-center space-x-3">
-                        <div className="bg-green-500 p-2 rounded-lg">
-                            <CheckCircle className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold text-green-600">
-                                {mockNotifications.filter(n => n.isRead).length}
-                            </p>
-                            <p className="text-sm text-gray-600">Leídas</p>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             {/* Filters */}

@@ -44,64 +44,106 @@ interface Message {
 const mockConversations: Conversation[] = [
     {
         id: '1',
-        title: 'RFI-2025-001 - Instalaciones Eléctricas',
-        type: 'project',
-        participants: ['Ing. María González', 'Cliente', 'Supervisor'],
-        lastMessage: 'La respuesta ha sido enviada, favor revisar',
+        title: 'Grupo de Contratista y Encargados - 3 Especialistas MEP',
+        type: 'group',
+        participants: ['Ing. Carlos Mendoza (HVAC)', 'Ing. María González (Eléctrico)', 'Ing. Ana López (Plomería)', 'Supervisor General'],
+        lastMessage: 'Revisión de coordinación semanal completada',
         lastMessageAt: '2025-05-23T14:30:00Z',
-        lastMessageBy: 'Ing. María González',
-        unreadCount: 2,
-        isActive: true,
-        relatedTo: {
-            type: 'rfi',
-            id: 'RFI-2025-001',
-            title: 'Clarificación instalaciones eléctricas Piso 3'
-        }
+        lastMessageBy: 'Supervisor General',
+        unreadCount: 0,
+        isActive: false
     },
     {
         id: '2',
-        type: 'direct',
-        participants: ['Ing. Luis Torres'],
-        lastMessage: '¿Podemos revisar las especificaciones HVAC mañana?',
+        title: 'Grupo General de Todos',
+        type: 'group',
+        participants: ['Todo el equipo MEP', 'Subcontratistas', 'Supervisores', 'Cliente'],
+        lastMessage: 'Nueva directiva de seguridad publicada - revisar antes del viernes',
         lastMessageAt: '2025-05-23T13:45:00Z',
-        lastMessageBy: 'Ing. Luis Torres',
-        unreadCount: 1,
+        lastMessageBy: 'Depto. Seguridad',
+        unreadCount: 0,
         isActive: false
     },
     {
         id: '3',
-        title: 'Equipo Plomería',
+        title: 'Grupo de Especialista HVAC',
         type: 'group',
-        participants: ['Ing. Ana López', 'Alberto Silva', 'Rosa Medina', 'Felipe Castro'],
-        lastMessage: 'Las pruebas hidráulicas están programadas para mañana',
+        participants: ['Ing. Carlos Mendoza', 'Luis Vargas', 'Ana Reyes', 'Miguel Torres'],
+        lastMessage: 'Las pruebas de balanceo están programadas para mañana',
         lastMessageAt: '2025-05-23T12:20:00Z',
-        lastMessageBy: 'Ing. Ana López',
+        lastMessageBy: 'Ing. Carlos Mendoza',
         unreadCount: 0,
         isActive: false
     },
     {
         id: '4',
-        title: 'Actividad: Instalación Ductos HVAC',
-        type: 'project',
-        participants: ['Carlos Mendoza', 'Luis Vargas', 'Supervisor'],
-        lastMessage: 'Material adicional llegará el viernes',
+        title: 'Grupo de Especialista Eléctrico',
+        type: 'group',
+        participants: ['Ing. María González', 'Roberto Díaz', 'Carmen López', 'Jorge Ramírez'],
+        lastMessage: 'Tableros principales listos para inspección',
         lastMessageAt: '2025-05-23T11:15:00Z',
-        lastMessageBy: 'Carlos Mendoza',
-        unreadCount: 3,
-        isActive: false,
-        relatedTo: {
-            type: 'activity',
-            id: 'ACT-001',
-            title: 'Instalación ductos HVAC - Área A'
-        }
+        lastMessageBy: 'Ing. María González',
+        unreadCount: 0,
+        isActive: false
     },
     {
         id: '5',
+        title: 'Grupo de Especialista Plomería',
+        type: 'group',
+        participants: ['Ing. Ana López', 'Alberto Silva', 'Rosa Medina', 'Felipe Castro'],
+        lastMessage: 'Material adicional llegará el viernes',
+        lastMessageAt: '2025-05-23T10:30:00Z',
+        lastMessageBy: 'Alberto Silva',
+        unreadCount: 0,
+        isActive: false
+    },
+    {
+        id: '6',
+        type: 'direct',
+        participants: ['Ing. Luis Torres'],
+        lastMessage: '¿Podemos revisar las especificaciones HVAC mañana?',
+        lastMessageAt: '2025-05-23T09:45:00Z',
+        lastMessageBy: 'Ing. Luis Torres',
+        unreadCount: 0,
+        isActive: false
+    },
+    {
+        id: '7',
         type: 'direct',
         participants: ['Ing. Sofia Ramírez'],
         lastMessage: 'Los certificados de rociadores están listos',
-        lastMessageAt: '2025-05-23T10:30:00Z',
+        lastMessageAt: '2025-05-23T09:30:00Z',
         lastMessageBy: 'Ing. Sofia Ramírez',
+        unreadCount: 0,
+        isActive: false
+    },
+    {
+        id: '8',
+        type: 'direct',
+        participants: ['Carlos Mendoza'],
+        lastMessage: 'Confirmación de entrega de equipos para el lunes',
+        lastMessageAt: '2025-05-23T08:15:00Z',
+        lastMessageBy: 'Carlos Mendoza',
+        unreadCount: 0,
+        isActive: false
+    },
+    {
+        id: '9',
+        type: 'direct',
+        participants: ['Supervisor de Obra'],
+        lastMessage: 'Reporte semanal enviado',
+        lastMessageAt: '2025-05-22T17:20:00Z',
+        lastMessageBy: 'Supervisor de Obra',
+        unreadCount: 0,
+        isActive: false
+    },
+    {
+        id: '10',
+        type: 'direct',
+        participants: ['Cliente Técnico'],
+        lastMessage: 'Aprobación de cambios recibida',
+        lastMessageAt: '2025-05-22T16:45:00Z',
+        lastMessageBy: 'Cliente Técnico',
         unreadCount: 0,
         isActive: false
     }
@@ -110,39 +152,129 @@ const mockConversations: Conversation[] = [
 const mockMessages: Message[] = [
     {
         id: '1',
-        senderId: 'maria-gonzalez',
-        senderName: 'Ing. María González',
-        content: 'La respuesta ha sido enviada, favor revisar los detalles en el documento adjunto.',
-        timestamp: '2025-05-23T14:30:00Z',
-        hasAttachments: true,
-        isRead: false
+        senderId: 'supervisor',
+        senderName: 'Supervisor General',
+        content: 'Buenos días equipo, necesitamos revisar las interferencias detectadas en el piso 3 zona norte.',
+        timestamp: '2025-05-23T08:30:00Z',
+        hasAttachments: false,
+        isRead: true
     },
     {
         id: '2',
-        senderId: 'supervisor',
-        senderName: 'Supervisor',
-        content: 'Perfecto, revisaré en breve y les confirmo.',
-        timestamp: '2025-05-23T14:25:00Z',
+        senderId: 'carlos-mendoza',
+        senderName: 'Ing. Carlos Mendoza (HVAC)',
+        content: 'Ya revisé los planos. El ducto principal de retorno está chocando con la tubería de agua helada.',
+        timestamp: '2025-05-23T08:35:00Z',
         hasAttachments: false,
-        isRead: false
+        isRead: true
     },
     {
         id: '3',
-        senderId: 'cliente',
-        senderName: 'Cliente',
-        content: '¿Cuándo podemos programar la reunión de seguimiento?',
-        timestamp: '2025-05-23T14:20:00Z',
-        hasAttachments: false,
+        senderId: 'maria-gonzalez',
+        senderName: 'Ing. María González (Eléctrico)',
+        content: 'Confirmo, las bandejas eléctricas también tienen conflicto en esa zona. Adjunto el clash detection.',
+        timestamp: '2025-05-23T08:42:00Z',
+        hasAttachments: true,
         isRead: true
     },
     {
         id: '4',
-        senderId: 'maria-gonzalez',
-        senderName: 'Ing. María González',
-        content: 'Hola equipo, he actualizado la RFI con las correcciones solicitadas.',
-        timestamp: '2025-05-23T14:15:00Z',
+        senderId: 'ana-lopez',
+        senderName: 'Ing. Ana López (Plomería)',
+        content: 'Puedo subir la tubería de agua helada 20cm, eso liberaría espacio para el ducto.',
+        timestamp: '2025-05-23T08:45:00Z',
         hasAttachments: false,
         isRead: true
+    },
+    {
+        id: '5',
+        senderId: 'carlos-mendoza',
+        senderName: 'Ing. Carlos Mendoza (HVAC)',
+        content: 'Perfecto Ana 👍 Con esos 20cm ya no hay interferencia. ¿Necesitas modificar el soporte?',
+        timestamp: '2025-05-23T08:47:00Z',
+        hasAttachments: false,
+        isRead: true
+    },
+    {
+        id: '6',
+        senderId: 'ana-lopez',
+        senderName: 'Ing. Ana López (Plomería)',
+        content: 'Sí, pero es menor. Solo ajustar las abrazaderas. Lo tengo listo para mañana.',
+        timestamp: '2025-05-23T08:50:00Z',
+        hasAttachments: false,
+        isRead: true
+    },
+    {
+        id: '7',
+        senderId: 'maria-gonzalez',
+        senderName: 'Ing. María González (Eléctrico)',
+        content: '¿Y las bandejas eléctricas? Necesito confirmar la altura final para coordinar los pases.',
+        timestamp: '2025-05-23T08:52:00Z',
+        hasAttachments: false,
+        isRead: true
+    },
+    {
+        id: '8',
+        senderId: 'carlos-mendoza',
+        senderName: 'Ing. Carlos Mendoza (HVAC)',
+        content: 'Con el ducto a 2.80m y la tubería a 2.60m, tu bandeja queda bien a 2.40m ¿ok?',
+        timestamp: '2025-05-23T08:55:00Z',
+        hasAttachments: false,
+        isRead: true
+    },
+    {
+        id: '9',
+        senderId: 'maria-gonzalez',
+        senderName: 'Ing. María González (Eléctrico)',
+        content: 'Perfecto, esa altura me funciona. Actualizo los planos hoy.',
+        timestamp: '2025-05-23T08:57:00Z',
+        hasAttachments: false,
+        isRead: true
+    },
+    {
+        id: '10',
+        senderId: 'supervisor',
+        senderName: 'Supervisor General',
+        content: 'Excelente coordinación equipo! 🎯 Carlos, ¿puedes mandar el plano actualizado al RFI-2025-001?',
+        timestamp: '2025-05-23T09:00:00Z',
+        hasAttachments: false,
+        isRead: true
+    },
+    {
+        id: '11',
+        senderId: 'carlos-mendoza',
+        senderName: 'Ing. Carlos Mendoza (HVAC)',
+        content: 'Claro, lo subo en 30 min junto con el isométrico actualizado.',
+        timestamp: '2025-05-23T09:02:00Z',
+        hasAttachments: false,
+        isRead: true
+    },
+    {
+        id: '12',
+        senderId: 'supervisor',
+        senderName: 'Supervisor General',
+        content: 'Perfecto. Reunión de seguimiento mañana 10:00 AM para cerrar este tema. Confirmen asistencia 📅',
+        timestamp: '2025-05-23T09:05:00Z',
+        hasAttachments: false,
+        isRead: false
+    },
+    {
+        id: '13',
+        senderId: 'ana-lopez',
+        senderName: 'Ing. Ana López (Plomería)',
+        content: 'Confirmado ✅',
+        timestamp: '2025-05-23T09:06:00Z',
+        hasAttachments: false,
+        isRead: false
+    },
+    {
+        id: '14',
+        senderId: 'maria-gonzalez',
+        senderName: 'Ing. María González (Eléctrico)',
+        content: 'Confirmado ✅',
+        timestamp: '2025-05-23T09:07:00Z',
+        hasAttachments: false,
+        isRead: false
     }
 ];
 
@@ -192,7 +324,6 @@ const DirectMessaging: React.FC = () => {
     );
 
     const activeConversation = mockConversations.find(c => c.id === selectedConversation);
-    const totalUnread = mockConversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
 
     return (
         <div className="space-y-6">
@@ -216,63 +347,8 @@ const DirectMessaging: React.FC = () => {
                 </button>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                    <div className="flex items-center space-x-3">
-                        <div className="bg-blue-500 p-2 rounded-lg">
-                            <MessageCircle className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold text-gray-900">{mockConversations.length}</p>
-                            <p className="text-sm text-gray-600">Conversaciones</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                    <div className="flex items-center space-x-3">
-                        <div className="bg-yellow-500 p-2 rounded-lg">
-                            <MessageCircle className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold text-yellow-600">{totalUnread}</p>
-                            <p className="text-sm text-gray-600">Sin Leer</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                    <div className="flex items-center space-x-3">
-                        <div className="bg-green-500 p-2 rounded-lg">
-                            <Users className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold text-green-600">
-                                {mockConversations.filter(c => c.type === 'group').length}
-                            </p>
-                            <p className="text-sm text-gray-600">Grupos</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                    <div className="flex items-center space-x-3">
-                        <div className="bg-purple-500 p-2 rounded-lg">
-                            <Hash className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold text-purple-600">
-                                {mockConversations.filter(c => c.relatedTo).length}
-                            </p>
-                            <p className="text-sm text-gray-600">Vinculadas</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             {/* Chat Interface */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden" style={{ height: '600px' }}>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden" style={{ height: 'auto' }}>
                 <div className="flex h-full">
                     {/* Conversations List */}
                     <div className="w-1/3 border-r border-gray-200 flex flex-col">
@@ -309,23 +385,16 @@ const DirectMessaging: React.FC = () => {
                                                 <h4 className="text-sm font-medium text-gray-900 truncate">
                                                     {getConversationTitle(conversation)}
                                                 </h4>
-                                                <div className="flex items-center space-x-1">
-                                                    <span className="text-xs text-gray-500">
-                                                        {formatTime(conversation.lastMessageAt)}
-                                                    </span>
-                                                    {conversation.unreadCount > 0 && (
-                                                        <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-1">
-                                                            {conversation.unreadCount}
-                                                        </span>
-                                                    )}
-                                                </div>
+                                                <span className="text-xs text-gray-500">
+                                                    {formatTime(conversation.lastMessageAt)}
+                                                </span>
                                             </div>
                                             <p className="text-sm text-gray-600 truncate">
                                                 <span className="font-medium">{conversation.lastMessageBy}:</span> {conversation.lastMessage}
                                             </p>
-                                            {conversation.relatedTo && (
+                                            {conversation.type === 'group' && (
                                                 <p className="text-xs text-blue-600 mt-1">
-                                                    📎 {conversation.relatedTo.type.toUpperCase()}: {conversation.relatedTo.id}
+                                                    👥 {conversation.participants.length} participantes
                                                 </p>
                                             )}
                                         </div>
@@ -349,11 +418,15 @@ const DirectMessaging: React.FC = () => {
                                                     {getConversationTitle(activeConversation)}
                                                 </h3>
                                                 <p className="text-sm text-gray-500">
-                                                    {activeConversation.participants.length} participante{activeConversation.participants.length > 1 ? 's' : ''}
+                                                    {activeConversation.type === 'group' 
+                                                        ? `${activeConversation.participants.length} participantes`
+                                                        : 'Conversación privada'
+                                                    }
                                                 </p>
-                                                {activeConversation.relatedTo && (
-                                                    <p className="text-xs text-blue-600">
-                                                        Vinculado a: {activeConversation.relatedTo.title}
+                                                {activeConversation.type === 'group' && (
+                                                    <p className="text-xs text-gray-400 mt-1">
+                                                        {activeConversation.participants.slice(0, 3).join(', ')}
+                                                        {activeConversation.participants.length > 3 && ` y ${activeConversation.participants.length - 3} más`}
                                                     </p>
                                                 )}
                                             </div>
@@ -381,9 +454,6 @@ const DirectMessaging: React.FC = () => {
                                                     <span className="text-xs text-gray-500">
                                                         {formatMessageTime(message.timestamp)}
                                                     </span>
-                                                    {!message.isRead && (
-                                                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                                    )}
                                                 </div>
                                                 <div className="bg-gray-100 rounded-lg p-3">
                                                     <p className="text-sm text-gray-900">{message.content}</p>
