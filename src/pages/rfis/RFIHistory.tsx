@@ -764,13 +764,6 @@ const RFIHistory: React.FC = () => {
                                 >
                                     Cerrar
                                 </button>
-                                <Link
-                                    to="/rfis/bandeja"
-                                    className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-                                    onClick={closeViewModal}
-                                >
-                                    Ver en Bandeja
-                                </Link>
                             </div>
                         </div>
                     </div>

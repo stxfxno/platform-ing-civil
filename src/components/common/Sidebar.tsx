@@ -61,10 +61,7 @@ const Sidebar: React.FC = () => {
                     flex items-center px-4 py-3 rounded-lg transition-all duration-200
                     ${active
                                             ? 'bg-primary-600 text-white shadow-md'
-                                            : 'text-slate-300 hover:bg-slate-700 hover:text-white'
-                                        }
-                  `}
-                                >
+                                            : 'text-slate-300 hover:bg-slate-700 hover:text-white'}`}>
                                     <Icon className="w-5 h-5 mr-3 flex-shrink-0" />
                                     <span className="flex-1 text-sm font-medium">{item.label}</span>
                                     {item.hasSubmenu && (

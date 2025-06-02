@@ -650,43 +650,42 @@ const RFIInbox: React.FC = () => {
                 )}
             </div>
 
-            {/* RFIs Table */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead className="bg-gray-50">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
                                     <button onClick={() => handleSort('rfiNumber')} className="flex items-center space-x-1">
                                         <span>RFI</span>
                                         <SortAsc className="w-3 h-3" />
                                     </button>
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Título
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
                                     <button onClick={() => handleSort('status')} className="flex items-center space-x-1">
                                         <span>Estado</span>
                                         <SortAsc className="w-3 h-3" />
                                     </button>
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
                                     <button onClick={() => handleSort('priority')} className="flex items-center space-x-1">
                                         <span>Prioridad</span>
                                         <SortAsc className="w-3 h-3" />
                                     </button>
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Visibilidad
+                                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
+                                    Privacidad
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">
                                     Asignado a
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
                                     Fecha límite
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">
                                     Acciones
                                 </th>
                             </tr>
@@ -700,19 +699,22 @@ const RFIInbox: React.FC = () => {
 
                                 return (
                                     <tr key={rfi.id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        <td className="px-4 py-4 whitespace-nowrap w-32">
                                             <div className="flex items-center">
-                                                
                                                 <div>
                                                     <div className="text-sm font-medium text-gray-900">{rfi.rfiNumber}</div>
                                                     <div className="text-xs text-gray-500">{formatDate(rfi.createdAt)}</div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <div className="max-w-xs">
-                                                <div className="text-sm font-medium text-gray-900 truncate">{rfi.title}</div>
-                                                <div className="text-xs text-gray-500 truncate">{rfi.location}</div>
+                                        <td className="px-4 py-4">
+                                            <div className="max-w-52">
+                                                <div className="text-sm font-medium text-gray-900 truncate" title={rfi.title}>
+                                                    {rfi.title}
+                                                </div>
+                                                <div className="text-xs text-gray-500 truncate" title={rfi.location}>
+                                                    {rfi.location}
+                                                </div>
                                                 <div className="flex items-center space-x-2 mt-1">
                                                     {rfi.attachments && rfi.attachments.length > 0 && (
                                                         <div className="flex items-center text-xs text-gray-500">
@@ -729,60 +731,59 @@ const RFIInbox: React.FC = () => {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        <td className="px-3 py-4 whitespace-nowrap w-24">
                                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusConfig[rfi.status as keyof typeof statusConfig]?.color || 'bg-gray-100 text-gray-800'}`}>
                                                 {statusConfig[rfi.status as keyof typeof statusConfig]?.label || rfi.status}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        <td className="px-3 py-4 whitespace-nowrap w-24">
                                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${priorityConfig[rfi.priority as keyof typeof priorityConfig]?.color || 'bg-gray-100 text-gray-800'}`}>
                                                 {priorityConfig[rfi.priority as keyof typeof priorityConfig]?.label || rfi.priority}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className={`inline-flex items-center space-x-1 px-2 py-1 text-xs font-semibold rounded-full ${getPrivacyColor(privacy)}`}>
+                                        <td className="px-3 py-4 whitespace-nowrap w-20">
+                                            <div className={`inline-flex items-center justify-center w-8 h-8 rounded-full ${getPrivacyColor(privacy)}`} title={privacy === 'privado' ? 'Privado' : 'Público'}>
                                                 {getPrivacyIcon(privacy)}
-                                                <span>{privacy === 'privado' ? 'Privado' : 'Público'}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        <td className="px-4 py-4 whitespace-nowrap w-40">
                                             <div className="flex items-center">
-                                                <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
-                                                    <User className="w-4 h-4 text-white" />
+                                                <div className="w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                                    <User className="w-3 h-3 text-white" />
                                                 </div>
-                                                <div className="ml-3">
-                                                    <div className="text-sm font-medium text-gray-900">
+                                                <div className="ml-2 max-w-44">
+                                                    <div className="text-xs font-medium text-gray-900 truncate" title={getUserName(rfi.assignedTo)}>
                                                         {getUserName(rfi.assignedTo)}
                                                     </div>
-                                                    <div className="text-xs text-gray-500">
+                                                    <div className="text-xs text-gray-500 truncate" title={MEP_DISCIPLINES[rfi.discipline as keyof typeof MEP_DISCIPLINES]?.label || rfi.discipline}>
                                                         {MEP_DISCIPLINES[rfi.discipline as keyof typeof MEP_DISCIPLINES]?.label || rfi.discipline}
                                                     </div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        <td className="px-3 py-4 whitespace-nowrap w-32">
                                             {rfi.dueDate ? (
                                                 <div className="flex items-center">
-                                                    <Calendar className={`w-4 h-4 mr-2 ${isOverdue ? 'text-red-500' : isDueSoon ? 'text-yellow-500' : 'text-gray-400'}`} />
-                                                    <div>
-                                                        <div className={`text-sm ${isOverdue ? 'text-red-600 font-medium' : isDueSoon ? 'text-yellow-600 font-medium' : 'text-gray-900'}`}>
+                                                    <Calendar className={`w-3 h-3 mr-1 flex-shrink-0 ${isOverdue ? 'text-red-500' : isDueSoon ? 'text-yellow-500' : 'text-gray-400'}`} />
+                                                    <div className="min-w-0">
+                                                        <div className={`text-xs ${isOverdue ? 'text-red-600 font-medium' : isDueSoon ? 'text-yellow-600 font-medium' : 'text-gray-900'}`}>
                                                             {formatDate(rfi.dueDate)}
                                                         </div>
                                                         {daysUntilDue !== null && (
                                                             <div className={`text-xs ${isOverdue ? 'text-red-500' : isDueSoon ? 'text-yellow-500' : 'text-gray-500'}`}>
-                                                                {isOverdue ? `Vencida hace ${Math.abs(daysUntilDue)} días` :
+                                                                {isOverdue ? `Vencida hace ${Math.abs(daysUntilDue)}d` :
                                                                     daysUntilDue === 0 ? 'Vence hoy' :
-                                                                        `${daysUntilDue} días restantes`}
+                                                                        `${daysUntilDue}d restantes`}
                                                             </div>
                                                         )}
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <span className="text-sm text-gray-500">Sin fecha límite</span>
+                                                <span className="text-xs text-gray-500">Sin fecha</span>
                                             )}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <div className="flex items-center space-x-2">
+                                        <td className="px-3 py-4 whitespace-nowrap text-right text-sm font-medium w-28">
+                                            <div className="flex items-center justify-end space-x-1">
                                                 <button
                                                     onClick={() => handleViewRFI(rfi)}
                                                     className="text-blue-600 hover:text-blue-900 p-1 rounded transition-colors"
