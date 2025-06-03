@@ -146,6 +146,8 @@ const ContractorReports: React.FC = () => {
         'Mecánica Avanzada S.A.C.',
     ];
 
+    
+
     // Funcionalidad 1: Aprobar reporte
     const handleApprove = () => {
         if (!selectedReport) return;
