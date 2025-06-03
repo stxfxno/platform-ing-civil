@@ -214,11 +214,16 @@ const ProgressTracking: React.FC = () => {
     const [newProgress, setNewProgress] = useState(0);
     const [newStatus, setNewStatus] = useState('');
     const [newComment, setNewComment] = useState('');
-    const [newIssue, setNewIssue] = useState({
+    const [newIssue, setNewIssue] = useState<{
+        title: string;
+        description: string;
+        category: Issue['category'];
+        impact: Issue['impact'];
+    }>({
         title: '',
         description: '',
-        category: 'material' as const,
-        impact: 'medio' as const
+        category: 'material',
+        impact: 'medio'
     });
     const [selectedPhotoType, setSelectedPhotoType] = useState<keyof typeof photoTypes>('durante');
     const [photoDescription, setPhotoDescription] = useState('');
@@ -270,6 +275,7 @@ const ProgressTracking: React.FC = () => {
             text: newComment,
             author: 'Usuario Actual',
             timestamp: new Date().toISOString(),
+            isPublic: true // Agregar esta línea faltante
         };
 
         setProgressData(progressData.map(item =>
@@ -303,7 +309,7 @@ const ProgressTracking: React.FC = () => {
                 : item
         ));
 
-        setNewIssue({ title: '', description: '', category: 'material', impact: 'medio' });
+        setNewIssue({ title: '', description: '', category: 'material' as const, impact: 'medio' as const });
     };
 
     // Editar problema
@@ -317,7 +323,6 @@ const ProgressTracking: React.FC = () => {
         });
     };
 
-    // Actualizar problema
     const handleUpdateIssue = () => {
         if (!selectedActivity || !editingIssue || !newIssue.title.trim()) return;
 
@@ -341,7 +346,7 @@ const ProgressTracking: React.FC = () => {
         ));
 
         setEditingIssue(null);
-        setNewIssue({ title: '', description: '', category: 'material', impact: 'medio' });
+        setNewIssue({ title: '', description: '', category: 'material' as const, impact: 'medio' as const });
     };
 
     // Eliminar problema
@@ -533,9 +538,9 @@ const ProgressTracking: React.FC = () => {
                                     <Trash2 className="w-4 h-4" />
                                 </button>
                                 <span className={`px-2 py-1 text-xs rounded-full ${issue.impact === 'critico' ? 'bg-red-200 text-red-800' :
-                                        issue.impact === 'alto' ? 'bg-orange-200 text-orange-800' :
-                                            issue.impact === 'medio' ? 'bg-yellow-200 text-yellow-800' :
-                                                'bg-green-200 text-green-800'
+                                    issue.impact === 'alto' ? 'bg-orange-200 text-orange-800' :
+                                        issue.impact === 'medio' ? 'bg-yellow-200 text-yellow-800' :
+                                            'bg-green-200 text-green-800'
                                     }`}>
                                     {issueImpacts[issue.impact]}
                                 </span>
@@ -587,7 +592,7 @@ const ProgressTracking: React.FC = () => {
                             </label>
                             <select
                                 value={newIssue.category}
-                                onChange={(e) => setNewIssue({ ...newIssue, category: e.target.value as any })}
+                                onChange={(e) => setNewIssue({ ...newIssue, category: e.target.value as Issue['category'] })}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             >
                                 {Object.entries(issueCategories).map(([key, label]) => (
@@ -601,7 +606,7 @@ const ProgressTracking: React.FC = () => {
                             </label>
                             <select
                                 value={newIssue.impact}
-                                onChange={(e) => setNewIssue({ ...newIssue, impact: e.target.value as any })}
+                                onChange={(e) => setNewIssue({ ...newIssue, impact: e.target.value as Issue['impact'] })}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             >
                                 {Object.entries(issueImpacts).map(([key, label]) => (
@@ -623,7 +628,7 @@ const ProgressTracking: React.FC = () => {
                                 <button
                                     onClick={() => {
                                         setEditingIssue(null);
-                                        setNewIssue({ title: '', description: '', category: 'material', impact: 'medio' });
+                                        setNewIssue({ title: '', description: '', category: 'material' as const, impact: 'medio' as const });
                                     }}
                                     className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
                                 >
@@ -662,10 +667,10 @@ const ProgressTracking: React.FC = () => {
                                 />
                                 <div className="absolute bottom-1 left-1 right-1">
                                     <span className={`px-1 py-0.5 text-xs rounded ${photo.type === 'antes' ? 'bg-gray-800 text-white' :
-                                            photo.type === 'durante' ? 'bg-blue-800 text-white' :
-                                                photo.type === 'despues' ? 'bg-green-800 text-white' :
-                                                    photo.type === 'problema' ? 'bg-red-800 text-white' :
-                                                        'bg-purple-800 text-white'
+                                        photo.type === 'durante' ? 'bg-blue-800 text-white' :
+                                            photo.type === 'despues' ? 'bg-green-800 text-white' :
+                                                photo.type === 'problema' ? 'bg-red-800 text-white' :
+                                                    'bg-purple-800 text-white'
                                         }`}>
                                         {photoTypes[photo.type]}
                                     </span>
@@ -909,8 +914,8 @@ const ProgressTracking: React.FC = () => {
                                             <div className="w-full bg-gray-200 rounded-full h-2">
                                                 <div
                                                     className={`h-2 rounded-full ${item.status === 'ahead' ? 'bg-blue-500' :
-                                                            item.status === 'on_track' ? 'bg-green-500' :
-                                                                item.status === 'delayed' ? 'bg-red-500' : 'bg-yellow-500'
+                                                        item.status === 'on_track' ? 'bg-green-500' :
+                                                            item.status === 'delayed' ? 'bg-red-500' : 'bg-yellow-500'
                                                         }`}
                                                     style={{ width: `${item.actualProgress}%` }}
                                                 ></div>
@@ -999,8 +1004,8 @@ const ProgressTracking: React.FC = () => {
                                             key={tab.key}
                                             onClick={() => setActiveTab(tab.key as 'progress' | 'comments' | 'issues' | 'photos')}
                                             className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${activeTab === tab.key
-                                                    ? 'border-blue-500 text-blue-600'
-                                                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                                                ? 'border-blue-500 text-blue-600'
+                                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                                 }`}
                                         >
                                             <Icon className="w-4 h-4" />
@@ -1039,7 +1044,7 @@ const ProgressTracking: React.FC = () => {
                                     setShowProgressModal(false);
                                     setActiveTab('progress');
                                     setNewComment('');
-                                    setNewIssue({ title: '', description: '', category: 'material', impact: 'medio' });
+                                    setNewIssue({ title: '', description: '', category: 'material' as const, impact: 'medio' as const });
                                     setPhotoDescription('');
                                     setEditingIssue(null);
                                 }}

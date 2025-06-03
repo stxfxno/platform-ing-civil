@@ -570,15 +570,15 @@ const RFIHistory: React.FC = () => {
                                             <span className="text-sm font-medium text-gray-500">Prioridad:</span>
                                             <div className="mt-1">
                                                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                                    ['critical', 'urgente'].includes(viewModal.rfi.priority) ? 'bg-red-100 text-red-800' :
-                                                    ['high', 'Alta'].includes(viewModal.rfi.priority) ? 'bg-orange-100 text-orange-800' :
-                                                    ['medium', 'Media'].includes(viewModal.rfi.priority) ? 'bg-yellow-100 text-yellow-800' :
+                                                    ['critical', 'urgente'].includes(viewModal.rfi.priority.toLowerCase()) ? 'bg-red-100 text-red-800' :
+                                                    ['high', 'alta'].includes(viewModal.rfi.priority.toLowerCase()) ? 'bg-orange-100 text-orange-800' :
+                                                    ['medium', 'media'].includes(viewModal.rfi.priority.toLowerCase()) ? 'bg-yellow-100 text-yellow-800' :
                                                     'bg-green-100 text-green-800'
                                                 }`}>
-                                                    {viewModal.rfi.priority === 'critical' || viewModal.rfi.priority === 'urgente' ? 'Crítica' :
-                                                    viewModal.rfi.priority === 'high' || viewModal.rfi.priority === 'Alta' ? 'Alta' :
-                                                    viewModal.rfi.priority === 'medium' || viewModal.rfi.priority === 'Media' ? 'Media' :
-                                                    viewModal.rfi.priority === 'low' || viewModal.rfi.priority === 'Baja' ? 'Baja' :
+                                                    {['critical', 'urgente'].includes(viewModal.rfi.priority.toLowerCase()) ? 'Urgente' :
+                                                    ['high', 'alta'].includes(viewModal.rfi.priority.toLowerCase()) ? 'Alta' :
+                                                    ['medium', 'media'].includes(viewModal.rfi.priority.toLowerCase()) ? 'Media' :
+                                                    ['low', 'baja'].includes(viewModal.rfi.priority.toLowerCase()) ? 'Baja' :
                                                     viewModal.rfi.priority}
                                                 </span>
                                             </div>
