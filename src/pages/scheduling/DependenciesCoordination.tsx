@@ -196,21 +196,6 @@ const DependenciesCoordination: React.FC = () => {
         alert('Plan de mitigación creado');
     };
 
-    // Funcionalidad 4: Asignar coordinador
-    const assignCoordinator = (dep: Dependency, coordinator: string) => {
-        setDependencies(dependencies.map(d => 
-            d.id === dep.id ? { ...d, coordinator } : d
-        ));
-        alert(`Coordinador asignado: ${coordinator}`);
-    };
-
-    // Funcionalidad 5: Programar reunión
-    const handleScheduleMeeting = (dep: Dependency) => {
-        setSelectedDep(dep);
-        setMeetingData({ date: '', time: '', attendees: dep.coordinator || '' });
-        setShowMeetingModal(true);
-    };
-
     const scheduleMeeting = () => {
         if (!meetingData.date || !meetingData.time) return;
         
@@ -247,19 +232,6 @@ const DependenciesCoordination: React.FC = () => {
         
         setShowResolveModal(false);
         alert('Dependencia marcada como resuelta');
-    };
-
-    // Funcionalidad 8: Documentar solución
-    const documentSolution = (dep: Dependency, solution: string) => {
-        setDependencies(dependencies.map(d => 
-            d.id === dep.id ? { ...d, solution } : d
-        ));
-        alert('Solución documentada');
-    };
-
-    // Funcionalidad 9: Actualizar cronograma
-    const updateSchedule = (dep: Dependency) => {
-        alert(`Actualizando cronograma por dependencia: ${dep.title}\nImpacto: ${dep.lag} días de retraso`);
     };
 
     return (
@@ -412,13 +384,6 @@ const DependenciesCoordination: React.FC = () => {
                                     <Users className="w-5 h-5" />
                                 </button>
 
-                                <button
-                                    onClick={() => handleScheduleMeeting(dep)}
-                                    className="p-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-100 rounded-lg transition-colors"
-                                    title="Programar reunión"
-                                >
-                                    <Calendar className="w-5 h-5" />
-                                </button>
 
                                 <button
                                     onClick={() => deleteDependency(dep)}
@@ -762,7 +727,6 @@ const DependenciesCoordination: React.FC = () => {
                                 <li>• 🔄 Cambiar estado (activa/bloqueada/resuelta)</li>
                                 <li>• 📋 Crear plan de mitigación</li>
                                 <li>• 👥 Asignar coordinador</li>
-                                <li>• 📅 Programar reunión de coordinación</li>
                                 <li>• 🗑️ Eliminar dependencia</li>
                                 <li>• ✅ Marcar como resuelta (con evidencia)</li>
                                 <li>• 📝 Documentar solución</li>

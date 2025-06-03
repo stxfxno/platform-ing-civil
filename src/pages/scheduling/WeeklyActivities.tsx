@@ -15,7 +15,6 @@ import {
     Copy,
     Trash2,
     Download,
-    GitBranch,
     X,
     Save,
     Upload
@@ -255,11 +254,6 @@ const WeeklyActivities: React.FC = () => {
         setActionMenuOpen(null);
     };
 
-    const handleManageDependencies = (activity: WeeklyActivityData) => {
-        setSelectedActivity(activity);
-        setShowDependenciesModal(true);
-        setActionMenuOpen(null);
-    };
 
     const handleDeleteActivity = (activity: WeeklyActivityData) => {
         if (window.confirm(`¿Estás seguro de que deseas eliminar la actividad "${activity.title}"?`)) {
@@ -336,13 +330,6 @@ const WeeklyActivities: React.FC = () => {
                 >
                     <Copy className="w-4 h-4 mr-3" />
                     Duplicar actividad
-                </button>
-                <button
-                    onClick={() => handleManageDependencies(activity)}
-                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                    <GitBranch className="w-4 h-4 mr-3" />
-                    Gestionar dependencias
                 </button>
                 <button
                     onClick={() => handleExportActivity(activity)}

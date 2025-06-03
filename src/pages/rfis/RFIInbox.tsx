@@ -708,7 +708,7 @@ const RFIInbox: React.FC = () => {
                                             </div>
                                         </td>
                                         <td className="px-4 py-4">
-                                            <div className="max-w-52">
+                                            <div className="max-w-96">
                                                 <div className="text-sm font-medium text-gray-900 truncate" title={rfi.title}>
                                                     {rfi.title}
                                                 </div>
