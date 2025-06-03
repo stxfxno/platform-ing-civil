@@ -53,7 +53,7 @@ const menuOptions: MenuOption[] = [
             label: 'Paquetes activos',
             trend: 'stable'
         }
-    },*/
+    },
     {
         title: 'Clarificación del Alcance',
         description: 'Sección para registrar y formalizar las clarificaciones y acuerdos sobre el alcance con cada subcontratista MEP.',
@@ -65,9 +65,9 @@ const menuOptions: MenuOption[] = [
             label: 'Clarificaciones pendientes',
             trend: 'down'
         }
-    },
+    },*/
     {
-        title: 'Módulo de Preguntas y Respuestas (Q&A)',
+        title: 'Clarificación del Alcance y Preguntas y Respuestas (Q&A)',
         description: 'Durante el proceso de licitación, un espacio para que los licitantes hagan preguntas y reciban respuestas, garantizando equidad y transparencia.',
         path: '/alcance/qa',
         icon: HelpCircle,
@@ -325,107 +325,6 @@ const ScopeMenu: React.FC = () => {
                         </Link>
                     );
                 })}
-            </div>
-
-            {/* Two Column Layout for Recent Activities */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Recent Bid Packages */}
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-semibold text-gray-900">Paquetes de Licitación Recientes</h2>
-                        <Link
-                            to="/alcance/licitaciones"
-                            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                        >
-                            Ver todos →
-                        </Link>
-                    </div>
-
-                    <div className="space-y-3">
-                        {recentBidPackages.map((pkg) => (
-                            <div key={pkg.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                                <div className="flex items-start justify-between mb-2">
-                                    <div className="flex-1">
-                                        <div className="flex items-center space-x-2 mb-1">
-                                            <span className="text-sm font-medium text-gray-500">{pkg.id}</span>
-                                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(pkg.status)}`}>
-                                                {getStatusLabel(pkg.status)}
-                                            </span>
-                                        </div>
-                                        <h4 className="font-medium text-gray-900">{pkg.name}</h4>
-                                        <p className="text-sm text-gray-600">{pkg.discipline}</p>
-                                    </div>
-                                </div>
-                                
-                                <div className="flex items-center justify-between text-sm text-gray-500 mt-3">
-                                    <div className="flex items-center space-x-4">
-                                        <span className="flex items-center">
-                                            <Users className="w-4 h-4 mr-1" />
-                                            {pkg.applicants} licitantes
-                                        </span>
-                                        <span className="flex items-center">
-                                            <FileText className="w-4 h-4 mr-1" />
-                                            {pkg.documents} docs
-                                        </span>
-                                    </div>
-                                    <span className="flex items-center">
-                                        <Calendar className="w-4 h-4 mr-1" />
-                                        {new Date(pkg.deadline).toLocaleDateString('es-PE', {
-                                            day: '2-digit',
-                                            month: '2-digit'
-                                        })}
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Pending Clarifications */}
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-semibold text-gray-900">Clarificaciones Pendientes</h2>
-                        <Link
-                            to="/alcance/clarificaciones"
-                            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                        >
-                            Ver todas →
-                        </Link>
-                    </div>
-
-                    <div className="space-y-3">
-                        {pendingClarifications.map((clarification) => (
-                            <div key={clarification.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                                <div className="flex items-start justify-between mb-2">
-                                    <div className="flex-1">
-                                        <div className="flex items-center space-x-2 mb-1">
-                                            <span className="text-sm font-medium text-gray-500">{clarification.id}</span>
-                                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(clarification.status)}`}>
-                                                {getStatusLabel(clarification.status)}
-                                            </span>
-                                            <span className={`text-xs font-medium ${getPriorityColor(clarification.priority)}`}>
-                                                ● {clarification.priority.toUpperCase()}
-                                            </span>
-                                        </div>
-                                        <h4 className="font-medium text-gray-900">{clarification.title}</h4>
-                                        <p className="text-sm text-gray-600">{clarification.contractor}</p>
-                                    </div>
-                                </div>
-                                
-                                <div className="flex items-center justify-between text-sm text-gray-500 mt-3">
-                                    <span>{clarification.discipline}</span>
-                                    <span className="flex items-center">
-                                        <Calendar className="w-4 h-4 mr-1" />
-                                        {new Date(clarification.createdAt).toLocaleDateString('es-PE', {
-                                            day: '2-digit',
-                                            month: '2-digit'
-                                        })}
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
             </div>
 
             {/* Information Panel */}
