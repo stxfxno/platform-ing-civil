@@ -1,19 +1,15 @@
 // src/pages/scope/ScopeMenu.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { 
-    Target, 
-    FileText, 
-    Package, 
-    MessageSquare, 
+import {
+    Target,
+    Package,
+    MessageSquare,
     HelpCircle,
     Users,
-    Calendar,
     CheckCircle,
     Clock,
-    //AlertTriangle,
     Archive,
-    //Eye
 } from 'lucide-react';
 
 interface MenuOption {
@@ -53,11 +49,11 @@ const menuOptions: MenuOption[] = [
             label: 'Paquetes activos',
             trend: 'stable'
         }
-    },
+    },*/
     {
-        title: 'Clarificación del Alcance',
+        title: 'Presupuestos',
         description: 'Sección para registrar y formalizar las clarificaciones y acuerdos sobre el alcance con cada subcontratista MEP.',
-        path: '/alcance/clarificaciones',
+        path: '/alcance/presupuestos',
         icon: MessageSquare,
         color: 'bg-yellow-500',
         stats: {
@@ -65,7 +61,7 @@ const menuOptions: MenuOption[] = [
             label: 'Clarificaciones pendientes',
             trend: 'down'
         }
-    },*/
+    },
     {
         title: 'Clarificación del Alcance y Preguntas y Respuestas (Q&A)',
         description: 'Durante el proceso de licitación, un espacio para que los licitantes hagan preguntas y reciban respuestas, garantizando equidad y transparencia.',
@@ -115,110 +111,8 @@ const scopeStats = [
     }
 ];
 
-const recentBidPackages = [
-    {
-        id: 'BP-001',
-        name: 'Sistema HVAC - Torres A y B',
-        discipline: 'HVAC',
-        status: 'active',
-        deadline: '2025-06-15',
-        applicants: 5,
-        documents: 12
-    },
-    {
-        id: 'BP-002',
-        name: 'Instalaciones Eléctricas - Nivel Sótano',
-        discipline: 'Eléctrico',
-        status: 'preparation',
-        deadline: '2025-06-20',
-        applicants: 0,
-        documents: 8
-    },
-    {
-        id: 'BP-003',
-        name: 'Sistema Contra Incendios - Completo',
-        discipline: 'Protección Contra Incendios',
-        status: 'evaluation',
-        deadline: '2025-05-30',
-        applicants: 3,
-        documents: 15
-    },
-    {
-        id: 'BP-004',
-        name: 'Plomería y Sanitarios - Pisos 1-5',
-        discipline: 'Plomería',
-        status: 'closed',
-        deadline: '2025-05-15',
-        applicants: 7,
-        documents: 10
-    }
-];
-
-const pendingClarifications = [
-    {
-        id: 'CL-001',
-        title: 'Especificaciones de ductos en zona técnica',
-        contractor: 'HVAC Solutions S.A.C.',
-        discipline: 'HVAC',
-        priority: 'high',
-        createdAt: '2025-05-20',
-        status: 'pending'
-    },
-    {
-        id: 'CL-002',
-        title: 'Ubicación de tableros eléctricos principales',
-        contractor: 'Electro Instalaciones Perú',
-        discipline: 'Eléctrico',
-        priority: 'medium',
-        createdAt: '2025-05-19',
-        status: 'in_review'
-    },
-    {
-        id: 'CL-003',
-        title: 'Materiales para tuberías de agua helada',
-        contractor: 'MEP Contractors Inc.',
-        discipline: 'Mecánico',
-        priority: 'low',
-        createdAt: '2025-05-18',
-        status: 'responded'
-    }
-];
 
 const ScopeMenu: React.FC = () => {
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'active': return 'bg-green-100 text-green-800';
-            case 'preparation': return 'bg-blue-100 text-blue-800';
-            case 'evaluation': return 'bg-yellow-100 text-yellow-800';
-            case 'closed': return 'bg-gray-100 text-gray-800';
-            case 'pending': return 'bg-red-100 text-red-800';
-            case 'in_review': return 'bg-yellow-100 text-yellow-800';
-            case 'responded': return 'bg-green-100 text-green-800';
-            default: return 'bg-gray-100 text-gray-800';
-        }
-    };
-
-    const getStatusLabel = (status: string) => {
-        switch (status) {
-            case 'active': return 'Activo';
-            case 'preparation': return 'Preparación';
-            case 'evaluation': return 'Evaluación';
-            case 'closed': return 'Cerrado';
-            case 'pending': return 'Pendiente';
-            case 'in_review': return 'En Revisión';
-            case 'responded': return 'Respondida';
-            default: return status;
-        }
-    };
-
-    const getPriorityColor = (priority: string) => {
-        switch (priority) {
-            case 'high': return 'text-red-600';
-            case 'medium': return 'text-yellow-600';
-            case 'low': return 'text-green-600';
-            default: return 'text-gray-600';
-        }
-    };
 
     const getTrendIcon = (trend?: string) => {
         switch (trend) {
@@ -309,10 +203,9 @@ const ScopeMenu: React.FC = () => {
                                                 <div className="flex items-center space-x-1">
                                                     <span className="text-lg font-bold text-gray-900">{option.stats.count}</span>
                                                     {option.stats.trend && (
-                                                        <span className={`text-sm ${
-                                                            option.stats.trend === 'up' ? 'text-green-600' :
-                                                            option.stats.trend === 'down' ? 'text-red-600' : 'text-gray-600'
-                                                        }`}>
+                                                        <span className={`text-sm ${option.stats.trend === 'up' ? 'text-green-600' :
+                                                                option.stats.trend === 'down' ? 'text-red-600' : 'text-gray-600'
+                                                            }`}>
                                                             {getTrendIcon(option.stats.trend)}
                                                         </span>
                                                     )}
@@ -332,7 +225,7 @@ const ScopeMenu: React.FC = () => {
                 <h3 className="text-lg font-semibold text-blue-900 mb-3">Gestión del Alcance MEP</h3>
                 <div className="text-sm text-blue-800 space-y-3">
                     <p>
-                        <strong>Gestión del Alcance</strong> centraliza toda la documentación técnica, procesos de licitación 
+                        <strong>Gestión del Alcance</strong> centraliza toda la documentación técnica, procesos de licitación
                         y comunicación con subcontratistas para garantizar claridad y transparencia en el proyecto MEP.
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">

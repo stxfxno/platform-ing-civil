@@ -49,7 +49,7 @@ const menuOptions: MenuOption[] = [
         icon: BarChart3,
         color: 'bg-green-500',
         stats: {
-            count: 247,
+            count: 100,
             label: 'Actividades totales',
             trend: 'up'
         }
@@ -92,15 +92,15 @@ const projectStats = [
     {
         label: 'Actividades Completadas',
         value: 89,
-        total: 247,
+        total: 120,
         icon: CheckCircle,
         color: 'text-green-600 bg-green-50',
         unit: 'act'
     },
     {
         label: 'Actividades Críticas',
-        value: 12,
-        total: 247,
+        value: 3,
+        total: 7,
         icon: AlertTriangle,
         color: 'text-red-600 bg-red-50',
         unit: 'act'

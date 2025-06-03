@@ -27,10 +27,8 @@ const Login: React.FC = () => {
         try {
             const success = await login(formData.email, formData.password);
             if (!success) {
-                setError('Credenciales inválidas. Use: admin@civil.com / admin123');
+                setError('Credenciales inválidas.');
             }
-        } catch (err) {
-            setError('Error de conexión. Intente nuevamente.');
         } finally {
             setIsSubmitting(false);
         }
@@ -42,14 +40,6 @@ const Login: React.FC = () => {
             [e.target.name]: e.target.value
         }));
         if (error) setError('');
-    };
-
-    const handleDemoFill = () => {
-        setFormData({
-            email: 'admin@civil.com',
-            password: 'admin123'
-        });
-        setError('');
     };
 
     if (isLoading) {
@@ -210,30 +200,16 @@ const Login: React.FC = () => {
                             )}
                         </button>
 
-                        {/* Demo Fill Button */}
+                        {/* Demo Fill Button 
                         <button
                             type="button"
                             onClick={handleDemoFill}
                             className="w-full bg-slate-100 text-slate-700 py-3 px-4 rounded-lg font-medium hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-300 transition-colors text-sm"
                         >
                             Llenar datos de demostración
-                        </button>
+                        </button>*/}
                     </form>
 
-                    {/* Demo Credentials */}
-                    <div className="mt-8 p-4 bg-slate-100 rounded-lg">
-                        <h4 className="text-sm font-medium text-slate-700 mb-3">Credenciales de Demostración</h4>
-                        <div className="space-y-2 text-sm text-slate-600">
-                            <div className="flex justify-between">
-                                <span>Usuario:</span>
-                                <code className="bg-white px-2 py-1 rounded text-xs font-mono">admin@civil.com</code>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Contraseña:</span>
-                                <code className="bg-white px-2 py-1 rounded text-xs font-mono">admin123</code>
-                            </div>
-                        </div>
-                    </div>
 
                     {/* Footer */}
                     <div className="text-center mt-8 pt-6 border-t border-slate-200">

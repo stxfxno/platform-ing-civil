@@ -7,13 +7,11 @@ import {
     Clock,
     Users,
     Calendar,
-    Plus,
     X,
     Edit,
     Trash2,
     Save,
     User,
-    MessageSquare
 } from 'lucide-react';
 
 interface Dependency {
@@ -247,10 +245,10 @@ const DependenciesCoordination: React.FC = () => {
                         <p className="text-gray-600">Gestión de dependencias entre actividades MEP</p>
                     </div>
                 </div>
-                <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center">
+                {/*<button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center">
                     <Plus className="w-4 h-4 mr-2" />
                     Nueva Dependencia
-                </button>
+                </button>*/}
             </div>
 
             {/* Stats */}
@@ -427,7 +425,7 @@ const DependenciesCoordination: React.FC = () => {
                                     <label className="block text-sm font-medium text-gray-700 mb-2">Tipo</label>
                                     <select
                                         value={editForm.type || 'finish_to_start'}
-                                        onChange={(e) => setEditForm({ ...editForm, type: e.target.value as any })}
+                                        onChange={(e) => setEditForm({ ...editForm, type: e.target.value as Dependency['type'] })}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                                     >
                                         <option value="finish_to_start">Fin a Inicio</option>
@@ -711,42 +709,7 @@ const DependenciesCoordination: React.FC = () => {
                 </div>
             )}
 
-            {/* Information Panel */}
-            <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-purple-900 mb-3">Dependencias y Coordinación - Simple</h3>
-                <div className="text-sm text-purple-800 space-y-3">
-                    <p>
-                        <strong>Sistema funcional</strong> para gestionar dependencias entre actividades MEP
-                        con herramientas simples de coordinación y resolución.
-                    </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        <div>
-                            <h4 className="font-medium mb-2">Funcionalidades (9 implementadas):</h4>
-                            <ul className="space-y-1 text-sm">
-                                <li>• ✏️ Editar dependencia</li>
-                                <li>• 🔄 Cambiar estado (activa/bloqueada/resuelta)</li>
-                                <li>• 📋 Crear plan de mitigación</li>
-                                <li>• 👥 Asignar coordinador</li>
-                                <li>• 🗑️ Eliminar dependencia</li>
-                                <li>• ✅ Marcar como resuelta (con evidencia)</li>
-                                <li>• 📝 Documentar solución</li>
-                                <li>• 📊 Actualizar cronograma</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="font-medium mb-2">Beneficios:</h4>
-                            <ul className="space-y-1 text-sm">
-                                <li>• Control total de dependencias</li>
-                                <li>• Coordinación efectiva entre equipos</li>
-                                <li>• Resolución rápida de bloqueos</li>
-                                <li>• Planes de mitigación estructurados</li>
-                                <li>• Seguimiento de soluciones</li>
-                                <li>• Impacto en cronograma controlado</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
         </div>
     );
 };

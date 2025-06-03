@@ -997,7 +997,7 @@ const ProgressTracking: React.FC = () => {
                                     return (
                                         <button
                                             key={tab.key}
-                                            onClick={() => setActiveTab(tab.key as any)}
+                                            onClick={() => setActiveTab(tab.key as 'progress' | 'comments' | 'issues' | 'photos')}
                                             className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${activeTab === tab.key
                                                     ? 'border-blue-500 text-blue-600'
                                                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -1061,40 +1061,6 @@ const ProgressTracking: React.FC = () => {
                 </div>
             )}
 
-            {/* Information Panel */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-blue-900 mb-3">Seguimiento del Avance MEP - Simplificado</h3>
-                <div className="text-sm text-blue-800 space-y-3">
-                    <p>
-                        <strong>Seguimiento del Avance Semanal</strong> permite registrar y comparar el progreso
-                        real de las actividades MEP contra lo planificado, identificando desviaciones tempranas.
-                    </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        <div>
-                            <h4 className="font-medium mb-2">Funcionalidades:</h4>
-                            <ul className="space-y-1 text-sm">
-                                <li>• ✅ Actualizar progreso de actividades</li>
-                                <li>• ✅ Agregar comentarios del progreso</li>
-                                <li>• ✅ Reportar, editar y eliminar problemas</li>
-                                <li>• ✅ Subir fotos con categorización</li>
-                                <li>• ✅ Análisis visual de variaciones</li>
-                                <li>• ✅ Interfaz simplificada y directa</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="font-medium mb-2">Beneficios:</h4>
-                            <ul className="space-y-1 text-sm">
-                                <li>• Control proactivo del cronograma</li>
-                                <li>• Gestión eficiente de problemas</li>
-                                <li>• Documentación visual del progreso</li>
-                                <li>• Comunicación directa con equipos</li>
-                                <li>• Identificación temprana de retrasos</li>
-                                <li>• Interfaz simple y fácil de usar</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };

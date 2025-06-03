@@ -246,7 +246,7 @@ const RFIInbox: React.FC = () => {
             try {
                 // Eliminar del localStorage
                 const storedRFIs = JSON.parse(localStorage.getItem('civil_eng_rfis') || '[]');
-                const updatedStoredRFIs = storedRFIs.filter((r: any) => r.id !== rfiId);
+                const updatedStoredRFIs = storedRFIs.filter((r: RFI) => r.id !== rfiId);
                 localStorage.setItem('civil_eng_rfis', JSON.stringify(updatedStoredRFIs));
 
                 // Actualizar estado local

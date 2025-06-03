@@ -7,8 +7,6 @@ import {
     Upload,
     Folder,
     ArrowRight,
-    CheckCircle,
-    Clock,
     AlertCircle
 } from 'lucide-react';
 
@@ -77,16 +75,6 @@ const documentationOptions: DocumentationOption[] = [
 ];
 
 const DocumentationMenu: React.FC = () => {
-    const getTotalStats = () => {
-        return documentationOptions.reduce((acc, option) => ({
-            total: acc.total + option.stats.total,
-            pending: acc.pending + option.stats.pending,
-            approved: acc.approved + option.stats.approved
-        }), { total: 0, pending: 0, approved: 0 });
-    };
-
-    const totalStats = getTotalStats();
-
     return (
         <div className="space-y-6">
             {/* Header */}

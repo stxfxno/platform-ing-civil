@@ -1,5 +1,5 @@
 // src/pages/schedules/WeeklyActivities.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Plus,
     Calendar,
@@ -182,7 +182,12 @@ const priorityOptions = [
     { value: 'critical', label: 'Crítica', color: 'text-red-600' }
 ];
 
+const STORAGE_KEY = 'weekly_activities_data';
+
 const WeeklyActivities: React.FC = () => {
+
+    
+
     const [activities, setActivities] = useState<WeeklyActivityData[]>(mockActivities);
     const [selectedWeek] = useState('2025-05-26/2025-06-01');
     const [filterDiscipline, setFilterDiscipline] = useState<string>('');
@@ -257,7 +262,8 @@ const WeeklyActivities: React.FC = () => {
 
     const handleDeleteActivity = (activity: WeeklyActivityData) => {
         if (window.confirm(`¿Estás seguro de que deseas eliminar la actividad "${activity.title}"?`)) {
-            setActivities(activities.filter(a => a.id !== activity.id));
+            const updatedActivities = activities.filter(a => a.id !== activity.id);
+            setActivities(updatedActivities);
         }
         setActionMenuOpen(null);
     };
@@ -268,11 +274,48 @@ const WeeklyActivities: React.FC = () => {
         setActionMenuOpen(null);
     };
 
+    // Cargar datos del localStorage al montar el componente
+    useEffect(() => {
+        const savedActivities = localStorage.getItem(STORAGE_KEY);
+        if (savedActivities) {
+            try {
+                const parsedActivities = JSON.parse(savedActivities);
+                setActivities(parsedActivities);
+            } catch (error) {
+                console.error('Error parsing saved activities:', error);
+                // Si hay error, usar datos iniciales
+                setActivities(mockActivities);
+                saveToLocalStorage(mockActivities);
+            }
+        } else {
+            // Primera vez que se carga, usar datos iniciales
+            setActivities(mockActivities);
+            saveToLocalStorage(mockActivities);
+        }
+    }, []);
+
+    // Función para guardar en localStorage
+    const saveToLocalStorage = (activitiesData: WeeklyActivityData[]) => {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(activitiesData));
+        } catch (error) {
+            console.error('Error saving to localStorage:', error);
+        }
+    };
+
+    // Actualizar localStorage cada vez que cambien las actividades
+    useEffect(() => {
+        if (activities.length > 0) {
+            saveToLocalStorage(activities);
+        }
+    }, [activities]);
+
     const handleSaveEdit = () => {
         if (editFormData.id) {
-            setActivities(activities.map(a => 
+            const updatedActivities = activities.map(a => 
                 a.id === editFormData.id ? { ...a, ...editFormData } as WeeklyActivityData : a
-            ));
+            );
+            setActivities(updatedActivities);
             setShowEditModal(false);
             setEditFormData({});
         }
@@ -280,7 +323,8 @@ const WeeklyActivities: React.FC = () => {
 
     const handleSaveDuplicate = () => {
         if (editFormData) {
-            setActivities([...activities, editFormData as WeeklyActivityData]);
+            const updatedActivities = [...activities, editFormData as WeeklyActivityData];
+            setActivities(updatedActivities);
             setShowDuplicateModal(false);
             setEditFormData({});
         }
@@ -294,14 +338,14 @@ const WeeklyActivities: React.FC = () => {
                 activityId: `${template.discipline.toUpperCase()}-${Date.now()}`,
                 title: template.title,
                 description: template.description,
-                discipline: template.discipline as any,
+                discipline: template.discipline as WeeklyActivityData["discipline"],
                 assignedTo: '',
                 subcontractor: '',
                 startDate: '',
                 endDate: '',
                 status: 'planned',
                 progress: 0,
-                priority: template.priority as any,
+                priority: template.priority as WeeklyActivityData["priority"],
                 plannedHours: template.plannedHours,
                 actualHours: 0,
                 location: '',
@@ -367,7 +411,7 @@ const WeeklyActivities: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">Disciplina</label>
                     <select 
                         value={formData.discipline || ''}
-                        onChange={(e) => setFormData({ ...formData, discipline: e.target.value as any })}
+                        onChange={(e) => setFormData({ ...formData, discipline: e.target.value as WeeklyActivityData["discipline"] })}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     >
                         <option value="">Seleccionar disciplina</option>
@@ -450,7 +494,7 @@ const WeeklyActivities: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">Prioridad</label>
                     <select 
                         value={formData.priority || ''}
-                        onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
+                        onChange={(e) => setFormData({ ...formData, priority: e.target.value as WeeklyActivityData["priority"] })}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     >
                         {priorityOptions.map(option => (
@@ -475,7 +519,7 @@ const WeeklyActivities: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">Estado Inicial</label>
                     <select 
                         value={formData.status || ''}
-                        onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                        onChange={(e) => setFormData({ ...formData, status: e.target.value as WeeklyActivityData['status'] })}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                     >
                         {statusOptions.map(option => (
@@ -668,19 +712,6 @@ const WeeklyActivities: React.FC = () => {
                                             </div>
                                         )}
 
-                                        {/* Dependencies */}
-                                        {activity.dependencies && activity.dependencies.length > 0 && (
-                                            <div className="mt-4">
-                                                <span className="text-sm text-gray-500">Dependencias:</span>
-                                                <div className="flex flex-wrap gap-1 mt-1">
-                                                    {activity.dependencies.map((dep, idx) => (
-                                                        <span key={idx} className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">
-                                                            {dep}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
                                     </div>
                                 </div>
 
