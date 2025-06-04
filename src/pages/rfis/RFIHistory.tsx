@@ -854,7 +854,9 @@ const RFIHistory: React.FC = () => {
                                     <button
                                         onClick={() => {
                                             closeViewModal();
-                                            handleShowDownloadHistory(viewModal.rfi);
+                                            if (viewModal.rfi) {
+                                                handleShowDownloadHistory(viewModal.rfi);
+                                            }
                                         }}
                                         className="text-blue-600 hover:text-blue-800 text-sm font-medium underline"
                                     >

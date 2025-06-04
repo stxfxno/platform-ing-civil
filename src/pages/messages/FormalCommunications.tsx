@@ -5,7 +5,6 @@ import {
     Mail,
     Search,
     FileText,
-    Archive,
     Clock,
     ArrowLeft,
     Plus,

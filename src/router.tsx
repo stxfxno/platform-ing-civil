@@ -46,7 +46,6 @@ import ProjectOverview from './pages/schedules/ProjectOverview';
 import DocumentRepository from './pages/scope/DocumentRepository';
 import BidPackages from './pages/scope/BidPackages';
 import QAModule from './pages/scope/QAModule';
-import ScopeClarifications from './pages/scope/ScopeClarifications';
 import Budgets from './pages/scope/Budgets';
 
 /* Páginas placeholder temporales

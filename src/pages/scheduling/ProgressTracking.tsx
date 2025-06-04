@@ -548,7 +548,7 @@ const ProgressTracking: React.FC = () => {
     });
     const [selectedPhotoType, setSelectedPhotoType] = useState<keyof typeof photoTypes>('durante');
     const [photoDescription, setPhotoDescription] = useState('');
-    const [editingIssue, setEditingIssue] = useState<Issue | null>(null);
+    //const [editingIssue, setEditingIssue] = useState<Issue | null>(null);
 
     const currentWeekData = weeklyData[currentWeek];
     const progressData = currentWeekData.activities;
@@ -624,14 +624,14 @@ const ProgressTracking: React.FC = () => {
     const handleAddComment = () => {
         if (!selectedActivity || !newComment.trim()) return;
 
-        const comment: Comment = {
+        /*const comment: Comment = {
             id: `comment-${Date.now()}`,
             activityId: selectedActivity.activityId,
             text: newComment,
             author: 'Usuario Actual',
             timestamp: new Date().toISOString(),
             isPublic: true
-        };
+        };*/
 
         // Aquí actualizarías el estado global o localStorage
         setNewComment('');
@@ -642,7 +642,7 @@ const ProgressTracking: React.FC = () => {
     const handleReportIssue = () => {
         if (!selectedActivity || !newIssue.title.trim()) return;
 
-        const issue: Issue = {
+        /*const issue: Issue = {
             id: `issue-${Date.now()}`,
             activityId: selectedActivity.activityId,
             title: newIssue.title,
@@ -652,7 +652,7 @@ const ProgressTracking: React.FC = () => {
             status: 'nuevo',
             reportedBy: 'Usuario Actual',
             reportedAt: new Date().toISOString()
-        };
+        };*/
 
         // Aquí actualizarías el estado global o localStorage
         setNewIssue({ title: '', description: '', category: 'material', impact: 'medio' });
