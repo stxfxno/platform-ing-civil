@@ -14,8 +14,8 @@ import {
     Activity,
     Save,
     User,
-    Edit,
-    Trash2,
+    //Edit,
+    //Trash2,
     ChevronLeft,
     ChevronRight
 } from 'lucide-react';
@@ -348,7 +348,7 @@ const weeklyData: Record<number, WeekData> = {
                         activityId: 'GEN-015',
                         title: 'Inconveniente en instalación de señalética fotoluminiscente',
                         description: 'Algunas señales no se adhirieron correctamente en muros rugosos. Se está usando otro adhesivo.',
-                        category: 'técnico',
+                        category: 'material',
                         impact: 'bajo',
                         status: 'en_proceso',
                         reportedBy: 'Luis Quispe',
@@ -1302,7 +1302,7 @@ const ProgressTracking: React.FC = () => {
                                     setNewComment('');
                                     setNewIssue({ title: '', description: '', category: 'material', impact: 'medio' });
                                     setPhotoDescription('');
-                                    setEditingIssue(null);
+                                    //setEditingIssue(null);
                                 }}
                                 className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
                             >
