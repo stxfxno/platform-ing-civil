@@ -26,7 +26,7 @@ const menuItems: MenuItem[] = [
     { path: '/alcance', label: 'Alcance', icon: Target, hasSubmenu: true },
     { path: '/cronogramas', label: 'Cronogramas', icon: Clock, hasSubmenu: true },
     { path: '/documentacion', label: 'Documentación', icon: FileText, hasSubmenu: true },
-    { path: '/mensajes', label: 'Mensajes Pendientes', icon: MessageCircle, hasSubmenu: true },
+    { path: '/mensajes', label: 'Comunicaciones', icon: MessageCircle, hasSubmenu: true },
 ];
 
 const Sidebar: React.FC = () => {

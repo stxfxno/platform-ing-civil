@@ -80,7 +80,7 @@ const MessagesMenu: React.FC = () => {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Mensajes Pendientes</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">Comunicaciones</h1>
                     <p className="text-gray-600">Centro de comunicaciones y seguimiento del proyecto</p>
                 </div>
             </div>

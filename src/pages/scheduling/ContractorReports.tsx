@@ -750,57 +750,6 @@ const ContractorReports: React.FC = () => {
                     </div>
                 </div>
             )}
-
-            {/* Information Panel */}
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-orange-900 mb-3">Reporte de Subcontratistas - Con Persistencia</h3>
-                <div className="text-sm text-orange-800 space-y-3">
-                    <p>
-                        <strong>Sistema mejorado</strong> que guarda automáticamente todos los cambios en el navegador
-                        y permite solicitar reportes que aparecen instantáneamente en la lista.
-                    </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        <div>
-                            <h4 className="font-medium mb-2">Funcionalidades:</h4>
-                            <ul className="space-y-1 text-sm">
-                                <li>• ✅ Solicitar reportes a subcontratistas</li>
-                                <li>• 💾 Guardado automático en localStorage</li>
-                                <li>• 👁️ Ver detalles completos del reporte</li>
-                                <li>• ✅ Aprobar reportes (con comentarios)</li>
-                                <li>• ❌ Rechazar reportes (con motivos)</li>
-                                <li>• 📊 Estadísticas en tiempo real</li>
-                                <li>• 🔍 Filtros por estado y subcontratista</li>
-                                <li>• 🔄 Botón Reset para limpiar datos</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="font-medium mb-2">Mejoras implementadas:</h4>
-                            <ul className="space-y-1 text-sm">
-                                <li>• Los reportes solicitados aparecen inmediatamente</li>
-                                <li>• Persistencia de datos entre sesiones</li>
-                                <li>• Estados visuales claros (pendiente/enviado/etc)</li>
-                                <li>• Información de solicitud en reportes pendientes</li>
-                                <li>• Lista expandida de subcontratistas</li>
-                                <li>• Validación completa de formularios</li>
-                                <li>• Interfaz responsive y moderna</li>
-                                <li>• Manejo de errores robusto</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div className="bg-orange-100 border border-orange-300 rounded-lg p-3 mt-4">
-                        <h4 className="font-medium text-orange-900 mb-1">Cómo probar:</h4>
-                        <ol className="text-sm text-orange-800 space-y-1">
-                            <li>1. Haz clic en "Solicitar Reporte"</li>
-                            <li>2. Selecciona un subcontratista de la lista</li>
-                            <li>3. Escribe un mensaje personalizado</li>
-                            <li>4. Envía la solicitud</li>
-                            <li>5. Verás que aparece inmediatamente con estado "Pendiente"</li>
-                            <li>6. Los datos se mantienen al recargar la página</li>
-                            <li>7. Prueba aprobar/rechazar reportes con estado "Enviado"</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };

@@ -200,63 +200,6 @@ const FormalCommunications: React.FC = () => {
                 </button>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                    <div className="flex items-center space-x-3">
-                        <div className="bg-blue-500 p-2 rounded-lg">
-                            <Mail className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold text-gray-900">{mockCommunications.length}</p>
-                            <p className="text-sm text-gray-600">Total</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                    <div className="flex items-center space-x-3">
-                        <div className="bg-green-500 p-2 rounded-lg">
-                            <Reply className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold text-green-600">
-                                {mockCommunications.filter(c => c.status === 'responded').length}
-                            </p>
-                            <p className="text-sm text-gray-600">Respondidas</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                    <div className="flex items-center space-x-3">
-                        <div className="bg-yellow-500 p-2 rounded-lg">
-                            <Clock className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold text-yellow-600">
-                                {mockCommunications.filter(c => c.responseRequired && c.status !== 'responded').length}
-                            </p>
-                            <p className="text-sm text-gray-600">Pendientes Respuesta</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                    <div className="flex items-center space-x-3">
-                        <div className="bg-red-500 p-2 rounded-lg">
-                            <Archive className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold text-red-600">
-                                {mockCommunications.filter(c => c.responseRequired && isOverdue(c.responseDeadline)).length}
-                            </p>
-                            <p className="text-sm text-gray-600">Vencidas</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             {/* Filters */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
@@ -390,18 +333,7 @@ const FormalCommunications: React.FC = () => {
                         {/* Actions */}
                         <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                             <div className="flex items-center space-x-4">
-                                {comm.hasAttachments && (
-                                    <div className="flex items-center space-x-1 text-gray-500">
-                                        <Paperclip className="w-4 h-4" />
-                                        <span className="text-sm">Adjuntos</span>
-                                    </div>
-                                )}
-                                {comm.responseRequired && (
-                                    <div className="flex items-center space-x-1 text-blue-500">
-                                        <Reply className="w-4 h-4" />
-                                        <span className="text-sm">Respuesta requerida</span>
-                                    </div>
-                                )}
+                                
                             </div>
                             <div className="flex items-center space-x-2">
                                 <button className="text-blue-600 hover:text-blue-900 px-3 py-1 rounded border border-blue-200 hover:bg-blue-50 transition-colors text-sm flex items-center space-x-1">
@@ -414,10 +346,12 @@ const FormalCommunications: React.FC = () => {
                                         <span>Responder</span>
                                     </button>
                                 )}
-                                <button className="text-gray-600 hover:text-gray-900 px-3 py-1 rounded border border-gray-200 hover:bg-gray-50 transition-colors text-sm flex items-center space-x-1">
-                                    <Archive className="w-4 h-4" />
-                                    <span>Archivar</span>
-                                </button>
+                                {comm.hasAttachments && (
+                                    <button className="text-gray-600 hover:text-gray-900 px-3 py-1 rounded border border-gray-200 hover:bg-gray-50 transition-colors text-sm flex items-center space-x-1">
+                                        <Paperclip className="w-4 h-4" />
+                                        <span>Descargar</span>
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

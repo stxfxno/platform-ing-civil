@@ -18,7 +18,10 @@ import {
     Paperclip,
     X,
     Globe,
-    EyeOff
+    EyeOff,
+    Download,
+    Users,
+    Building
 } from 'lucide-react';
 import type { RFI } from '../../types/rfi';
 import { MEP_DISCIPLINES } from '../../types/common';
@@ -36,6 +39,67 @@ interface ViewModalData {
     rfi: RFI | null;
 }
 
+interface DownloadHistoryModalData {
+    isOpen: boolean;
+    rfi: RFI | null;
+}
+
+interface DownloadRecord {
+    id: string;
+    userId: string;
+    userName: string;
+    userCompany: string;
+    downloadDate: string;
+    documentType: 'rfi_pdf' | 'attachment' | 'response_doc';
+    documentName: string;
+    ipAddress?: string;
+    userAgent?: string;
+}
+
+// Función para generar historial de descargas mock para RFIs
+const generateDownloadHistory = (rfiId: string, attachmentCount: number): DownloadRecord[] => {
+    const users = [
+        { id: 'user-001', name: 'Ing. Roberto Vega', company: 'HVAC Solutions S.A.C.' },
+        { id: 'user-002', name: 'Ing. María Santos', company: 'Climatización Perú' },
+        { id: 'user-003', name: 'Ing. Fernando Morales', company: 'MEP Contractors Inc.' },
+        { id: 'user-004', name: 'Ing. Patricia Campos', company: 'Ingeniería Térmica SAC' },
+        { id: 'user-005', name: 'Ing. Jorge Ramírez', company: 'Electro Instalaciones Perú' },
+        { id: 'user-006', name: 'Ing. Carmen López', company: 'Sistemas Eléctricos SAC' },
+        { id: 'user-007', name: 'Ing. Rosa Medina', company: 'Plomería Industrial SAC' },
+        { id: 'user-008', name: 'Ing. Felipe Castro', company: 'Instalaciones Hidráulicas' }
+    ];
+
+    const documentTypes = [
+        { type: 'rfi_pdf' as const, name: 'RFI Completo.pdf' },
+        { type: 'response_doc' as const, name: 'Respuesta Técnica.pdf' },
+        ...(attachmentCount > 0 ? Array.from({ length: attachmentCount }, (_, i) => ({
+            type: 'attachment' as const,
+            name: `Adjunto_${i + 1}.pdf`
+        })) : [])
+    ];
+
+    const downloads: DownloadRecord[] = [];
+    const downloadCount = Math.floor(Math.random() * 15) + 3; // 3-17 descargas
+
+    for (let i = 0; i < downloadCount; i++) {
+        const user = users[Math.floor(Math.random() * users.length)];
+        const doc = documentTypes[Math.floor(Math.random() * documentTypes.length)];
+
+        downloads.push({
+            id: `dl-${rfiId}-${i}`,
+            userId: user.id,
+            userName: user.name,
+            userCompany: user.company,
+            downloadDate: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
+            documentType: doc.type,
+            documentName: doc.name,
+            ipAddress: `192.168.1.${Math.floor(Math.random() * 254) + 1}`
+        });
+    }
+
+    return downloads.sort((a, b) => new Date(b.downloadDate).getTime() - new Date(a.downloadDate).getTime());
+};
+
 const RFIHistory: React.FC = () => {
     const [filters, setFilters] = useState<HistoryFilters>({
         status: [],
@@ -50,6 +114,13 @@ const RFIHistory: React.FC = () => {
         isOpen: false,
         rfi: null
     });
+    const [downloadHistoryModal, setDownloadHistoryModal] = useState<DownloadHistoryModalData>({
+        isOpen: false,
+        rfi: null
+    });
+
+    // Agregar historial de descargas a cada RFI
+    const [rfiDownloadHistory, setRfiDownloadHistory] = useState<Record<string, DownloadRecord[]>>({});
 
     // Cargar RFIs del localStorage y combinar con las mock
     React.useEffect(() => {
@@ -60,6 +131,14 @@ const RFIHistory: React.FC = () => {
             // Combinar RFIs almacenadas localmente con las mock
             const combinedRFIs = [...storedRFIs, ...mockRFIs];
             setAllRFIs(combinedRFIs);
+
+            // Generar historial de descargas para cada RFI
+            const downloadHistoryData: Record<string, DownloadRecord[]> = {};
+            combinedRFIs.forEach(rfi => {
+                const attachmentCount = rfi.attachments?.length || 0;
+                downloadHistoryData[rfi.id] = generateDownloadHistory(rfi.id, attachmentCount);
+            });
+            setRfiDownloadHistory(downloadHistoryData);
 
             console.log('RFIs cargadas en historial:', combinedRFIs.length);
         } catch (error) {
@@ -140,8 +219,22 @@ const RFIHistory: React.FC = () => {
         });
     };
 
+    const handleShowDownloadHistory = (rfi: RFI) => {
+        setDownloadHistoryModal({
+            isOpen: true,
+            rfi: rfi
+        });
+    };
+
     const closeViewModal = () => {
         setViewModal({
+            isOpen: false,
+            rfi: null
+        });
+    };
+
+    const closeDownloadHistoryModal = () => {
+        setDownloadHistoryModal({
             isOpen: false,
             rfi: null
         });
@@ -153,6 +246,16 @@ const RFIHistory: React.FC = () => {
     };
 
     const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('es-PE', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    const formatDateTime = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('es-PE', {
             day: '2-digit',
             month: '2-digit',
@@ -187,6 +290,40 @@ const RFIHistory: React.FC = () => {
 
     const getPrivacyColor = (privacy: string) => {
         return privacy === 'privado' ? 'text-yellow-600 bg-yellow-50' : 'text-green-600 bg-green-50';
+    };
+
+    // Funciones para obtener estadísticas de descarga
+    const getTotalDownloads = (rfiId: string): number => {
+        return rfiDownloadHistory[rfiId]?.length || 0;
+    };
+
+    const getUniqueDownloaders = (rfiId: string): number => {
+        const downloads = rfiDownloadHistory[rfiId] || [];
+        const uniqueUsers = new Set(downloads.map(d => d.userId));
+        return uniqueUsers.size;
+    };
+
+    const getLastDownload = (rfiId: string): DownloadRecord | null => {
+        const downloads = rfiDownloadHistory[rfiId] || [];
+        return downloads.length > 0 ? downloads[0] : null;
+    };
+
+    const getDocumentTypeLabel = (type: string): string => {
+        switch (type) {
+            case 'rfi_pdf': return 'RFI Completo';
+            case 'attachment': return 'Adjunto';
+            case 'response_doc': return 'Documento de Respuesta';
+            default: return type;
+        }
+    };
+
+    const getDocumentTypeIcon = (type: string): string => {
+        switch (type) {
+            case 'rfi_pdf': return '📄';
+            case 'attachment': return '📎';
+            case 'response_doc': return '📋';
+            default: return '📁';
+        }
     };
 
     return (
@@ -316,6 +453,10 @@ const RFIHistory: React.FC = () => {
                 <div className="space-y-4">
                     {filteredRFIs.map((rfi) => {
                         const privacy = (rfi as any).privacy || 'publico';
+                        const totalDownloads = getTotalDownloads(rfi.id);
+                        const uniqueDownloaders = getUniqueDownloaders(rfi.id);
+                        const lastDownload = getLastDownload(rfi.id);
+
                         return (
                             <div key={rfi.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
                                 <div className="flex items-start justify-between">
@@ -338,7 +479,7 @@ const RFIHistory: React.FC = () => {
 
                                         <p className="text-sm text-gray-600 mb-3 line-clamp-2">{rfi.description}</p>
 
-                                        <div className="flex items-center space-x-4 text-xs text-gray-500">
+                                        <div className="flex items-center space-x-6 text-xs text-gray-500 mb-3">
                                             <div className="flex items-center space-x-1">
                                                 <User className="w-3 h-3" />
                                                 <span>Por: {getUserName(rfi.requestedBy)}</span>
@@ -370,6 +511,30 @@ const RFIHistory: React.FC = () => {
                                                 </div>
                                             )}
                                         </div>
+
+                                        {/* Download Statistics */}
+                                        <div className="flex items-center space-x-6 text-sm mb-3">
+                                            <span className="flex items-center text-blue-600">
+                                                <Download className="w-4 h-4 mr-1" />
+                                                <strong>{totalDownloads}</strong> descargas
+                                            </span>
+                                            <span className="flex items-center text-green-600">
+                                                <Users className="w-4 h-4 mr-1" />
+                                                <strong>{uniqueDownloaders}</strong> usuarios únicos
+                                            </span>
+                                            {lastDownload && (
+                                                <span className="flex items-center text-gray-600">
+                                                    <Clock className="w-4 h-4 mr-1" />
+                                                    Último: {formatDateTime(lastDownload.downloadDate)}
+                                                </span>
+                                            )}
+                                            <button
+                                                onClick={() => handleShowDownloadHistory(rfi)}
+                                                className="text-blue-600 hover:text-blue-800 text-sm font-medium underline"
+                                            >
+                                                Ver historial de descargas
+                                            </button>
+                                        </div>
                                     </div>
 
                                     <div className="flex items-center space-x-2">
@@ -379,6 +544,13 @@ const RFIHistory: React.FC = () => {
                                             title="Ver detalles"
                                         >
                                             <Eye className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleShowDownloadHistory(rfi)}
+                                            className="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                                            title="Historial de descargas"
+                                        >
+                                            <Download className="w-4 h-4" />
                                         </button>
                                     </div>
                                 </div>
@@ -396,6 +568,9 @@ const RFIHistory: React.FC = () => {
                         <div className="space-y-8">
                             {filteredRFIs.map((rfi) => {
                                 const privacy = (rfi as any).privacy || 'publico';
+                                const totalDownloads = getTotalDownloads(rfi.id);
+                                const uniqueDownloaders = getUniqueDownloaders(rfi.id);
+
                                 return (
                                     <div key={rfi.id} className="relative flex items-start space-x-4">
                                         {/* Timeline dot */}
@@ -424,6 +599,13 @@ const RFIHistory: React.FC = () => {
                                                     >
                                                         <Eye className="w-3 h-3" />
                                                     </button>
+                                                    <button
+                                                        onClick={() => handleShowDownloadHistory(rfi)}
+                                                        className="p-1 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded transition-colors"
+                                                        title="Historial de descargas"
+                                                    >
+                                                        <Download className="w-3 h-3" />
+                                                    </button>
                                                 </div>
                                             </div>
 
@@ -431,7 +613,7 @@ const RFIHistory: React.FC = () => {
 
                                             <p className="text-xs text-gray-600 mb-2">{rfi.description.substring(0, 150)}...</p>
 
-                                            <div className="flex items-center space-x-3 text-xs text-gray-500">
+                                            <div className="flex items-center space-x-4 text-xs text-gray-500">
                                                 <span>{getUserName(rfi.requestedBy)} → {getUserName(rfi.assignedTo)}</span>
                                                 {rfi.location && <span>📍 {rfi.location}</span>}
                                                 {rfi.attachments && rfi.attachments.length > 0 && (
@@ -440,6 +622,8 @@ const RFIHistory: React.FC = () => {
                                                 {rfi.comments && rfi.comments.length > 0 && (
                                                     <span>💬 {rfi.comments.length}</span>
                                                 )}
+                                                <span className="text-blue-600">📥 {totalDownloads}</span>
+                                                <span className="text-green-600">👥 {uniqueDownloaders}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -508,16 +692,12 @@ const RFIHistory: React.FC = () => {
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                     <div className="flex items-center">
                         <div className="p-2 bg-blue-100 rounded-lg">
-                            <FileQuestion className="w-5 h-5 text-blue-600" />
+                            <Download className="w-5 h-5 text-blue-600" />
                         </div>
                         <div className="ml-3">
-                            <p className="text-sm font-medium text-gray-600">Este Mes</p>
+                            <p className="text-sm font-medium text-gray-600">Total Descargas</p>
                             <p className="text-lg font-semibold text-gray-900">
-                                {filteredRFIs.filter(rfi => {
-                                    const rfiDate = new Date(rfi.createdAt);
-                                    const now = new Date();
-                                    return rfiDate.getMonth() === now.getMonth() && rfiDate.getFullYear() === now.getFullYear();
-                                }).length}
+                                {filteredRFIs.reduce((sum, rfi) => sum + getTotalDownloads(rfi.id), 0)}
                             </p>
                         </div>
                     </div>
@@ -569,17 +749,16 @@ const RFIHistory: React.FC = () => {
                                         <div>
                                             <span className="text-sm font-medium text-gray-500">Prioridad:</span>
                                             <div className="mt-1">
-                                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                                    ['critical', 'urgente'].includes(viewModal.rfi.priority.toLowerCase()) ? 'bg-red-100 text-red-800' :
+                                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${['critical', 'urgente'].includes(viewModal.rfi.priority.toLowerCase()) ? 'bg-red-100 text-red-800' :
                                                     ['high', 'alta'].includes(viewModal.rfi.priority.toLowerCase()) ? 'bg-orange-100 text-orange-800' :
-                                                    ['medium', 'media'].includes(viewModal.rfi.priority.toLowerCase()) ? 'bg-yellow-100 text-yellow-800' :
-                                                    'bg-green-100 text-green-800'
-                                                }`}>
+                                                        ['medium', 'media'].includes(viewModal.rfi.priority.toLowerCase()) ? 'bg-yellow-100 text-yellow-800' :
+                                                            'bg-green-100 text-green-800'
+                                                    }`}>
                                                     {['critical', 'urgente'].includes(viewModal.rfi.priority.toLowerCase()) ? 'Urgente' :
-                                                    ['high', 'alta'].includes(viewModal.rfi.priority.toLowerCase()) ? 'Alta' :
-                                                    ['medium', 'media'].includes(viewModal.rfi.priority.toLowerCase()) ? 'Media' :
-                                                    ['low', 'baja'].includes(viewModal.rfi.priority.toLowerCase()) ? 'Baja' :
-                                                    viewModal.rfi.priority}
+                                                        ['high', 'alta'].includes(viewModal.rfi.priority.toLowerCase()) ? 'Alta' :
+                                                            ['medium', 'media'].includes(viewModal.rfi.priority.toLowerCase()) ? 'Media' :
+                                                                ['low', 'baja'].includes(viewModal.rfi.priority.toLowerCase()) ? 'Baja' :
+                                                                    viewModal.rfi.priority}
                                                 </span>
                                             </div>
                                         </div>
@@ -640,6 +819,50 @@ const RFIHistory: React.FC = () => {
                                 </div>
                             </div>
 
+                            {/* Download Statistics in View Modal */}
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <h3 className="text-lg font-medium text-gray-900 mb-3">Estadísticas de Descarga</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="text-center">
+                                        <div className="flex items-center justify-center mb-2">
+                                            <Download className="w-5 h-5 text-blue-600 mr-2" />
+                                            <span className="text-2xl font-bold text-blue-900">{getTotalDownloads(viewModal.rfi.id)}</span>
+                                        </div>
+                                        <p className="text-sm text-blue-700">Total Descargas</p>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="flex items-center justify-center mb-2">
+                                            <Users className="w-5 h-5 text-green-600 mr-2" />
+                                            <span className="text-2xl font-bold text-green-900">{getUniqueDownloaders(viewModal.rfi.id)}</span>
+                                        </div>
+                                        <p className="text-sm text-green-700">Usuarios Únicos</p>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="flex items-center justify-center mb-2">
+                                            <Clock className="w-5 h-5 text-purple-600 mr-2" />
+                                            <span className="text-xs font-medium text-purple-900">
+                                                {getLastDownload(viewModal.rfi.id) ?
+                                                    formatDateTime(getLastDownload(viewModal.rfi.id)!.downloadDate) :
+                                                    'Sin descargas'
+                                                }
+                                            </span>
+                                        </div>
+                                        <p className="text-sm text-purple-700">Última Descarga</p>
+                                    </div>
+                                </div>
+                                <div className="mt-4 text-center">
+                                    <button
+                                        onClick={() => {
+                                            closeViewModal();
+                                            handleShowDownloadHistory(viewModal.rfi);
+                                        }}
+                                        className="text-blue-600 hover:text-blue-800 text-sm font-medium underline"
+                                    >
+                                        Ver historial completo de descargas
+                                    </button>
+                                </div>
+                            </div>
+
                             {/* Description */}
                             <div>
                                 <h3 className="text-lg font-medium text-gray-900 mb-3">Descripción</h3>
@@ -683,19 +906,6 @@ const RFIHistory: React.FC = () => {
                                 </div>
                             )}
 
-                            {/* Tags */}
-                            {viewModal.rfi.tags && viewModal.rfi.tags.length > 0 && (
-                                <div>
-                                    <h3 className="text-lg font-medium text-gray-900 mb-3">Etiquetas</h3>
-                                    <div className="flex flex-wrap gap-2">
-                                        {viewModal.rfi.tags.map((tag, index) => (
-                                            <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                                                {tag}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
 
                             {/* Email Data if sent as email */}
                             {(viewModal.rfi as any).emailData && (viewModal.rfi as any).emailData.sentAsEmail && (
@@ -765,6 +975,202 @@ const RFIHistory: React.FC = () => {
                                     Cerrar
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Download History Modal */}
+            {downloadHistoryModal.isOpen && downloadHistoryModal.rfi && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden">
+                        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                            <div>
+                                <h3 className="text-lg font-semibold text-gray-900">Historial de Descargas - RFI</h3>
+                                <p className="text-sm text-gray-600">{downloadHistoryModal.rfi.rfiNumber} - {downloadHistoryModal.rfi.title}</p>
+                            </div>
+                            <button
+                                onClick={closeDownloadHistoryModal}
+                                className="text-gray-400 hover:text-gray-600 text-2xl"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <div className="p-6 overflow-y-auto max-h-[60vh]">
+                            {/* Summary Stats */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                <div className="bg-blue-50 p-4 rounded-lg">
+                                    <div className="flex items-center space-x-2">
+                                        <Download className="w-5 h-5 text-blue-600" />
+                                        <span className="text-sm text-blue-600">Total Descargas</span>
+                                    </div>
+                                    <p className="text-2xl font-bold text-blue-900">{getTotalDownloads(downloadHistoryModal.rfi.id)}</p>
+                                </div>
+                                <div className="bg-green-50 p-4 rounded-lg">
+                                    <div className="flex items-center space-x-2">
+                                        <Users className="w-5 h-5 text-green-600" />
+                                        <span className="text-sm text-green-600">Usuarios Únicos</span>
+                                    </div>
+                                    <p className="text-2xl font-bold text-green-900">
+                                        {getUniqueDownloaders(downloadHistoryModal.rfi.id)}
+                                    </p>
+                                </div>
+                                <div className="bg-purple-50 p-4 rounded-lg">
+                                    <div className="flex items-center space-x-2">
+                                        <Calendar className="w-5 h-5 text-purple-600" />
+                                        <span className="text-sm text-purple-600">Última Descarga</span>
+                                    </div>
+                                    <p className="text-sm font-medium text-purple-900">
+                                        {getLastDownload(downloadHistoryModal.rfi.id) ?
+                                            formatDateTime(getLastDownload(downloadHistoryModal.rfi.id)!.downloadDate) :
+                                            'Sin descargas'
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Download History Table */}
+                            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                                <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
+                                    <h4 className="text-sm font-medium text-gray-900">Registro de Descargas</h4>
+                                </div>
+
+                                {(!rfiDownloadHistory[downloadHistoryModal.rfi.id] || rfiDownloadHistory[downloadHistoryModal.rfi.id].length === 0) ? (
+                                    <div className="p-8 text-center">
+                                        <Download className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                                        <p className="text-gray-500">No hay registros de descarga para esta RFI</p>
+                                    </div>
+                                ) : (
+                                    <div className="divide-y divide-gray-200">
+                                        {rfiDownloadHistory[downloadHistoryModal.rfi.id].map((record, index) => (
+                                            <div key={record.id} className="p-4 hover:bg-gray-50">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center space-x-4">
+                                                        <div className="flex-shrink-0">
+                                                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                                                <span className="text-lg">{getDocumentTypeIcon(record.documentType)}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="flex items-center space-x-2">
+                                                                <p className="text-sm font-medium text-gray-900">
+                                                                    {record.userName}
+                                                                </p>
+                                                                <span className="text-xs text-gray-500">#{index + 1}</span>
+                                                                <span className="inline-flex px-2 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-800">
+                                                                    {getDocumentTypeLabel(record.documentType)}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex items-center space-x-4 mt-1">
+                                                                <span className="flex items-center text-xs text-gray-500">
+                                                                    <Building className="w-3 h-3 mr-1" />
+                                                                    {record.userCompany}
+                                                                </span>
+                                                                <span className="text-xs text-gray-500">
+                                                                    📄 {record.documentName}
+                                                                </span>
+                                                                {record.ipAddress && (
+                                                                    <span className="text-xs text-gray-500">
+                                                                        IP: {record.ipAddress}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <div className="flex items-center text-sm text-gray-500">
+                                                            <Calendar className="w-4 h-4 mr-1" />
+                                                            {formatDateTime(record.downloadDate)}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* User Summary */}
+                            {rfiDownloadHistory[downloadHistoryModal.rfi.id] && rfiDownloadHistory[downloadHistoryModal.rfi.id].length > 0 && (
+                                <div className="mt-6">
+                                    <h4 className="text-sm font-medium text-gray-900 mb-3">Resumen por Usuario</h4>
+                                    <div className="bg-gray-50 rounded-lg p-4">
+                                        <div className="space-y-2">
+                                            {Object.entries(
+                                                rfiDownloadHistory[downloadHistoryModal.rfi.id].reduce((acc, record) => {
+                                                    if (!acc[record.userId]) {
+                                                        acc[record.userId] = {
+                                                            name: record.userName,
+                                                            company: record.userCompany,
+                                                            count: 0,
+                                                            lastDownload: record.downloadDate,
+                                                            documents: new Set()
+                                                        };
+                                                    }
+                                                    acc[record.userId].count++;
+                                                    acc[record.userId].documents.add(record.documentType);
+                                                    if (new Date(record.downloadDate) > new Date(acc[record.userId].lastDownload)) {
+                                                        acc[record.userId].lastDownload = record.downloadDate;
+                                                    }
+                                                    return acc;
+                                                }, {} as Record<string, { name: string; company: string; count: number; lastDownload: string; documents: Set<string> }>)
+                                            ).map(([userId, userInfo]) => (
+                                                <div key={userId} className="flex items-center justify-between p-2 bg-white rounded border">
+                                                    <div>
+                                                        <span className="text-sm font-medium text-gray-900">{userInfo.name}</span>
+                                                        <span className="text-xs text-gray-500 ml-2">({userInfo.company})</span>
+                                                        <div className="flex items-center space-x-1 mt-1">
+                                                            {Array.from(userInfo.documents).map(docType => (
+                                                                <span key={docType} className="inline-flex px-1 py-0.5 text-xs rounded bg-gray-100 text-gray-600">
+                                                                    {getDocumentTypeIcon(docType)} {getDocumentTypeLabel(docType)}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <span className="text-sm font-medium text-blue-600">{userInfo.count} descargas</span>
+                                                        <div className="text-xs text-gray-500">
+                                                            Última: {formatDate(userInfo.lastDownload)}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Document Type Summary */}
+                            {rfiDownloadHistory[downloadHistoryModal.rfi.id] && rfiDownloadHistory[downloadHistoryModal.rfi.id].length > 0 && (
+                                <div className="mt-6">
+                                    <h4 className="text-sm font-medium text-gray-900 mb-3">Descargas por Tipo de Documento</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                        {Object.entries(
+                                            rfiDownloadHistory[downloadHistoryModal.rfi.id].reduce((acc, record) => {
+                                                acc[record.documentType] = (acc[record.documentType] || 0) + 1;
+                                                return acc;
+                                            }, {} as Record<string, number>)
+                                        ).map(([docType, count]) => (
+                                            <div key={docType} className="bg-white border rounded-lg p-3 text-center">
+                                                <div className="text-2xl mb-1">{getDocumentTypeIcon(docType)}</div>
+                                                <div className="text-sm font-medium text-gray-900">{getDocumentTypeLabel(docType)}</div>
+                                                <div className="text-lg font-bold text-blue-600">{count}</div>
+                                                <div className="text-xs text-gray-500">descargas</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end">
+                            <button
+                                onClick={closeDownloadHistoryModal}
+                                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                            >
+                                Cerrar
+                            </button>
                         </div>
                     </div>
                 </div>

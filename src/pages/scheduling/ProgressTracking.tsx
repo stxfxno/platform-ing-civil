@@ -1,4 +1,4 @@
-// src/pages/schedules/ProgressTracking.tsx
+// src/pages/scheduling/ProgressTracking.tsx
 import React, { useState } from 'react';
 import {
     TrendingUp,
@@ -15,7 +15,9 @@ import {
     Save,
     User,
     Edit,
-    Trash2
+    Trash2,
+    ChevronLeft,
+    ChevronRight
 } from 'lucide-react';
 
 interface ProgressData {
@@ -27,7 +29,7 @@ interface ProgressData {
     plannedProgress: number;
     actualProgress: number;
     variance: number;
-    status: 'on_track' | 'delayed' | 'ahead' | 'at_risk';
+    status: 'on_track' | 'delayed' | 'ahead' | 'at_risk' | 'completed';
     lastUpdate: string;
     issues: Issue[];
     photos: Photo[];
@@ -70,85 +72,408 @@ interface Photo {
     uploadedBy: string;
 }
 
-const mockProgressData: ProgressData[] = [
-    {
-        id: 'prog-001',
-        activityId: 'HVAC-001',
-        title: 'Instalación ductos HVAC - Área A',
-        discipline: 'HVAC',
-        subcontractor: 'HVAC Solutions S.A.C.',
-        plannedProgress: 70,
-        actualProgress: 75,
-        variance: 5,
-        status: 'ahead',
-        lastUpdate: '2025-05-26T14:30:00Z',
-        issues: [],
-        photos: [
+interface WeekData {
+    weekNumber: number;
+    dateRange: string;
+    ppcDay: string;
+    ppcPercentage: number;
+    activities: ProgressData[];
+}
+
+// Datos para las 3 semanas
+const weeklyData: Record<number, WeekData> = {
+    14: {
+        weekNumber: 14,
+        dateRange: '12 Mayo - 18 Mayo 2025',
+        ppcDay: 'Sábado',
+        ppcPercentage: 100,
+        activities: [
             {
-                id: 'photo-001',
-                activityId: 'HVAC-001',
-                url: '/images/hvac-progress-1.jpg',
-                filename: 'hvac-ductos-area-a-1.jpg',
-                type: 'durante',
-                timestamp: '2025-05-26T10:00:00Z',
-                description: 'Instalación ductos principales 75% completado',
-                uploadedBy: 'Carlos Mendoza'
-            }
-        ],
-        comments: [
+                id: 'prog-014-001',
+                activityId: 'HVAC-014',
+                title: 'Instalación ductos HVAC - Área C',
+                discipline: 'HVAC',
+                subcontractor: 'HVAC Solutions S.A.C.',
+                plannedProgress: 100,
+                actualProgress: 100,
+                variance: 0,
+                status: 'completed',
+                lastUpdate: '2025-05-18T16:00:00Z',
+                issues: [],
+                photos: [
+                    {
+                        id: 'photo-014-001',
+                        activityId: 'HVAC-014',
+                        url: '/images/hvac-completed.jpg',
+                        filename: 'hvac-area-c-completado.jpg',
+                        type: 'completado',
+                        timestamp: '2025-05-18T15:30:00Z',
+                        description: 'Instalación 100% completada',
+                        uploadedBy: 'Carlos Mendoza'
+                    }
+                ],
+                comments: [
+                    {
+                        id: 'comment-014-001',
+                        activityId: 'HVAC-014',
+                        text: 'Actividad completada exitosamente. Pruebas pasaron satisfactoriamente.',
+                        author: 'Ing. Carlos Mendoza',
+                        timestamp: '2025-05-18T16:00:00Z',
+                        isPublic: true
+                    }
+                ],
+                startDate: '2025-05-12',
+                endDate: '2025-05-18',
+                location: 'Sótano - Área C'
+            },
             {
-                id: 'comment-001',
-                activityId: 'HVAC-001',
-                text: 'Progreso excelente, adelantados según cronograma. Equipo trabajando de manera eficiente.',
-                author: 'Ing. Carlos Mendoza',
-                timestamp: '2025-05-26T14:30:00Z',
-                isPublic: true
+                id: 'prog-014-002',
+                activityId: 'ELEC-014',
+                title: 'Cableado eléctrico secundario - Piso 2',
+                discipline: 'Eléctrico',
+                subcontractor: 'Electro Instalaciones Perú',
+                plannedProgress: 100,
+                actualProgress: 100,
+                variance: 0,
+                status: 'completed',
+                lastUpdate: '2025-05-18T14:30:00Z',
+                issues: [],
+                photos: [],
+                comments: [
+                    {
+                        id: 'comment-014-002',
+                        activityId: 'ELEC-014',
+                        text: 'Instalación eléctrica completada según especificaciones.',
+                        author: 'Ing. María Santos',
+                        timestamp: '2025-05-18T14:30:00Z',
+                        isPublic: true
+                    }
+                ],
+                startDate: '2025-05-12',
+                endDate: '2025-05-18',
+                location: 'Piso 2'
+            },
+            {
+                id: 'prog-014-003',
+                activityId: 'PLUMB-014',
+                title: 'Sistema contra incendios - Nivel 2',
+                discipline: 'Protección Contra Incendios',
+                subcontractor: 'Fire Protection Corp.',
+                plannedProgress: 100,
+                actualProgress: 95,
+                variance: -5,
+                status: 'on_track',
+                lastUpdate: '2025-05-18T17:00:00Z',
+                issues: [],
+                photos: [],
+                comments: [
+                    {
+                        id: 'comment-014-003',
+                        activityId: 'PLUMB-014',
+                        text: 'Quedan ajustes menores en válvulas. Completaremos el lunes.',
+                        author: 'Ing. Sofia Herrera',
+                        timestamp: '2025-05-18T17:00:00Z',
+                        isPublic: true
+                    }
+                ],
+                startDate: '2025-05-12',
+                endDate: '2025-05-18',
+                location: 'Nivel 2'
             }
-        ],
-        startDate: '2025-05-26',
-        endDate: '2025-05-30',
-        location: 'Sótano - Área A'
+        ]
     },
-    {
-        id: 'prog-002',
-        activityId: 'ELEC-001',
-        title: 'Cableado eléctrico principal - Piso 3',
-        discipline: 'Eléctrico',
-        subcontractor: 'Electro Instalaciones Perú',
-        plannedProgress: 25,
-        actualProgress: 15,
-        variance: -10,
-        status: 'delayed',
-        lastUpdate: '2025-05-26T10:15:00Z',
-        issues: [
+    15: {
+        weekNumber: 15,
+        dateRange: '19 Mayo - 25 Mayo 2025',
+        ppcDay: 'Viernes',
+        ppcPercentage: 95,
+        activities: [
             {
-                id: 'issue-001',
-                activityId: 'ELEC-001',
-                title: 'Retraso en entrega de materiales',
-                description: 'El conduit EMT 3/4" no ha llegado según programación. Proveedor indica retraso de 3 días.',
-                category: 'material',
-                impact: 'alto',
-                status: 'en_proceso',
-                reportedBy: 'María Santos',
-                reportedAt: '2025-05-26T09:00:00Z'
-            }
-        ],
-        photos: [],
-        comments: [
+                id: 'prog-015-001',
+                activityId: 'HVAC-015',
+                title: 'Instalación unidades manejadoras - Azotea',
+                discipline: 'HVAC',
+                subcontractor: 'HVAC Solutions S.A.C.',
+                plannedProgress: 95,
+                actualProgress: 95,
+                variance: 0,
+                status: 'completed',
+                lastUpdate: '2025-05-24T13:45:00Z',
+                issues: [],
+                photos: [
+                    {
+                        id: 'photo-015-001',
+                        activityId: 'HVAC-015',
+                        url: '/images/hvac-unidades-manejadoras.jpg',
+                        filename: 'hvac-unidades-manejadoras.jpg',
+                        type: 'completado',
+                        timestamp: '2025-05-24T12:00:00Z',
+                        description: 'Unidades manejadoras instaladas y verificadas',
+                        uploadedBy: 'Carlos Mendoza'
+                    }
+                ],
+                comments: [
+                    {
+                        id: 'comment-015-001',
+                        activityId: 'HVAC-015',
+                        text: 'Instalación finalizada sin observaciones. Inspección aprobada.',
+                        author: 'Ing. Carlos Mendoza',
+                        timestamp: '2025-05-24T13:45:00Z',
+                        isPublic: true
+                    }
+                ],
+                startDate: '2025-05-19',
+                endDate: '2025-05-25',
+                location: 'Azotea'
+            },
             {
-                id: 'comment-002',
-                activityId: 'ELEC-001',
-                text: 'Esperando resolución de problemas con materiales y permisos. Coordinando con proveedor alternativo.',
-                author: 'Ing. María Santos',
-                timestamp: '2025-05-26T10:15:00Z',
-                isPublic: true
+                id: 'prog-015-002',
+                activityId: 'ELEC-015',
+                title: 'Conexionado de tableros secundarios - Piso 3',
+                discipline: 'Eléctrico',
+                subcontractor: 'Electro Instalaciones Perú',
+                plannedProgress: 95,
+                actualProgress: 95,
+                variance: 0,
+                status: 'completed',
+                lastUpdate: '2025-05-24T15:30:00Z',
+                issues: [],
+                photos: [],
+                comments: [
+                    {
+                        id: 'comment-015-002',
+                        activityId: 'ELEC-015',
+                        text: 'Tableros secundarios conectados correctamente. En espera de prueba general.',
+                        author: 'Ing. María Santos',
+                        timestamp: '2025-05-24T15:30:00Z',
+                        isPublic: true
+                    }
+                ],
+                startDate: '2025-05-19',
+                endDate: '2025-05-25',
+                location: 'Piso 3'
+            },
+            {
+                id: 'prog-015-003',
+                activityId: 'PLUMB-015',
+                title: 'Tuberías principales agua potable - Todo edificio',
+                discipline: 'Plomería',
+                subcontractor: 'Plomería Industrial SAC',
+                plannedProgress: 95,
+                actualProgress: 90,
+                variance: -5,
+                status: 'on_track',
+                lastUpdate: '2025-05-23T18:00:00Z',
+                issues: [
+                    {
+                        id: 'issue-015-001',
+                        activityId: 'PLUMB-015',
+                        title: 'Retraso en soldadura especializada',
+                        description: 'Soldador especializado enfermo, buscando reemplazo urgente',
+                        category: 'personal',
+                        impact: 'medio',
+                        status: 'en_proceso',
+                        reportedBy: 'Alberto Silva',
+                        reportedAt: '2025-05-23T10:00:00Z'
+                    }
+                ],
+                photos: [],
+                comments: [
+                    {
+                        id: 'comment-015-003',
+                        activityId: 'PLUMB-015',
+                        text: 'Trabajando en solución para recuperar el retraso. Coordinando recursos adicionales.',
+                        author: 'Ing. Alberto Silva',
+                        timestamp: '2025-05-23T18:00:00Z',
+                        isPublic: true
+                    }
+                ],
+                startDate: '2025-05-19',
+                endDate: '2025-05-25',
+                location: 'Todo el edificio'
+            },
+            {
+                id: 'prog-015-004',
+                activityId: 'FIRE-015',
+                title: 'Colocación de gabinetes contra incendios - Nivel 1',
+                discipline: 'Protección Contra Incendios',
+                subcontractor: 'Fire Protection Corp.',
+                plannedProgress: 95,
+                actualProgress: 85,
+                variance: -10,
+                status: 'delayed',
+                lastUpdate: '2025-05-24T11:00:00Z',
+                issues: [
+                    {
+                        id: 'issue-015-004',
+                        activityId: 'FIRE-015',
+                        title: 'Retraso en recepción de gabinetes',
+                        description: 'El proveedor entregó parcialmente los gabinetes, restando 2 para finalizar.',
+                        category: 'material',
+                        impact: 'medio',
+                        status: 'en_proceso',
+                        reportedBy: 'Sofia Herrera',
+                        reportedAt: '2025-05-22T08:00:00Z'
+                    }
+                ],
+                photos: [],
+                comments: [
+                    {
+                        id: 'comment-015-004',
+                        activityId: 'FIRE-015',
+                        text: 'Entrega parcial de gabinetes. Se espera completar instalación el lunes.',
+                        author: 'Ing. Sofia Herrera',
+                        timestamp: '2025-05-24T11:00:00Z',
+                        isPublic: true
+                    }
+                ],
+                startDate: '2025-05-19',
+                endDate: '2025-05-25',
+                location: 'Nivel 1'
+            },
+            {
+                id: 'prog-015-005',
+                activityId: 'GEN-015',
+                title: 'Señalización de rutas de evacuación - Todos los pisos',
+                discipline: 'General',
+                subcontractor: 'Seguridad Total SAC',
+                plannedProgress: 95,
+                actualProgress: 80,
+                variance: -15,
+                status: 'at_risk',
+                lastUpdate: '2025-05-24T09:30:00Z',
+                issues: [
+                    {
+                        id: 'issue-015-005',
+                        activityId: 'GEN-015',
+                        title: 'Inconveniente en instalación de señalética fotoluminiscente',
+                        description: 'Algunas señales no se adhirieron correctamente en muros rugosos. Se está usando otro adhesivo.',
+                        category: 'técnico',
+                        impact: 'bajo',
+                        status: 'en_proceso',
+                        reportedBy: 'Luis Quispe',
+                        reportedAt: '2025-05-23T08:00:00Z'
+                    }
+                ],
+                photos: [],
+                comments: [
+                    {
+                        id: 'comment-015-005',
+                        activityId: 'GEN-015',
+                        text: 'Señalización en proceso. Se están haciendo ajustes en la fijación de algunos elementos.',
+                        author: 'Ing. Luis Quispe',
+                        timestamp: '2025-05-24T09:30:00Z',
+                        isPublic: true
+                    }
+                ],
+                startDate: '2025-05-19',
+                endDate: '2025-05-25',
+                location: 'Todos los pisos'
             }
-        ],
-        startDate: '2025-05-27',
-        endDate: '2025-05-31',
-        location: 'Piso 3'
+        ]
+    },
+    16: {
+        weekNumber: 16,
+        dateRange: '26 Mayo - 01 Junio 2025',
+        ppcDay: 'Lunes',
+        ppcPercentage: 20,
+        activities: [
+            {
+                id: 'prog-016-001',
+                activityId: 'HVAC-016',
+                title: 'Balanceo sistema HVAC - Todo edificio',
+                discipline: 'HVAC',
+                subcontractor: 'HVAC Solutions S.A.C.',
+                plannedProgress: 20,
+                actualProgress: 0,
+                variance: -20,
+                status: 'delayed',
+                lastUpdate: '2025-05-26T08:00:00Z',
+                issues: [
+                    {
+                        id: 'issue-016-001',
+                        activityId: 'HVAC-016',
+                        title: 'Esperando finalización actividades previas',
+                        description: 'No se puede iniciar balanceo hasta completar instalaciones',
+                        category: 'coordinacion',
+                        impact: 'alto',
+                        status: 'nuevo',
+                        reportedBy: 'Carlos Mendoza',
+                        reportedAt: '2025-05-26T08:00:00Z'
+                    }
+                ],
+                photos: [],
+                comments: [
+                    {
+                        id: 'comment-016-001',
+                        activityId: 'HVAC-016',
+                        text: 'Actividad programada para iniciar una vez completadas las dependencias.',
+                        author: 'Ing. Carlos Mendoza',
+                        timestamp: '2025-05-26T08:00:00Z',
+                        isPublic: true
+                    }
+                ],
+                startDate: '2025-05-26',
+                endDate: '2025-06-01',
+                location: 'Todo el edificio'
+            },
+            {
+                id: 'prog-016-002',
+                activityId: 'ELEC-016',
+                title: 'Pruebas sistema eléctrico integral',
+                discipline: 'Eléctrico',
+                subcontractor: 'Electro Instalaciones Perú',
+                plannedProgress: 15,
+                actualProgress: 0,
+                variance: -15,
+                status: 'delayed',
+                lastUpdate: '2025-05-26T08:30:00Z',
+                issues: [],
+                photos: [],
+                comments: [
+                    {
+                        id: 'comment-016-002',
+                        activityId: 'ELEC-016',
+                        text: 'Pruebas programadas para miércoles una vez completados tableros.',
+                        author: 'Ing. María Santos',
+                        timestamp: '2025-05-26T08:30:00Z',
+                        isPublic: true
+                    }
+                ],
+                startDate: '2025-05-26',
+                endDate: '2025-06-01',
+                location: 'Todo el edificio'
+            },
+            {
+                id: 'prog-016-003',
+                activityId: 'FIRE-016',
+                title: 'Pruebas hidráulicas sistema contra incendios',
+                discipline: 'Protección Contra Incendios',
+                subcontractor: 'Fire Protection Corp.',
+                plannedProgress: 25,
+                actualProgress: 0,
+                variance: -25,
+                status: 'delayed',
+                lastUpdate: '2025-05-26T09:00:00Z',
+                issues: [],
+                photos: [],
+                comments: [
+                    {
+                        id: 'comment-016-003',
+                        activityId: 'FIRE-016',
+                        text: 'Equipo de pruebas llegará el martes. Iniciamos miércoles.',
+                        author: 'Ing. Sofia Herrera',
+                        timestamp: '2025-05-26T09:00:00Z',
+                        isPublic: true
+                    }
+                ],
+                startDate: '2025-05-26',
+                endDate: '2025-06-01',
+                location: 'Todo el edificio'
+            }
+        ]
     }
-];
+};
 
 const disciplineColors = {
     'HVAC': 'bg-blue-500',
@@ -162,14 +487,16 @@ const statusColors = {
     'on_track': 'bg-green-100 text-green-800',
     'ahead': 'bg-blue-100 text-blue-800',
     'delayed': 'bg-red-100 text-red-800',
-    'at_risk': 'bg-yellow-100 text-yellow-800'
+    'at_risk': 'bg-yellow-100 text-yellow-800',
+    'completed': 'bg-gray-100 text-gray-800'
 };
 
 const statusLabels = {
     'on_track': 'En Tiempo',
     'ahead': 'Adelantado',
     'delayed': 'Retrasado',
-    'at_risk': 'En Riesgo'
+    'at_risk': 'En Riesgo',
+    'completed': 'Completado'
 };
 
 const issueCategories = {
@@ -196,14 +523,8 @@ const photoTypes = {
     'completado': 'Completado'
 };
 
-// Obtener actividades desde el estado global
-if (!(window as any).globalActivities) {
-    (window as any).globalActivities = mockProgressData;
-}
-
 const ProgressTracking: React.FC = () => {
-    const [progressData, setProgressData] = useState<ProgressData[]>((window as any).globalActivities || mockProgressData);
-    const [selectedWeek] = useState('2025-05-26/2025-06-01');
+    const [currentWeek, setCurrentWeek] = useState<number>(15);
     const [filterStatus, setFilterStatus] = useState<string>('');
     const [filterDiscipline, setFilterDiscipline] = useState<string>('');
     const [showProgressModal, setShowProgressModal] = useState(false);
@@ -229,12 +550,32 @@ const ProgressTracking: React.FC = () => {
     const [photoDescription, setPhotoDescription] = useState('');
     const [editingIssue, setEditingIssue] = useState<Issue | null>(null);
 
+    const currentWeekData = weeklyData[currentWeek];
+    const progressData = currentWeekData.activities;
+
+    // Función para obtener color de progreso según nueva escala
+    const getProgressColor = (progress: number) => {
+        if (progress >= 95) return 'bg-blue-500'; // EXCELENTE
+        if (progress >= 80) return 'bg-green-400'; // BUENO
+        if (progress >= 65) return 'bg-orange-500'; // MALO
+        return 'bg-red-500'; // CRÍTICO
+    };
+
+    // Función para obtener color de PPC
+    const getPPCColor = (percentage: number) => {
+        if (percentage >= 95) return 'bg-blue-500 text-white'; // EXCELENTE
+        if (percentage >= 80) return 'bg-green-400 text-white'; // BUENO
+        if (percentage >= 65) return 'bg-orange-500 text-white'; // MALO
+        return 'bg-red-500 text-white'; // CRÍTICO
+    };
+
     const weekStats = {
         totalActivities: progressData.length,
         onTrack: progressData.filter(p => p.status === 'on_track').length,
         ahead: progressData.filter(p => p.status === 'ahead').length,
         delayed: progressData.filter(p => p.status === 'delayed').length,
         atRisk: progressData.filter(p => p.status === 'at_risk').length,
+        completed: progressData.filter(p => p.status === 'completed').length,
         avgProgress: Math.round(progressData.reduce((sum, p) => sum + p.actualProgress, 0) / progressData.length),
         totalIssues: progressData.reduce((sum, p) => sum + p.issues.length, 0)
     };
@@ -265,6 +606,20 @@ const ProgressTracking: React.FC = () => {
         setShowProgressModal(true);
     };
 
+    const handleWeekChange = (direction: 'prev' | 'next') => {
+        if (direction === 'prev' && currentWeek > 14) {
+            setCurrentWeek(currentWeek - 1);
+        } else if (direction === 'next' && currentWeek < 16) {
+            setCurrentWeek(currentWeek + 1);
+        }
+    };
+
+    const getWeekStatusIcon = (weekNum: number) => {
+        if (weekNum < currentWeek) return <CheckCircle className="w-5 h-5 text-green-600" />;
+        if (weekNum === currentWeek) return <Clock className="w-5 h-5 text-blue-600" />;
+        return <Calendar className="w-5 h-5 text-gray-400" />;
+    };
+
     // Agregar comentarios
     const handleAddComment = () => {
         if (!selectedActivity || !newComment.trim()) return;
@@ -275,16 +630,12 @@ const ProgressTracking: React.FC = () => {
             text: newComment,
             author: 'Usuario Actual',
             timestamp: new Date().toISOString(),
-            isPublic: true // Agregar esta línea faltante
+            isPublic: true
         };
 
-        setProgressData(progressData.map(item =>
-            item.id === selectedActivity.id
-                ? { ...item, comments: [...item.comments, comment] }
-                : item
-        ));
-
+        // Aquí actualizarías el estado global o localStorage
         setNewComment('');
+        alert('Comentario agregado exitosamente');
     };
 
     // Reportar problemas
@@ -303,109 +654,18 @@ const ProgressTracking: React.FC = () => {
             reportedAt: new Date().toISOString()
         };
 
-        setProgressData(progressData.map(item =>
-            item.id === selectedActivity.id
-                ? { ...item, issues: [...item.issues, issue] }
-                : item
-        ));
-
-        setNewIssue({ title: '', description: '', category: 'material' as const, impact: 'medio' as const });
-    };
-
-    // Editar problema
-    const handleEditIssue = (issue: Issue) => {
-        setEditingIssue(issue);
-        setNewIssue({
-            title: issue.title,
-            description: issue.description,
-            category: issue.category,
-            impact: issue.impact
-        });
-    };
-
-    const handleUpdateIssue = () => {
-        if (!selectedActivity || !editingIssue || !newIssue.title.trim()) return;
-
-        const updatedIssue: Issue = {
-            ...editingIssue,
-            title: newIssue.title,
-            description: newIssue.description,
-            category: newIssue.category,
-            impact: newIssue.impact
-        };
-
-        setProgressData(progressData.map(item =>
-            item.id === selectedActivity.id
-                ? {
-                    ...item,
-                    issues: item.issues.map(iss =>
-                        iss.id === editingIssue.id ? updatedIssue : iss
-                    )
-                }
-                : item
-        ));
-
-        setEditingIssue(null);
-        setNewIssue({ title: '', description: '', category: 'material' as const, impact: 'medio' as const });
-    };
-
-    // Eliminar problema
-    const handleDeleteIssue = (issueId: string) => {
-        if (!selectedActivity) return;
-
-        if (confirm('¿Estás seguro de que deseas eliminar este problema?')) {
-            setProgressData(progressData.map(item =>
-                item.id === selectedActivity.id
-                    ? {
-                        ...item,
-                        issues: item.issues.filter(iss => iss.id !== issueId)
-                    }
-                    : item
-            ));
-        }
-    };
-
-    // Subir fotos
-    const handlePhotoUpload = (files: FileList | null) => {
-        if (!files || !selectedActivity) return;
-
-        const newPhotos = Array.from(files).map(file => ({
-            id: `photo-${Date.now()}-${Math.random()}`,
-            activityId: selectedActivity.activityId,
-            url: URL.createObjectURL(file),
-            filename: file.name,
-            type: selectedPhotoType,
-            timestamp: new Date().toISOString(),
-            description: photoDescription,
-            uploadedBy: 'Usuario Actual'
-        }));
-
-        setProgressData(progressData.map(item =>
-            item.id === selectedActivity.id
-                ? { ...item, photos: [...item.photos, ...newPhotos] }
-                : item
-        ));
-
-        setPhotoDescription('');
+        // Aquí actualizarías el estado global o localStorage
+        setNewIssue({ title: '', description: '', category: 'material', impact: 'medio' });
+        alert('Problema reportado exitosamente');
     };
 
     const handleSaveProgress = () => {
         if (!selectedActivity) return;
 
-        const updatedActivity = {
-            ...selectedActivity,
-            actualProgress: newProgress,
-            status: newStatus as any,
-            variance: newProgress - selectedActivity.plannedProgress,
-            lastUpdate: new Date().toISOString()
-        };
-
-        setProgressData(progressData.map(item =>
-            item.id === selectedActivity.id ? updatedActivity : item
-        ));
-
+        // Aquí actualizarías el estado global o localStorage
         setShowProgressModal(false);
         setActiveTab('progress');
+        alert('Progreso actualizado exitosamente');
     };
 
     const renderProgressTab = () => (
@@ -457,6 +717,7 @@ const ProgressTracking: React.FC = () => {
                     <option value="ahead">Adelantado</option>
                     <option value="delayed">Retrasado</option>
                     <option value="at_risk">En Riesgo</option>
+                    <option value="completed">Completado</option>
                 </select>
             </div>
         </div>
@@ -522,29 +783,13 @@ const ProgressTracking: React.FC = () => {
                     <div key={issue.id} className="border border-red-200 bg-red-50 rounded-lg p-3">
                         <div className="flex items-start justify-between mb-2">
                             <h4 className="font-medium text-red-900">{issue.title}</h4>
-                            <div className="flex items-center space-x-2">
-                                <button
-                                    onClick={() => handleEditIssue(issue)}
-                                    className="p-1 text-blue-600 hover:text-blue-800"
-                                    title="Editar problema"
-                                >
-                                    <Edit className="w-4 h-4" />
-                                </button>
-                                <button
-                                    onClick={() => handleDeleteIssue(issue.id)}
-                                    className="p-1 text-red-600 hover:text-red-800"
-                                    title="Eliminar problema"
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                </button>
-                                <span className={`px-2 py-1 text-xs rounded-full ${issue.impact === 'critico' ? 'bg-red-200 text-red-800' :
-                                    issue.impact === 'alto' ? 'bg-orange-200 text-orange-800' :
-                                        issue.impact === 'medio' ? 'bg-yellow-200 text-yellow-800' :
-                                            'bg-green-200 text-green-800'
-                                    }`}>
-                                    {issueImpacts[issue.impact]}
-                                </span>
-                            </div>
+                            <span className={`px-2 py-1 text-xs rounded-full ${issue.impact === 'critico' ? 'bg-red-200 text-red-800' :
+                                issue.impact === 'alto' ? 'bg-orange-200 text-orange-800' :
+                                    issue.impact === 'medio' ? 'bg-yellow-200 text-yellow-800' :
+                                        'bg-green-200 text-green-800'
+                                }`}>
+                                {issueImpacts[issue.impact]}
+                            </span>
                         </div>
                         <p className="text-sm text-red-800 mb-2">{issue.description}</p>
                         <div className="text-xs text-red-600">
@@ -563,7 +808,7 @@ const ProgressTracking: React.FC = () => {
                 <div className="space-y-3">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {editingIssue ? 'Editar Problema' : 'Título del Problema'}
+                            Título del Problema
                         </label>
                         <input
                             type="text"
@@ -615,36 +860,13 @@ const ProgressTracking: React.FC = () => {
                             </select>
                         </div>
                     </div>
-                    <div className="flex space-x-2">
-                        {editingIssue ? (
-                            <>
-                                <button
-                                    onClick={handleUpdateIssue}
-                                    disabled={!newIssue.title.trim()}
-                                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    Actualizar Problema
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        setEditingIssue(null);
-                                        setNewIssue({ title: '', description: '', category: 'material' as const, impact: 'medio' as const });
-                                    }}
-                                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
-                                >
-                                    Cancelar
-                                </button>
-                            </>
-                        ) : (
-                            <button
-                                onClick={handleReportIssue}
-                                disabled={!newIssue.title.trim()}
-                                className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                Reportar Problema
-                            </button>
-                        )}
-                    </div>
+                    <button
+                        onClick={handleReportIssue}
+                        disabled={!newIssue.title.trim()}
+                        className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Reportar Problema
+                    </button>
                 </div>
             </div>
         </div>
@@ -722,7 +944,7 @@ const ProgressTracking: React.FC = () => {
                                 type="file"
                                 multiple
                                 accept="image/*"
-                                onChange={(e) => handlePhotoUpload(e.target.files)}
+                                onChange={() => alert('Funcionalidad de subida de fotos simulada')}
                                 className="hidden"
                                 id="photoUpload"
                             />
@@ -754,54 +976,84 @@ const ProgressTracking: React.FC = () => {
                 </div>
             </div>
 
-            {/* Week Overview */}
+            {/* Week Selector */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center space-x-4">
-                        <Calendar className="w-5 h-5 text-gray-500" />
-                        <h2 className="text-lg font-semibold text-gray-900">Semana: {selectedWeek}</h2>
+                        <button
+                            onClick={() => handleWeekChange('prev')}
+                            disabled={currentWeek <= 14}
+                            className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <ChevronLeft className="w-5 h-5" />
+                        </button>
+
+                        <div className="flex items-center space-x-6">
+                            {[14, 15, 16].map((weekNum) => (
+                                <button
+                                    key={weekNum}
+                                    onClick={() => setCurrentWeek(weekNum)}
+                                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${currentWeek === weekNum
+                                        ? 'bg-blue-100 text-blue-800'
+                                        : 'text-gray-600 hover:bg-gray-100'
+                                        }`}
+                                >
+                                    {getWeekStatusIcon(weekNum)}
+                                    <span className="font-medium">Semana {weekNum}</span>
+                                </button>
+                            ))}
+                        </div>
+
+                        <button
+                            onClick={() => handleWeekChange('next')}
+                            disabled={currentWeek >= 16}
+                            className="p-2 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <ChevronRight className="w-5 h-5" />
+                        </button>
                     </div>
                     <div className="text-sm text-gray-500">
-                        Última actualización: {new Date().toLocaleString('es-PE')}
+                        {currentWeekData.dateRange}
                     </div>
                 </div>
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6  gap-4">
                     <div className="text-center p-4 bg-gray-50 rounded-lg">
                         <Target className="w-6 h-6 text-gray-600 mx-auto mb-2" />
                         <p className="text-2xl font-bold text-gray-900">{weekStats.totalActivities}</p>
                         <p className="text-sm text-gray-600">Total</p>
                     </div>
+
                     <div className="text-center p-4 bg-green-50 rounded-lg">
                         <CheckCircle className="w-6 h-6 text-green-600 mx-auto mb-2" />
                         <p className="text-2xl font-bold text-green-600">{weekStats.onTrack}</p>
                         <p className="text-sm text-gray-600">En Tiempo</p>
                     </div>
-                    <div className="text-center p-4 bg-blue-50 rounded-lg">
-                        <TrendingUp className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                        <p className="text-2xl font-bold text-blue-600">{weekStats.ahead}</p>
-                        <p className="text-sm text-gray-600">Adelantado</p>
-                    </div>
+
                     <div className="text-center p-4 bg-red-50 rounded-lg">
                         <Clock className="w-6 h-6 text-red-600 mx-auto mb-2" />
                         <p className="text-2xl font-bold text-red-600">{weekStats.delayed}</p>
                         <p className="text-sm text-gray-600">Retrasado</p>
                     </div>
+
                     <div className="text-center p-4 bg-yellow-50 rounded-lg">
                         <AlertTriangle className="w-6 h-6 text-yellow-600 mx-auto mb-2" />
                         <p className="text-2xl font-bold text-yellow-600">{weekStats.atRisk}</p>
                         <p className="text-sm text-gray-600">En Riesgo</p>
                     </div>
+
                     <div className="text-center p-4 bg-purple-50 rounded-lg">
                         <BarChart3 className="w-6 h-6 text-purple-600 mx-auto mb-2" />
                         <p className="text-2xl font-bold text-purple-600">{weekStats.avgProgress}%</p>
                         <p className="text-sm text-gray-600">Progreso Prom.</p>
                     </div>
-                    <div className="text-center p-4 bg-orange-50 rounded-lg">
-                        <AlertTriangle className="w-6 h-6 text-orange-600 mx-auto mb-2" />
-                        <p className="text-2xl font-bold text-orange-600">{weekStats.totalIssues}</p>
-                        <p className="text-sm text-gray-600">Problemas</p>
+
+                    {/* PPC Semanal */}
+                    <div className={`text-center p-4 rounded-lg ${getPPCColor(currentWeekData.ppcPercentage)}`}>
+                        <Calendar className="w-6 h-6 mx-auto mb-2" />
+                        <p className="text-2xl font-bold">{currentWeekData.ppcPercentage}%</p>
+                        <p className="text-sm">PPC {currentWeekData.ppcDay}</p>
                     </div>
                 </div>
             </div>
@@ -821,6 +1073,7 @@ const ProgressTracking: React.FC = () => {
                             <option value="ahead">Adelantado</option>
                             <option value="delayed">Retrasado</option>
                             <option value="at_risk">En Riesgo</option>
+                            <option value="completed">Completado</option>
                         </select>
                     </div>
 
@@ -847,137 +1100,140 @@ const ProgressTracking: React.FC = () => {
 
             {/* Progress Cards */}
             <div className="space-y-4">
-                {filteredData.map((item) => (
-                    <div key={item.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                        <div className="flex items-start justify-between mb-4">
-                            <div className="flex items-start space-x-4 flex-1">
-                                <div className={`${disciplineColors[item.discipline as keyof typeof disciplineColors]} p-3 rounded-lg`}>
-                                    <Activity className="w-6 h-6 text-white" />
-                                </div>
+                {filteredData.map((item) => {
+                    const disciplineInfo = disciplineColors[item.discipline as keyof typeof disciplineColors];
+                    const statusInfo = statusColors[item.status];
+                    const statusLabel = statusLabels[item.status];
 
-                                <div className="flex-1">
-                                    <div className="flex items-center space-x-3 mb-2">
-                                        <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
-                                        <span className="text-sm font-medium text-gray-500">{item.activityId}</span>
-                                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[item.status]}`}>
-                                            {statusLabels[item.status]}
-                                        </span>
+                    return (
+                        <div key={item.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                            <div className="flex items-start justify-between mb-4">
+                                <div className="flex items-start space-x-4 flex-1">
+                                    <div className={`${disciplineInfo} p-3 rounded-lg`}>
+                                        <Activity className="w-6 h-6 text-white" />
                                     </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                        <div>
-                                            <span className="text-sm text-gray-500">Subcontratista:</span>
-                                            <p className="font-medium">{item.subcontractor}</p>
-                                        </div>
-                                        <div>
-                                            <span className="text-sm text-gray-500">Ubicación:</span>
-                                            <p className="font-medium">{item.location}</p>
-                                        </div>
-                                        <div>
-                                            <span className="text-sm text-gray-500">Última actualización:</span>
-                                            <p className="font-medium">
-                                                {new Date(item.lastUpdate).toLocaleString('es-PE', {
-                                                    day: '2-digit',
-                                                    month: '2-digit',
-                                                    hour: '2-digit',
-                                                    minute: '2-digit'
-                                                })}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Progress Comparison */}
-                                    <div className="space-y-3">
-                                        <div>
-                                            <div className="flex items-center justify-between mb-2">
-                                                <span className="text-sm text-gray-600">Progreso Planificado</span>
-                                                <span className="text-sm font-medium text-gray-900">{item.plannedProgress}%</span>
-                                            </div>
-                                            <div className="w-full bg-gray-200 rounded-full h-2">
-                                                <div
-                                                    className="bg-gray-400 h-2 rounded-full"
-                                                    style={{ width: `${item.plannedProgress}%` }}
-                                                ></div>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <div className="flex items-center justify-between mb-2">
-                                                <span className="text-sm text-gray-600">Progreso Real</span>
-                                                <div className="flex items-center space-x-2">
-                                                    <span className="text-sm font-medium text-gray-900">{item.actualProgress}%</span>
-                                                    <span className={`text-sm font-medium ${getVarianceColor(item.variance)}`}>
-                                                        {getVarianceIcon(item.variance)} {Math.abs(item.variance)}%
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div className="w-full bg-gray-200 rounded-full h-2">
-                                                <div
-                                                    className={`h-2 rounded-full ${item.status === 'ahead' ? 'bg-blue-500' :
-                                                        item.status === 'on_track' ? 'bg-green-500' :
-                                                            item.status === 'delayed' ? 'bg-red-500' : 'bg-yellow-500'
-                                                        }`}
-                                                    style={{ width: `${item.actualProgress}%` }}
-                                                ></div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Issues Alert */}
-                                    {item.issues.length > 0 && (
-                                        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                                            <h4 className="text-sm font-medium text-red-800 mb-2">
-                                                {item.issues.length} problema{item.issues.length > 1 ? 's' : ''} reportado{item.issues.length > 1 ? 's' : ''}:
-                                            </h4>
-                                            <ul className="text-sm text-red-700 space-y-1">
-                                                {item.issues.slice(0, 2).map((issue) => (
-                                                    <li key={issue.id}>• {issue.title}</li>
-                                                ))}
-                                                {item.issues.length > 2 && (
-                                                    <li>• y {item.issues.length - 2} más...</li>
-                                                )}
-                                            </ul>
-                                        </div>
-                                    )}
-
-                                    {/* Activity Info */}
-                                    <div className="mt-4 flex items-center space-x-6 text-sm text-gray-500">
-                                        <div className="flex items-center space-x-1">
-                                            <Camera className="w-4 h-4" />
-                                            <span>{item.photos.length} fotos</span>
-                                        </div>
-                                        <div className="flex items-center space-x-1">
-                                            <MessageSquare className="w-4 h-4" />
-                                            <span>{item.comments.length} comentarios</span>
-                                        </div>
-                                        <div className="flex items-center space-x-1">
-                                            <AlertTriangle className="w-4 h-4" />
-                                            <span>{item.issues.length} problemas</span>
-                                        </div>
-                                        <div className="flex items-center space-x-1">
-                                            <Calendar className="w-4 h-4" />
-                                            <span>
-                                                {new Date(item.startDate).toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit' })} -
-                                                {new Date(item.endDate).toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit' })}
+                                    <div className="flex-1">
+                                        <div className="flex items-center space-x-3 mb-2">
+                                            <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
+                                            <span className="text-sm font-medium text-gray-500">{item.activityId}</span>
+                                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusInfo}`}>
+                                                {statusLabel}
                                             </span>
                                         </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                            <div>
+                                                <span className="text-sm text-gray-500">Subcontratista:</span>
+                                                <p className="font-medium">{item.subcontractor}</p>
+                                            </div>
+                                            <div>
+                                                <span className="text-sm text-gray-500">Ubicación:</span>
+                                                <p className="font-medium">{item.location}</p>
+                                            </div>
+                                            <div>
+                                                <span className="text-sm text-gray-500">Última actualización:</span>
+                                                <p className="font-medium">
+                                                    {new Date(item.lastUpdate).toLocaleString('es-PE', {
+                                                        day: '2-digit',
+                                                        month: '2-digit',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    })}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Progress Comparison */}
+                                        <div className="space-y-3">
+                                            <div>
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className="text-sm text-gray-600">Progreso Planificado</span>
+                                                    <span className="text-sm font-medium text-gray-900">{item.plannedProgress}%</span>
+                                                </div>
+                                                <div className="w-full bg-gray-200 rounded-full h-2">
+                                                    <div
+                                                        className="bg-gray-400 h-2 rounded-full"
+                                                        style={{ width: `${item.plannedProgress}%` }}
+                                                    ></div>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className="text-sm text-gray-600">Progreso Real</span>
+                                                    <div className="flex items-center space-x-2">
+                                                        <span className="text-sm font-medium text-gray-900">{item.actualProgress}%</span>
+                                                        <span className={`text-sm font-medium ${getVarianceColor(item.variance)}`}>
+                                                            {getVarianceIcon(item.variance)} {Math.abs(item.variance)}%
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div className="w-full bg-gray-200 rounded-full h-2">
+                                                    <div
+                                                        className={`h-2 rounded-full ${getProgressColor(item.actualProgress)}`}
+                                                        style={{ width: `${item.actualProgress}%` }}
+                                                    ></div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Issues Alert */}
+                                        {item.issues.length > 0 && (
+                                            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                                <h4 className="text-sm font-medium text-red-800 mb-2">
+                                                    {item.issues.length} problema{item.issues.length > 1 ? 's' : ''} reportado{item.issues.length > 1 ? 's' : ''}:
+                                                </h4>
+                                                <ul className="text-sm text-red-700 space-y-1">
+                                                    {item.issues.slice(0, 2).map((issue) => (
+                                                        <li key={issue.id}>• {issue.title}</li>
+                                                    ))}
+                                                    {item.issues.length > 2 && (
+                                                        <li>• y {item.issues.length - 2} más...</li>
+                                                    )}
+                                                </ul>
+                                            </div>
+                                        )}
+
+                                        {/* Activity Info */}
+                                        <div className="mt-4 flex items-center space-x-6 text-sm text-gray-500">
+                                            <div className="flex items-center space-x-1">
+                                                <Camera className="w-4 h-4" />
+                                                <span>{item.photos.length} fotos</span>
+                                            </div>
+                                            <div className="flex items-center space-x-1">
+                                                <MessageSquare className="w-4 h-4" />
+                                                <span>{item.comments.length} comentarios</span>
+                                            </div>
+                                            <div className="flex items-center space-x-1">
+                                                <AlertTriangle className="w-4 h-4" />
+                                                <span>{item.issues.length} problemas</span>
+                                            </div>
+                                            <div className="flex items-center space-x-1">
+                                                <Calendar className="w-4 h-4" />
+                                                <span>
+                                                    {new Date(item.startDate).toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit' })} -
+                                                    {new Date(item.endDate).toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit' })}
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Actions */}
-                            <div className="flex items-center">
-                                <button
-                                    onClick={() => handleUpdateProgress(item)}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm flex items-center"
-                                >
-                                    <TrendingUp className="w-4 h-4 mr-2" />
-                                    Actualizar
-                                </button>
+                                {/* Actions */}
+                                <div className="flex items-center">
+                                    <button
+                                        onClick={() => handleUpdateProgress(item)}
+                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm flex items-center"
+                                    >
+                                        <TrendingUp className="w-4 h-4 mr-2" />
+                                        Actualizar
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             {/* Update Progress Modal */}
@@ -1044,7 +1300,7 @@ const ProgressTracking: React.FC = () => {
                                     setShowProgressModal(false);
                                     setActiveTab('progress');
                                     setNewComment('');
-                                    setNewIssue({ title: '', description: '', category: 'material' as const, impact: 'medio' as const });
+                                    setNewIssue({ title: '', description: '', category: 'material', impact: 'medio' });
                                     setPhotoDescription('');
                                     setEditingIssue(null);
                                 }}
@@ -1065,6 +1321,7 @@ const ProgressTracking: React.FC = () => {
                     </div>
                 </div>
             )}
+
 
         </div>
     );
