@@ -1070,40 +1070,6 @@ const WeeklyActivities: React.FC = () => {
                 />
             )}
 
-            {/* Information Panel */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-blue-900 mb-3">Gestión de Actividades Semanales</h3>
-                <div className="text-sm text-blue-800 space-y-3">
-                    <p>
-                        <strong>Creación y Gestión de Actividades Semanales</strong> permite desglosar el cronograma maestro
-                        en tareas específicas y detalladas para cada semana, optimizando la planificación y ejecución de trabajos MEP.
-                    </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        <div>
-                            <h4 className="font-medium mb-2">Funcionalidades implementadas:</h4>
-                            <ul className="space-y-1 text-sm">
-                                <li>• ✅ Crear, editar y duplicar actividades</li>
-                                <li>• ✅ Gestión de dependencias entre tareas</li>
-                                <li>• ✅ Plantillas predefinidas de actividades</li>
-                                <li>• ✅ Importación masiva desde Excel/CSV</li>
-                                <li>• ✅ Validación automática de conflictos</li>
-                                <li>• ✅ Exportación de detalles individuales</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="font-medium mb-2">Beneficios:</h4>
-                            <ul className="space-y-1 text-sm">
-                                <li>• Mayor control del cronograma</li>
-                                <li>• Optimización de recursos</li>
-                                <li>• Mejor coordinación en obra</li>
-                                <li>• Reducción de tiempos muertos</li>
-                                <li>• Comunicación directa con equipos</li>
-                                <li>• Trazabilidad completa de actividades</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };

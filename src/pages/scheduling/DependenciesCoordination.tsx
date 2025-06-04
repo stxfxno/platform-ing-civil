@@ -12,6 +12,7 @@ import {
     Trash2,
     Save,
     User,
+    TrendingUp,
 } from 'lucide-react';
 
 interface Dependency {
@@ -26,6 +27,7 @@ interface Dependency {
     coordinator?: string;
     issue?: string;
     solution?: string;
+    progress: number; // Nuevo campo para el progreso (0-100)
     createdAt: string;
     resolvedAt?: string;
 }
@@ -51,6 +53,7 @@ const mockDependencies: Dependency[] = [
         status: 'active',
         description: 'Los ductos HVAC requieren que las vigas principales estén completamente instaladas',
         coordinator: 'Ing. Carlos Mendoza',
+        progress: 75, // 75% completado
         createdAt: '2025-05-20T10:00:00Z'
     },
     {
@@ -64,6 +67,7 @@ const mockDependencies: Dependency[] = [
         description: 'El cableado eléctrico debe esperar a que termine la instalación de tuberías',
         coordinator: 'Ing. María Santos',
         issue: 'Retraso en tuberías por problemas de suministro',
+        progress: 45, // 45% completado
         createdAt: '2025-05-22T14:30:00Z'
     },
     {
@@ -77,6 +81,7 @@ const mockDependencies: Dependency[] = [
         description: 'Los rociadores se instalan después de los ductos HVAC',
         coordinator: 'Ing. Laura Mendoza',
         solution: 'Coordinación exitosa, instalación completada sin conflictos',
+        progress: 100, // 100% completado
         createdAt: '2025-05-18T09:00:00Z',
         resolvedAt: '2025-05-25T16:00:00Z'
     }
@@ -116,6 +121,42 @@ const statusLabels = {
     'resolved': 'Resuelta'
 };
 
+// Componente para la barra de progreso
+const ProgressBar: React.FC<{ progress: number; status: string }> = ({ progress, status }) => {
+    const getProgressColor = () => {
+        if (status === 'resolved') return 'bg-green-500';
+        if (status === 'blocked') return 'bg-red-500';
+        if (progress >= 75) return 'bg-green-500';
+        if (progress >= 50) return 'bg-yellow-500';
+        if (progress >= 25) return 'bg-orange-500';
+        return 'bg-red-500';
+    };
+
+    const getProgressLabel = () => {
+        if (progress === 100) return 'Completado';
+        if (progress >= 75) return 'Casi terminado';
+        if (progress >= 50) return 'En progreso';
+        if (progress >= 25) return 'Iniciado';
+        return 'Inicio';
+    };
+
+    return (
+        <div className="w-full">
+            <div className="flex justify-between items-center mb-1">
+                <span className="text-sm font-medium text-gray-700">Progreso</span>
+                <span className="text-sm text-gray-600">{progress}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div 
+                    className={`h-2.5 rounded-full transition-all duration-300 ${getProgressColor()}`}
+                    style={{ width: `${progress}%` }}
+                ></div>
+            </div>
+            <div className="text-xs text-gray-500 mt-1">{getProgressLabel()}</div>
+        </div>
+    );
+};
+
 const DependenciesCoordination: React.FC = () => {
     const [dependencies, setDependencies] = useState<Dependency[]>(mockDependencies);
     const [plans, setPlans] = useState<MitigationPlan[]>(mockPlans);
@@ -123,17 +164,20 @@ const DependenciesCoordination: React.FC = () => {
     const [showPlanModal, setShowPlanModal] = useState(false);
     const [showResolveModal, setShowResolveModal] = useState(false);
     const [showMeetingModal, setShowMeetingModal] = useState(false);
+    const [showProgressModal, setShowProgressModal] = useState(false);
     const [selectedDep, setSelectedDep] = useState<Dependency | null>(null);
     const [editForm, setEditForm] = useState<Partial<Dependency>>({});
     const [planForm, setPlanForm] = useState<Partial<MitigationPlan>>({});
     const [resolutionData, setResolutionData] = useState({ solution: '', evidence: '' });
     const [meetingData, setMeetingData] = useState({ date: '', time: '', attendees: '' });
+    const [progressUpdate, setProgressUpdate] = useState(0);
 
     const stats = {
         total: dependencies.length,
         active: dependencies.filter(d => d.status === 'active').length,
         blocked: dependencies.filter(d => d.status === 'blocked').length,
-        resolved: dependencies.filter(d => d.status === 'resolved').length
+        resolved: dependencies.filter(d => d.status === 'resolved').length,
+        averageProgress: Math.round(dependencies.reduce((sum, dep) => sum + dep.progress, 0) / dependencies.length)
     };
 
     // Funcionalidad 1: Editar dependencia
@@ -157,9 +201,35 @@ const DependenciesCoordination: React.FC = () => {
     // Funcionalidad 2: Cambiar estado
     const changeStatus = (dep: Dependency, newStatus: 'active' | 'blocked' | 'resolved') => {
         setDependencies(dependencies.map(d => 
-            d.id === dep.id ? { ...d, status: newStatus } : d
+            d.id === dep.id ? { 
+                ...d, 
+                status: newStatus,
+                progress: newStatus === 'resolved' ? 100 : d.progress
+            } : d
         ));
         alert(`Estado cambiado a: ${statusLabels[newStatus]}`);
+    };
+
+    // Funcionalidad nueva: Actualizar progreso
+    const handleUpdateProgress = (dep: Dependency) => {
+        setSelectedDep(dep);
+        setProgressUpdate(dep.progress);
+        setShowProgressModal(true);
+    };
+
+    const saveProgress = () => {
+        if (!selectedDep) return;
+        
+        setDependencies(dependencies.map(d => 
+            d.id === selectedDep.id ? { 
+                ...d, 
+                progress: progressUpdate,
+                status: progressUpdate === 100 ? 'resolved' : d.status
+            } : d
+        ));
+        
+        setShowProgressModal(false);
+        alert(`Progreso actualizado a ${progressUpdate}%`);
     };
 
     // Funcionalidad 3: Crear plan de mitigación
@@ -223,6 +293,7 @@ const DependenciesCoordination: React.FC = () => {
             d.id === selectedDep.id ? {
                 ...d,
                 status: 'resolved',
+                progress: 100,
                 solution: resolutionData.solution,
                 resolvedAt: new Date().toISOString()
             } : d
@@ -245,15 +316,11 @@ const DependenciesCoordination: React.FC = () => {
                         <p className="text-gray-600">Gestión de dependencias entre actividades MEP</p>
                     </div>
                 </div>
-                {/*<button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Nueva Dependencia
-                </button>*/}
             </div>
 
             {/* Stats */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-5 gap-4">
                     <div className="text-center p-3 bg-gray-50 rounded-lg">
                         <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
                         <p className="text-sm text-gray-600">Total</p>
@@ -269,6 +336,10 @@ const DependenciesCoordination: React.FC = () => {
                     <div className="text-center p-3 bg-green-50 rounded-lg">
                         <p className="text-2xl font-bold text-green-600">{stats.resolved}</p>
                         <p className="text-sm text-gray-600">Resueltas</p>
+                    </div>
+                    <div className="text-center p-3 bg-purple-50 rounded-lg">
+                        <p className="text-2xl font-bold text-purple-600">{stats.averageProgress}%</p>
+                        <p className="text-sm text-gray-600">Progreso Promedio</p>
                     </div>
                 </div>
             </div>
@@ -311,6 +382,11 @@ const DependenciesCoordination: React.FC = () => {
 
                                     <p className="text-gray-600 mb-3">{dep.description}</p>
 
+                                    {/* Barra de Progreso */}
+                                    <div className="mb-3 max-w-md">
+                                        <ProgressBar progress={dep.progress} status={dep.status} />
+                                    </div>
+
                                     {dep.coordinator && (
                                         <div className="flex items-center space-x-2 mb-2">
                                             <User className="w-4 h-4 text-gray-500" />
@@ -342,6 +418,14 @@ const DependenciesCoordination: React.FC = () => {
                                     title="Editar"
                                 >
                                     <Edit className="w-5 h-5" />
+                                </button>
+
+                                <button
+                                    onClick={() => handleUpdateProgress(dep)}
+                                    className="p-2 text-purple-600 hover:text-purple-800 hover:bg-purple-100 rounded-lg transition-colors"
+                                    title="Actualizar progreso"
+                                >
+                                    <TrendingUp className="w-5 h-5" />
                                 </button>
 
                                 {dep.status === 'active' && (
@@ -382,7 +466,6 @@ const DependenciesCoordination: React.FC = () => {
                                     <Users className="w-5 h-5" />
                                 </button>
 
-
                                 <button
                                     onClick={() => deleteDependency(dep)}
                                     className="p-2 text-red-600 hover:text-red-800 hover:bg-red-100 rounded-lg transition-colors"
@@ -395,6 +478,78 @@ const DependenciesCoordination: React.FC = () => {
                     </div>
                 ))}
             </div>
+
+            {/* Progress Update Modal */}
+            {showProgressModal && selectedDep && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg max-w-md w-full">
+                        <div className="p-6 border-b border-gray-200">
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-xl font-semibold text-gray-900">Actualizar Progreso</h2>
+                                <button onClick={() => setShowProgressModal(false)}>
+                                    <X className="w-6 h-6" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="p-6 space-y-4">
+                            <div>
+                                <h3 className="font-medium text-gray-900 mb-2">{selectedDep.title}</h3>
+                                <p className="text-sm text-gray-600 mb-4">{selectedDep.description}</p>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Progreso: {progressUpdate}%
+                                </label>
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    value={progressUpdate}
+                                    onChange={(e) => setProgressUpdate(parseInt(e.target.value))}
+                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                />
+                                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                    <span>0%</span>
+                                    <span>25%</span>
+                                    <span>50%</span>
+                                    <span>75%</span>
+                                    <span>100%</span>
+                                </div>
+                            </div>
+
+                            <div className="mt-4">
+                                <ProgressBar progress={progressUpdate} status={selectedDep.status} />
+                            </div>
+
+                            {progressUpdate === 100 && (
+                                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                                    <p className="text-sm text-green-800">
+                                        Al marcar 100%, la dependencia se marcará automáticamente como resuelta.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                            <button
+                                onClick={() => setShowProgressModal(false)}
+                                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={saveProgress}
+                                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center"
+                            >
+                                <TrendingUp className="w-4 h-4 mr-2" />
+                                Actualizar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Edit Modal */}
             {showEditModal && selectedDep && (
@@ -442,6 +597,18 @@ const DependenciesCoordination: React.FC = () => {
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                                     />
                                 </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Progreso (%)</label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    value={editForm.progress || 0}
+                                    onChange={(e) => setEditForm({ ...editForm, progress: parseInt(e.target.value) })}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                />
                             </div>
 
                             <div>
@@ -708,8 +875,6 @@ const DependenciesCoordination: React.FC = () => {
                     </div>
                 </div>
             )}
-
-            
         </div>
     );
 };
