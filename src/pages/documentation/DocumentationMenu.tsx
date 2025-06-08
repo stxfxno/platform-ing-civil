@@ -128,30 +128,6 @@ const DocumentationMenu: React.FC = () => {
                     );
                 })}
             </div>
-
-            {/* Acciones Rápidas */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Acciones Rápidas</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <button className="flex items-center space-x-3 p-4 border border-dashed border-gray-300 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-all">
-                        <Upload className="w-5 h-5 text-primary-600" />
-                        <span className="text-sm font-medium text-gray-700">Subir Documento</span>
-                    </button>
-                    
-                    <Link 
-                        to="/documentacion/planos" 
-                        className="flex items-center space-x-3 p-4 border border-dashed border-gray-300 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all"
-                    >
-                        <FileText className="w-5 h-5 text-blue-600" />
-                        <span className="text-sm font-medium text-gray-700">Revisar Planos</span>
-                    </Link>
-                    
-                    <button className="flex items-center space-x-3 p-4 border border-dashed border-gray-300 rounded-lg hover:border-yellow-300 hover:bg-yellow-50 transition-all">
-                        <AlertCircle className="w-5 h-5 text-yellow-600" />
-                        <span className="text-sm font-medium text-gray-700">Documentos Vencidos</span>
-                    </button>
-                </div>
-            </div>
         </div>
     );
 };

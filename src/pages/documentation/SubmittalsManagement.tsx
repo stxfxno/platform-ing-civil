@@ -200,7 +200,7 @@ const SubmittalsManagement: React.FC = () => {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                     <div className="flex items-center space-x-3">
                         <div className="bg-blue-500 p-2 rounded-lg">
@@ -251,20 +251,6 @@ const SubmittalsManagement: React.FC = () => {
                                 {mockSubmittals.filter(s => s.status === 'rejected').length}
                             </p>
                             <p className="text-sm text-gray-600">Rechazados</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                    <div className="flex items-center space-x-3">
-                        <div className="bg-orange-500 p-2 rounded-lg">
-                            <AlertTriangle className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold text-orange-600">
-                                {mockSubmittals.filter(s => isOverdue(s.dueDate) && s.status !== 'approved').length}
-                            </p>
-                            <p className="text-sm text-gray-600">Vencidos</p>
                         </div>
                     </div>
                 </div>
@@ -382,29 +368,7 @@ const SubmittalsManagement: React.FC = () => {
                                 <span className="text-sm text-gray-500">Enviado:</span>
                                 <p className="font-medium text-gray-900">{submittal.submittedDate || 'Pendiente'}</p>
                             </div>
-                            <div>
-                                <span className="text-sm text-gray-500">Revisado:</span>
-                                <p className="font-medium text-gray-900">{submittal.reviewDate || 'Pendiente'}</p>
-                            </div>
                         </div>
-
-                        {/* Progress Bar */}
-                        <div className="mb-4">
-                            <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm font-medium text-gray-700">Progreso</span>
-                                <span className="text-sm text-gray-500">{submittal.progress}%</span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2">
-                                <div
-                                    className={`h-2 rounded-full transition-all duration-300 ${
-                                        submittal.status === 'approved' ? 'bg-green-600' :
-                                        submittal.status === 'rejected' ? 'bg-red-600' : 'bg-blue-600'
-                                    }`}
-                                    style={{ width: `${submittal.progress}%` }}
-                                ></div>
-                            </div>
-                        </div>
-
                         {/* Actions */}
                         <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                             <div className="flex items-center space-x-2">

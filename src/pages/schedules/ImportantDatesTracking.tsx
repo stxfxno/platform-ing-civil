@@ -260,10 +260,6 @@ const ImportantDatesTracking: React.FC = () => {
                         Agregar Fecha
                     </button>
                     <button className="flex items-center px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                        <Bell className="w-4 h-4 mr-2" />
-                        Notificaciones
-                    </button>
-                    <button className="flex items-center px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
                         <Download className="w-4 h-4 mr-2" />
                         Exportar
                     </button>
@@ -272,19 +268,6 @@ const ImportantDatesTracking: React.FC = () => {
 
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-gray-600">Próximas 7 Días</p>
-                            <p className="text-3xl font-bold text-gray-900">
-                                {upcomingDates.filter(date => getDaysUntil(date.date) <= 7).length}
-                            </p>
-                        </div>
-                        <div className="p-3 bg-blue-100 rounded-lg">
-                            <Clock className="w-6 h-6 text-blue-600" />
-                        </div>
-                    </div>
-                </div>
 
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     <div className="flex items-center justify-between">
@@ -301,27 +284,13 @@ const ImportantDatesTracking: React.FC = () => {
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-gray-600">Hitos del Mes</p>
+                            <p className="text-sm font-medium text-gray-600">Actividades Altas</p>
                             <p className="text-3xl font-bold text-gray-900">
                                 {filteredDates.filter(date => date.type === 'milestone').length}
                             </p>
                         </div>
                         <div className="p-3 bg-green-100 rounded-lg">
                             <Target className="w-6 h-6 text-green-600" />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-gray-600">Inspecciones</p>
-                            <p className="text-3xl font-bold text-gray-900">
-                                {filteredDates.filter(date => date.type === 'inspection').length}
-                            </p>
-                        </div>
-                        <div className="p-3 bg-yellow-100 rounded-lg">
-                            <CheckCircle className="w-6 h-6 text-yellow-600" />
                         </div>
                     </div>
                 </div>
@@ -340,15 +309,6 @@ const ImportantDatesTracking: React.FC = () => {
                                     }`}
                             >
                                 Calendario
-                            </button>
-                            <button
-                                onClick={() => setSelectedView('list')}
-                                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${selectedView === 'list'
-                                        ? 'bg-white text-gray-900 shadow-sm'
-                                        : 'text-gray-600 hover:text-gray-900'
-                                    }`}
-                            >
-                                Lista
                             </button>
                             <button
                                 onClick={() => setSelectedView('timeline')}

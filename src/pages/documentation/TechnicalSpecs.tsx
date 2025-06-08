@@ -177,34 +177,6 @@ const TechnicalSpecs: React.FC = () => {
                         </div>
                     </div>
                 </div>
-
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                    <div className="flex items-center space-x-3">
-                        <div className="bg-blue-500 p-2 rounded-lg">
-                            <Clock className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold text-blue-600">
-                                {mockSpecs.filter(s => s.status === 'draft').length}
-                            </p>
-                            <p className="text-sm text-gray-600">En Desarrollo</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                    <div className="flex items-center space-x-3">
-                        <div className="bg-gray-500 p-2 rounded-lg">
-                            <FileText className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold text-gray-600">
-                                {mockSpecs.filter(s => s.status === 'superseded').length}
-                            </p>
-                            <p className="text-sm text-gray-600">Superseded</p>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             {/* Filters */}
@@ -224,17 +196,6 @@ const TechnicalSpecs: React.FC = () => {
                     </div>
 
                     <div className="flex space-x-4">
-                        <select
-                            value={filterStatus}
-                            onChange={(e) => setFilterStatus(e.target.value)}
-                            className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                        >
-                            <option value="all">Todos los estados</option>
-                            <option value="active">Activa</option>
-                            <option value="draft">Borrador</option>
-                            <option value="superseded">Superseded</option>
-                        </select>
-
                         <select
                             value={filterDiscipline}
                             onChange={(e) => setFilterDiscipline(e.target.value)}
@@ -263,10 +224,6 @@ const TechnicalSpecs: React.FC = () => {
                                     <p className="text-sm text-gray-600">{spec.section}</p>
                                 </div>
                             </div>
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(spec.status)}`}>
-                                {getStatusIcon(spec.status)}
-                                <span className="ml-1">{getStatusLabel(spec.status)}</span>
-                            </span>
                         </div>
 
                         <h4 className="text-lg font-medium text-gray-900 mb-2">{spec.title}</h4>

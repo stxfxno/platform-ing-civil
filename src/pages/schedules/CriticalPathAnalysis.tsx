@@ -185,20 +185,6 @@ const CriticalPathAnalysis: React.FC = () => {
                 </div>
 
                 <div className="flex items-center space-x-2">
-                    <button
-                        onClick={() => setShowRiskAnalysis(!showRiskAnalysis)}
-                        className={`flex items-center px-3 py-2 text-sm rounded-lg transition-colors ${showRiskAnalysis
-                                ? 'bg-red-600 text-white'
-                                : 'bg-white border border-gray-300 hover:bg-gray-50'
-                            }`}
-                    >
-                        <AlertTriangle className="w-4 h-4 mr-2" />
-                        {showRiskAnalysis ? 'Ocultar Riesgos' : 'Análisis de Riesgos'}
-                    </button>
-                    <button className="flex items-center px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-                        <RefreshCw className="w-4 h-4 mr-2" />
-                        Actualizar
-                    </button>
                     <button className="flex items-center px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                         <Download className="w-4 h-4 mr-2" />
                         Exportar Reporte
@@ -475,59 +461,6 @@ const CriticalPathAnalysis: React.FC = () => {
                     </div>
                 </div>
             )}
-
-            {/* Alternative Paths */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Rutas Alternativas</h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {pathSegments.map((segment, index) => (
-                        <div key={index} className={`p-4 rounded-lg border-2 ${index === selectedPath ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
-                            }`}>
-                            <div className="flex items-center justify-between mb-3">
-                                <h3 className="font-medium text-gray-900">
-                                    {index === 0 ? 'Ruta Crítica Principal' : `Ruta Alternativa ${index}`}
-                                </h3>
-                                <button
-                                    onClick={() => setSelectedPath(index)}
-                                    className={`px-3 py-1 text-xs font-medium rounded ${index === selectedPath
-                                            ? 'bg-blue-600 text-white'
-                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                        }`}
-                                >
-                                    {index === selectedPath ? 'Seleccionada' : 'Seleccionar'}
-                                </button>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div>
-                                    <span className="text-gray-600">Duración:</span>
-                                    <span className="ml-2 font-medium text-gray-900">{segment.totalDuration} días</span>
-                                </div>
-                                <div>
-                                    <span className="text-gray-600">Retraso:</span>
-                                    <span className={`ml-2 font-medium ${segment.currentDelay > 0 ? 'text-red-600' : 'text-green-600'
-                                        }`}>
-                                        {segment.currentDelay > 0 ? `+${segment.currentDelay}` : segment.currentDelay} días
-                                    </span>
-                                </div>
-                                <div>
-                                    <span className="text-gray-600">Actividades:</span>
-                                    <span className="ml-2 font-medium text-gray-900">{segment.activities.length}</span>
-                                </div>
-                                <div>
-                                    <span className="text-gray-600">Riesgo:</span>
-                                    <span className={`ml-2 font-medium ${segment.riskScore >= 8 ? 'text-red-600' :
-                                            segment.riskScore >= 6 ? 'text-orange-600' : 'text-green-600'
-                                        }`}>
-                                        {segment.riskScore}/10
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
 
             {/* Action Items */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">

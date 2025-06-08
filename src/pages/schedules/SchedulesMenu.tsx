@@ -97,22 +97,6 @@ const projectStats = [
         color: 'text-green-600 bg-green-50',
         unit: 'act'
     },
-    {
-        label: 'Actividades Críticas',
-        value: 3,
-        total: 7,
-        icon: AlertTriangle,
-        color: 'text-red-600 bg-red-50',
-        unit: 'act'
-    },
-    {
-        label: 'Equipos Activos',
-        value: 8,
-        total: 12,
-        icon: Users,
-        color: 'text-purple-600 bg-purple-50',
-        unit: 'equipos'
-    }
 ];
 
 const recentUpdates = [
@@ -365,14 +349,7 @@ const SchedulesMenu: React.FC = () => {
                                     <p className="text-sm text-gray-600 mt-1">{update.description}</p>
                                     <div className="flex items-center justify-between mt-2">
                                         <span className="text-xs text-gray-500">{formatTime(update.timestamp)}</span>
-                                        <span className={`px-2 py-1 text-xs font-medium rounded ${
-                                            update.impact === 'high' ? 'bg-red-100 text-red-600' :
-                                            update.impact === 'medium' ? 'bg-yellow-100 text-yellow-600' :
-                                            'bg-green-100 text-green-600'
-                                        }`}>
-                                            {update.impact === 'high' ? 'Alto Impacto' :
-                                             update.impact === 'medium' ? 'Medio Impacto' : 'Bajo Impacto'}
-                                        </span>
+
                                     </div>
                                 </div>
                             </div>
@@ -409,14 +386,6 @@ const SchedulesMenu: React.FC = () => {
                                             year: 'numeric'
                                         })}
                                     </span>
-                                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                                        milestone.priority === 'critical' ? 'bg-red-100 text-red-600' :
-                                        milestone.priority === 'high' ? 'bg-orange-100 text-orange-600' :
-                                        'bg-yellow-100 text-yellow-600'
-                                    }`}>
-                                        {milestone.priority === 'critical' ? 'CRÍTICO' :
-                                         milestone.priority === 'high' ? 'ALTO' : 'MEDIO'}
-                                    </span>
                                 </div>
                             </div>
                         ))}
@@ -448,7 +417,6 @@ const SchedulesMenu: React.FC = () => {
                             <ul className="space-y-1 text-sm">
                                 <li>• Control centralizado del cronograma</li>
                                 <li>• Identificación temprana de riesgos</li>
-                                <li>• Mejor coordinación de equipos</li>
                                 <li>• Seguimiento automatizado</li>
                             </ul>
                         </div>

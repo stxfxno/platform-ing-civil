@@ -42,7 +42,7 @@ const mockDrawings: Drawing[] = [
         id: '2',
         drawingNumber: 'M-101',
         title: 'Ductos HVAC - Zona A Sótano',
-        discipline: 'HVAC',
+        discipline: 'Eléctrico',
         revision: 'Rev-02',
         revisionDate: '2025-05-22',
         status: 'review',
@@ -64,7 +64,7 @@ const mockDrawings: Drawing[] = [
         id: '4',
         drawingNumber: 'FP-101',
         title: 'Sistema Contra Incendios - Área General',
-        discipline: 'Protección Contra Incendios',
+        discipline: 'Mecanicas',
         revision: 'Rev-02',
         revisionDate: '2025-05-18',
         status: 'approved',
@@ -200,20 +200,6 @@ const DrawingsControl: React.FC = () => {
                                 {mockDrawings.filter(d => d.status === 'review').length}
                             </p>
                             <p className="text-sm text-gray-600">En Revisión</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                    <div className="flex items-center space-x-3">
-                        <div className="bg-blue-500 p-2 rounded-lg">
-                            <Edit className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold text-blue-600">
-                                {mockDrawings.filter(d => d.status === 'draft').length}
-                            </p>
-                            <p className="text-sm text-gray-600">Borradores</p>
                         </div>
                     </div>
                 </div>

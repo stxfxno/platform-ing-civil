@@ -175,48 +175,6 @@ const ProjectOverview: React.FC = () => {
                         </div>
                     </div>
                 </div>
-
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-gray-600">Actividades Activas</p>
-                            <p className="text-3xl font-bold text-gray-900">
-                                {activities.filter(a => a.status === 'in_progress').length}
-                            </p>
-                        </div>
-                        <div className="p-3 bg-green-100 rounded-lg">
-                            <CheckCircle className="w-6 h-6 text-green-600" />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-gray-600">Actividades Retrasadas</p>
-                            <p className="text-3xl font-bold text-gray-900">
-                                {activities.filter(a => a.status === 'delayed').length}
-                            </p>
-                        </div>
-                        <div className="p-3 bg-red-100 rounded-lg">
-                            <AlertTriangle className="w-6 h-6 text-red-600" />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-gray-600">Actividades Críticas</p>
-                            <p className="text-3xl font-bold text-gray-900">
-                                {activities.filter(a => a.isCritical).length}
-                            </p>
-                        </div>
-                        <div className="p-3 bg-yellow-100 rounded-lg">
-                            <Target className="w-6 h-6 text-yellow-600" />
-                        </div>
-                    </div>
-                </div>
             </div>
 
             {/* View Controls */}
