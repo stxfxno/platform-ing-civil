@@ -765,38 +765,6 @@ const Budgets: React.FC = () => {
                     </div>
                 </div>
             )}
-
-            {/* Information Panel */}
-            <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-green-900 mb-3">Sistema de Presupuestos MEP</h3>
-                <div className="text-sm text-green-800 space-y-3">
-                    <p>
-                        Sistema automatizado para la solicitud y gestión de presupuestos de proyectos MEP,
-                        con asignación automática de fechas límite según prioridad.
-                    </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        <div>
-                            <h4 className="font-medium mb-2">Plazos por Prioridad:</h4>
-                            <ul className="space-y-1 text-sm">
-                                <li>• <strong>Urgente:</strong> 1 día</li>
-                                <li>• <strong>Alta:</strong> 3 días</li>
-                                <li>• <strong>Media:</strong> 5 días</li>
-                                <li>• <strong>Baja:</strong> 7 días</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="font-medium mb-2">Acciones Disponibles:</h4>
-                            <ul className="space-y-1 text-sm">
-                                <li>• ✅ Aprobar presupuesto</li>
-                                <li>• ❌ Rechazar presupuesto</li>
-                                <li>• 📋 Seguimiento automático</li>
-                                <li>• ⏰ Alertas de vencimiento</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             {/* Back to Menu */}
             <div className="flex justify-center">
                 <Link

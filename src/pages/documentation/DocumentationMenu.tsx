@@ -61,8 +61,8 @@ const documentationOptions: DocumentationOption[] = [
         }
     },
     {
-        title: 'Documentos Generales',
-        description: 'Documentos generales del proyecto y correspondencia',
+        title: 'Descargas',
+        description: 'Descargas de todos los documentos del proyecto',
         path: '/documentacion/generales',
         icon: Folder,
         color: 'bg-orange-500',

@@ -17,7 +17,9 @@ import {
     Globe,
     Lock,
     Send,
-    Archive
+    Archive,
+    X,
+    FileText
 } from 'lucide-react';
 
 interface QAItem {
@@ -118,7 +120,7 @@ const mockQAItems: QAItem[] = [
         company: 'MEP Contractors Inc.',
         discipline: 'Mecánico',
         priority: 'high',
-        status: 'clarified',
+        status: 'answered',
         bidPackageId: 'BP-2025-005',
         bidPackageName: 'Equipos Mecánicos - Sala de Máquinas',
         answer: 'Las pruebas de presión deben realizarse según ASME B31.1. Se requiere inspector independiente certificado para sistemas de presión superior a 150 PSI. El contratista debe proveer todos los equipos de prueba y generar certificados. Ver procedimiento PT-MEC-001.',
@@ -144,19 +146,40 @@ const mockQAItems: QAItem[] = [
 ];
 
 const QAModule: React.FC = () => {
-    const [qaItems] = useState<QAItem[]>(mockQAItems);
+    const [qaItems, setQaItems] = useState<QAItem[]>(mockQAItems);
     const [selectedStatus, setSelectedStatus] = useState<string>('all');
     const [selectedDiscipline, setSelectedDiscipline] = useState<string>('all');
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [showFilters, setShowFilters] = useState(false);
     const [showPublicOnly, setShowPublicOnly] = useState(false);
+    
+    // Estados para modales
+    const [showNewQuestionModal, setShowNewQuestionModal] = useState(false);
+    const [showResponseModal, setShowResponseModal] = useState(false);
+    const [selectedQAForResponse, setSelectedQAForResponse] = useState<QAItem | null>(null);
+
+    // Estados para formularios
+    const [newQuestion, setNewQuestion] = useState({
+        question: '',
+        discipline: '',
+        category: '',
+        priority: 'medium' as const,
+        bidPackageId: '',
+        isPublic: true,
+        company: 'Mi Empresa SAC',
+        askedBy: ''
+    });
+
+    const [response, setResponse] = useState({
+        answer: '',
+        answeredBy: 'Ing. Carlos Rodríguez'
+    });
 
     const getStatusColor = (status: string) => {
         switch (status) {
             case 'pending': return 'bg-yellow-100 text-yellow-800';
             case 'answered': return 'bg-green-100 text-green-800';
-            case 'clarified': return 'bg-blue-100 text-blue-800';
             default: return 'bg-gray-100 text-gray-800';
         }
     };
@@ -165,7 +188,6 @@ const QAModule: React.FC = () => {
         switch (status) {
             case 'pending': return 'Pendiente';
             case 'answered': return 'Respondida';
-            case 'clarified': return 'Clarificada';
             default: return status;
         }
     };
@@ -174,7 +196,6 @@ const QAModule: React.FC = () => {
         switch (status) {
             case 'pending': return <Clock className="w-4 h-4" />;
             case 'answered': return <CheckCircle className="w-4 h-4" />;
-            case 'clarified': return <AlertCircle className="w-4 h-4" />;
             default: return <HelpCircle className="w-4 h-4" />;
         }
     };
@@ -205,6 +226,74 @@ const QAModule: React.FC = () => {
             hour: '2-digit',
             minute: '2-digit'
         });
+    };
+
+    const handleCreateQuestion = () => {
+        if (!newQuestion.question.trim() || !newQuestion.discipline || !newQuestion.category) {
+            alert('Por favor completa todos los campos obligatorios');
+            return;
+        }
+
+        const newQA: QAItem = {
+            id: `qa-${Date.now()}`,
+            questionId: `Q-2025-${String(qaItems.length + 1).padStart(3, '0')}`,
+            question: newQuestion.question,
+            askedBy: newQuestion.askedBy,
+            company: newQuestion.company,
+            discipline: newQuestion.discipline,
+            priority: newQuestion.priority,
+            status: 'pending',
+            bidPackageId: newQuestion.bidPackageId || undefined,
+            bidPackageName: newQuestion.bidPackageId ? `Paquete ${newQuestion.bidPackageId}` : undefined,
+            isPublic: newQuestion.isPublic,
+            createdAt: new Date().toISOString(),
+            category: newQuestion.category
+        };
+
+        setQaItems([newQA, ...qaItems]);
+        setNewQuestion({
+            question: '',
+            discipline: '',
+            category: '',
+            priority: 'medium',
+            bidPackageId: '',
+            isPublic: true,
+            company: 'Mi Empresa SAC',
+            askedBy: 'Usuario Actual'
+        });
+        setShowNewQuestionModal(false);
+        alert('Pregunta creada exitosamente');
+    };
+
+    const handleSubmitResponse = () => {
+        if (!response.answer.trim() || !selectedQAForResponse) {
+            alert('Por favor ingresa una respuesta');
+            return;
+        }
+
+        const updatedItems = qaItems.map(item => {
+            if (item.id === selectedQAForResponse.id) {
+                return {
+                    ...item,
+                    status: 'answered' as const,
+                    answer: response.answer,
+                    answeredBy: response.answeredBy,
+                    answeredAt: new Date().toISOString()
+                };
+            }
+            return item;
+        });
+
+        setQaItems(updatedItems);
+        setResponse({ answer: '', answeredBy: 'Ing. Carlos Rodríguez' });
+        setShowResponseModal(false);
+        setSelectedQAForResponse(null);
+        alert('Respuesta enviada exitosamente');
+    };
+
+    const openResponseModal = (qaItem: QAItem) => {
+        setSelectedQAForResponse(qaItem);
+        setShowResponseModal(true);
     };
 
     const filteredQAItems = qaItems.filter(item => {
@@ -245,7 +334,10 @@ const QAModule: React.FC = () => {
                     </div>
                 </div>
                 <div className="flex items-center space-x-3">
-                    <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2">
+                    <button 
+                        onClick={() => setShowNewQuestionModal(true)}
+                        className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
+                    >
                         <Plus className="w-4 h-4" />
                         <span>Nueva Pregunta</span>
                     </button>
@@ -318,18 +410,6 @@ const QAModule: React.FC = () => {
                             <Filter className="w-4 h-4" />
                             <span>Filtros</span>
                         </button>
-                        <div className="flex items-center space-x-2">
-                            <input
-                                type="checkbox"
-                                id="publicOnly"
-                                checked={showPublicOnly}
-                                onChange={(e) => setShowPublicOnly(e.target.checked)}
-                                className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                            />
-                            <label htmlFor="publicOnly" className="text-sm text-gray-700">
-                                Solo públicas
-                            </label>
-                        </div>
                     </div>
                 </div>
 
@@ -346,7 +426,6 @@ const QAModule: React.FC = () => {
                                 <option value="all">Todos los estados</option>
                                 <option value="pending">Pendiente</option>
                                 <option value="answered">Respondida</option>
-                                <option value="clarified">Clarificada</option>
                             </select>
                         </div>
                         <div>
@@ -426,16 +505,6 @@ const QAModule: React.FC = () => {
                                     </div>
                                 </div>
                                 
-                                <div className="flex items-center space-x-2">
-                                    <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                                        <Eye className="w-4 h-4" />
-                                    </button>
-                                    {item.status === 'pending' && (
-                                        <button className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
-                                            <MessageSquare className="w-4 h-4" />
-                                        </button>
-                                    )}
-                                </div>
                             </div>
 
                             {/* Question */}
@@ -482,7 +551,7 @@ const QAModule: React.FC = () => {
                                                 </span>
                                                 <span className="flex items-center">
                                                     <Calendar className="w-3 h-3 mr-1" />
-                                                    {formatDate(item.answeredAt!)}
+                                                    {item.answeredAt && formatDate(item.answeredAt)}
                                                 </span>
                                             </div>
                                         </div>
@@ -506,26 +575,14 @@ const QAModule: React.FC = () => {
 
                                 <div className="flex items-center space-x-2">
                                     {item.status === 'pending' && (
-                                        <button className="px-3 py-1 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-1">
+                                        <button 
+                                            onClick={() => openResponseModal(item)}
+                                            className="px-3 py-1 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-1"
+                                        >
                                             <Send className="w-3 h-3" />
                                             <span>Responder</span>
                                         </button>
                                     )}
-                                    {item.status === 'answered' && (
-                                        <button className="px-3 py-1 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-1">
-                                            <AlertCircle className="w-3 h-3" />
-                                            <span>Clarificar</span>
-                                        </button>
-                                    )}
-                                    {item.status === 'clarified' && (
-                                        <button className="px-3 py-1 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700 transition-colors flex items-center space-x-1">
-                                            <Archive className="w-3 h-3" />
-                                            <span>Archivar</span>
-                                        </button>
-                                    )}
-                                    <button className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition-colors">
-                                        Ver Detalle
-                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -540,10 +597,294 @@ const QAModule: React.FC = () => {
                     <p className="text-gray-500 mb-4">
                         No se encontraron preguntas que coincidan con los filtros aplicados.
                     </p>
-                    <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2 mx-auto">
+                    <button 
+                        onClick={() => setShowNewQuestionModal(true)}
+                        className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2 mx-auto"
+                    >
                         <Plus className="w-4 h-4" />
                         <span>Primera Pregunta</span>
                     </button>
+                </div>
+            )}
+
+            {/* Modal para Nueva Pregunta */}
+            {showNewQuestionModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-xl font-bold text-gray-900">Nueva Pregunta</h2>
+                            <button
+                                onClick={() => setShowNewQuestionModal(false)}
+                                className="text-gray-400 hover:text-gray-600"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        <div className="space-y-4">
+                            {/* Pregunta */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Pregunta *
+                                </label>
+                                <textarea
+                                    value={newQuestion.question}
+                                    onChange={(e) => setNewQuestion({ ...newQuestion, question: e.target.value })}
+                                    rows={4}
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                    placeholder="Describe tu pregunta de manera clara y específica..."
+                                />
+                            </div>
+
+                            {/* Información del solicitante */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Solicitado por
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={newQuestion.askedBy}
+                                        onChange={(e) => setNewQuestion({ ...newQuestion, askedBy: e.target.value })}
+                                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                        placeholder="Nombre del solicitante"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Empresa
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={newQuestion.company}
+                                        onChange={(e) => setNewQuestion({ ...newQuestion, company: e.target.value })}
+                                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                        placeholder="Nombre de la empresa"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Disciplina y Categoría */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Disciplina *
+                                    </label>
+                                    <select
+                                        value={newQuestion.discipline}
+                                        onChange={(e) => setNewQuestion({ ...newQuestion, discipline: e.target.value })}
+                                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                    >
+                                        <option value="">Seleccionar disciplina</option>
+                                        <option value="HVAC">HVAC</option>
+                                        <option value="Eléctrico">Eléctrico</option>
+                                        <option value="Plomería">Plomería</option>
+                                        <option value="Protección Contra Incendios">Protección Contra Incendios</option>
+                                        <option value="Mecánico">Mecánico</option>
+                                        <option value="Automatización">Automatización</option>
+                                        <option value="Estructural">Estructural</option>
+                                        <option value="General">General</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Categoría *
+                                    </label>
+                                    <select
+                                        value={newQuestion.category}
+                                        onChange={(e) => setNewQuestion({ ...newQuestion, category: e.target.value })}
+                                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                    >
+                                        <option value="">Seleccionar categoría</option>
+                                        <option value="Clarificación Técnica">Clarificación Técnica</option>
+                                        <option value="Especificaciones">Especificaciones</option>
+                                        <option value="Materiales">Materiales</option>
+                                        <option value="Instalación">Instalación</option>
+                                        <option value="Coordinación">Coordinación</option>
+                                        <option value="Cronograma">Cronograma</option>
+                                        <option value="Normativa">Normativa</option>
+                                        <option value="Pruebas">Pruebas</option>
+                                        <option value="Alcance">Alcance</option>
+                                        <option value="Presupuesto">Presupuesto</option>
+                                        <option value="Otro">Otro</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Prioridad y Paquete de Licitación */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Prioridad
+                                    </label>
+                                    <select
+                                        value={newQuestion.priority}
+                                        onChange={(e) => setNewQuestion({ ...newQuestion, priority: e.target.value as 'low' | 'medium' | 'high' })}
+                                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                    >
+                                        <option value="low">Baja</option>
+                                        <option value="medium">Media</option>
+                                        <option value="high">Alta</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Paquete de Licitación
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={newQuestion.bidPackageId}
+                                        onChange={(e) => setNewQuestion({ ...newQuestion, bidPackageId: e.target.value })}
+                                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                        placeholder="Ej: BP-2025-001 (opcional)"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Visibilidad */}
+                            <div>
+                                <label className="flex items-center space-x-3">
+                                    <input
+                                        type="checkbox"
+                                        checked={newQuestion.isPublic}
+                                        onChange={(e) => setNewQuestion({ ...newQuestion, isPublic: e.target.checked })}
+                                        className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                                    />
+                                    <span className="text-sm text-gray-700">
+                                        Hacer esta pregunta pública (visible para todos los participantes)
+                                    </span>
+                                </label>
+                            </div>
+
+                            {/* Botones */}
+                            <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+                                <button
+                                    onClick={() => setShowNewQuestionModal(false)}
+                                    className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={handleCreateQuestion}
+                                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
+                                >
+                                    <Send className="w-4 h-4" />
+                                    <span>Enviar Pregunta</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal para Responder Pregunta */}
+            {showResponseModal && selectedQAForResponse && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="text-xl font-bold text-gray-900">Responder Pregunta</h2>
+                            <button
+                                onClick={() => setShowResponseModal(false)}
+                                className="text-gray-400 hover:text-gray-600"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        {/* Mostrar la pregunta */}
+                        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
+                            <div className="flex items-center space-x-2 mb-2">
+                                <span className="text-sm font-medium text-gray-500">
+                                    {selectedQAForResponse.questionId}
+                                </span>
+                                <span className="text-sm text-gray-500">•</span>
+                                <span className="text-sm text-gray-600">{selectedQAForResponse.discipline}</span>
+                                <span className="text-sm text-gray-500">•</span>
+                                <span className="text-sm text-gray-600">{selectedQAForResponse.category}</span>
+                            </div>
+                            <h3 className="text-sm font-medium text-gray-900 mb-2">Pregunta Original:</h3>
+                            <p className="text-gray-700 text-sm leading-relaxed">
+                                {selectedQAForResponse.question}
+                            </p>
+                            <div className="flex items-center space-x-4 mt-3 text-xs text-gray-500">
+                                <span className="flex items-center">
+                                    <User className="w-3 h-3 mr-1" />
+                                    {selectedQAForResponse.askedBy}
+                                </span>
+                                <span className="flex items-center">
+                                    <Building className="w-3 h-3 mr-1" />
+                                    {selectedQAForResponse.company}
+                                </span>
+                                <span className="flex items-center">
+                                    <Calendar className="w-3 h-3 mr-1" />
+                                    {formatDate(selectedQAForResponse.createdAt)}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            {/* Respuesta */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Respuesta *
+                                </label>
+                                <textarea
+                                    value={response.answer}
+                                    onChange={(e) => setResponse({ ...response, answer: e.target.value })}
+                                    rows={6}
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                    placeholder="Proporciona una respuesta clara y completa a la pregunta..."
+                                />
+                            </div>
+
+                            {/* Respondido por */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Respondido por
+                                </label>
+                                <input
+                                    type="text"
+                                    value={response.answeredBy}
+                                    onChange={(e) => setResponse({ ...response, answeredBy: e.target.value })}
+                                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                    placeholder="Nombre de quien responde"
+                                />
+                            </div>
+
+                            {/* Información adicional */}
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div className="flex items-start space-x-3">
+                                    <div className="p-1">
+                                        <FileText className="w-4 h-4 text-blue-600" />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-sm font-medium text-blue-900 mb-1">Información adicional</h4>
+                                        <p className="text-blue-800 text-sm">
+                                            Esta respuesta será {selectedQAForResponse.isPublic ? 'pública y visible para todos los participantes' : 'privada y solo visible para el solicitante'}.
+                                            Una vez enviada, la pregunta cambiará su estado a "Respondida".
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Botones */}
+                            <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+                                <button
+                                    onClick={() => setShowResponseModal(false)}
+                                    className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={handleSubmitResponse}
+                                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+                                >
+                                    <Send className="w-4 h-4" />
+                                    <span>Enviar Respuesta</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
 
@@ -559,10 +900,11 @@ const QAModule: React.FC = () => {
                         <div>
                             <h4 className="font-medium mb-2">Características principales:</h4>
                             <ul className="space-y-1 text-sm">
+                                <li>• Creación de preguntas por cualquier participante</li>
+                                <li>• Respuestas oficiales documentadas</li>
                                 <li>• Preguntas públicas y privadas</li>
                                 <li>• Categorización por disciplina</li>
                                 <li>• Seguimiento de estado</li>
-                                <li>• Respuestas oficiales documentadas</li>
                             </ul>
                         </div>
                         <div>
@@ -572,6 +914,7 @@ const QAModule: React.FC = () => {
                                 <li>• Igualdad de condiciones</li>
                                 <li>• Documentación completa</li>
                                 <li>• Reducción de consultas duplicadas</li>
+                                <li>• Historial de comunicaciones</li>
                             </ul>
                         </div>
                     </div>
