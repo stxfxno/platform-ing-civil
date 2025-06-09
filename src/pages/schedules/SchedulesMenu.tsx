@@ -138,34 +138,30 @@ const upcomingMilestones = [
     {
         id: 'mil-001',
         title: 'Entrega Submittals HVAC',
-        date: '2025-05-28',
+        date: '2025-06-15',
         status: 'upcoming',
-        priority: 'critical',
-        daysLeft: 5
+        daysLeft: 7
     },
     {
         id: 'mil-002',
         title: 'Inspección Eléctrica Principal',
-        date: '2025-06-02',
+        date: '2025-06-22',
         status: 'upcoming',
-        priority: 'high',
-        daysLeft: 10
+        daysLeft: 14
     },
     {
         id: 'mil-003',
         title: 'Finalización Fase MEP Sótano',
-        date: '2025-06-15',
+        date: '2025-06-29',
         status: 'upcoming',
-        priority: 'critical',
-        daysLeft: 23
+        daysLeft: 21
     },
     {
         id: 'mil-004',
         title: 'Pruebas Hidráulicas Completas',
-        date: '2025-06-25',
-        status: 'at_risk',
-        priority: 'critical',
-        daysLeft: 33
+        date: '2025-07-08',
+        status: 'upcoming',
+        daysLeft: 30
     }
 ];
 
@@ -199,14 +195,12 @@ const SchedulesMenu: React.FC = () => {
         return date.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit' });
     };
 
-    const getPriorityColor = (priority: string) => {
-        switch (priority) {
-            case 'critical': return 'text-red-600 bg-red-50 border-red-200';
-            case 'high': return 'text-orange-600 bg-orange-50 border-orange-200';
-            case 'medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-            case 'low': return 'text-green-600 bg-green-50 border-green-200';
-            default: return 'text-gray-600 bg-gray-50 border-gray-200';
-        }
+    const getDaysLeftColor = (daysLeft: number) => {
+        if (daysLeft <= 7) return 'text-red-600 bg-red-50 border-red-200';
+        if (daysLeft <= 14) return 'text-orange-600 bg-orange-50 border-orange-200';
+        if (daysLeft <= 21) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+        if (daysLeft <= 30) return 'text-green-600 bg-green-50 border-green-200';
+        return 'text-blue-600 bg-blue-50 border-blue-200';
     };
 
     const getStatusColor = (status: string) => {
@@ -371,7 +365,7 @@ const SchedulesMenu: React.FC = () => {
 
                     <div className="space-y-3">
                         {upcomingMilestones.map((milestone) => (
-                            <div key={milestone.id} className={`p-4 rounded-lg border ${getPriorityColor(milestone.priority)}`}>
+                            <div key={milestone.id} className={`p-4 rounded-lg border ${getDaysLeftColor(milestone.daysLeft)}`}>
                                 <div className="flex items-center justify-between mb-2">
                                     <h4 className="font-medium text-gray-900">{milestone.title}</h4>
                                     <span className={`text-sm font-medium ${getStatusColor(milestone.status)}`}>

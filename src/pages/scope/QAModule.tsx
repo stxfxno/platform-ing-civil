@@ -152,8 +152,8 @@ const QAModule: React.FC = () => {
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [showFilters, setShowFilters] = useState(false);
-    const [showPublicOnly, setShowPublicOnly] = useState(false);
-    
+    const [showPublicOnly,] = useState(false);
+
     // Estados para modales
     const [showNewQuestionModal, setShowNewQuestionModal] = useState(false);
     const [showResponseModal, setShowResponseModal] = useState(false);
@@ -298,10 +298,10 @@ const QAModule: React.FC = () => {
 
     const filteredQAItems = qaItems.filter(item => {
         const matchesSearch = item.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            item.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            item.discipline.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            item.category.toLowerCase().includes(searchTerm.toLowerCase());
-        
+            item.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.discipline.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.category.toLowerCase().includes(searchTerm.toLowerCase());
+
         const matchesStatus = selectedStatus === 'all' || item.status === selectedStatus;
         const matchesDiscipline = selectedDiscipline === 'all' || item.discipline === selectedDiscipline;
         const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
@@ -334,7 +334,7 @@ const QAModule: React.FC = () => {
                     </div>
                 </div>
                 <div className="flex items-center space-x-3">
-                    <button 
+                    <button
                         onClick={() => setShowNewQuestionModal(true)}
                         className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
                     >
@@ -355,7 +355,7 @@ const QAModule: React.FC = () => {
                         <HelpCircle className="w-8 h-8 text-gray-500" />
                     </div>
                 </div>
-                
+
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                     <div className="flex items-center justify-between">
                         <div>
@@ -477,11 +477,10 @@ const QAModule: React.FC = () => {
                                         <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(item.priority)}`}>
                                             {getPriorityLabel(item.priority)}
                                         </span>
-                                        <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${
-                                            item.isPublic 
-                                                ? 'bg-blue-100 text-blue-800' 
+                                        <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${item.isPublic
+                                                ? 'bg-blue-100 text-blue-800'
                                                 : 'bg-gray-100 text-gray-800'
-                                        }`}>
+                                            }`}>
                                             {item.isPublic ? <Globe className="w-3 h-3 mr-1" /> : <Lock className="w-3 h-3 mr-1" />}
                                             {item.isPublic ? 'Pública' : 'Privada'}
                                         </span>
@@ -489,7 +488,7 @@ const QAModule: React.FC = () => {
                                             {item.category}
                                         </span>
                                     </div>
-                                    
+
                                     <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
                                         <span className="flex items-center">
                                             <Building className="w-4 h-4 mr-1" />
@@ -504,7 +503,7 @@ const QAModule: React.FC = () => {
                                         )}
                                     </div>
                                 </div>
-                                
+
                             </div>
 
                             {/* Question */}
@@ -575,7 +574,7 @@ const QAModule: React.FC = () => {
 
                                 <div className="flex items-center space-x-2">
                                     {item.status === 'pending' && (
-                                        <button 
+                                        <button
                                             onClick={() => openResponseModal(item)}
                                             className="px-3 py-1 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-1"
                                         >
@@ -597,7 +596,7 @@ const QAModule: React.FC = () => {
                     <p className="text-gray-500 mb-4">
                         No se encontraron preguntas que coincidan con los filtros aplicados.
                     </p>
-                    <button 
+                    <button
                         onClick={() => setShowNewQuestionModal(true)}
                         className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2 mx-auto"
                     >
@@ -851,22 +850,6 @@ const QAModule: React.FC = () => {
                                 />
                             </div>
 
-                            {/* Información adicional */}
-                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                <div className="flex items-start space-x-3">
-                                    <div className="p-1">
-                                        <FileText className="w-4 h-4 text-blue-600" />
-                                    </div>
-                                    <div>
-                                        <h4 className="text-sm font-medium text-blue-900 mb-1">Información adicional</h4>
-                                        <p className="text-blue-800 text-sm">
-                                            Esta respuesta será {selectedQAForResponse.isPublic ? 'pública y visible para todos los participantes' : 'privada y solo visible para el solicitante'}.
-                                            Una vez enviada, la pregunta cambiará su estado a "Respondida".
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
                             {/* Botones */}
                             <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
                                 <button
@@ -887,39 +870,6 @@ const QAModule: React.FC = () => {
                     </div>
                 </div>
             )}
-
-            {/* Information Panel */}
-            <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-purple-900 mb-3">Módulo de Preguntas y Respuestas</h3>
-                <div className="text-sm text-purple-800 space-y-3">
-                    <p>
-                        Este módulo facilita la comunicación transparente durante los procesos de licitación,
-                        permitiendo que todos los licitantes tengan acceso equitativo a la información.
-                    </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        <div>
-                            <h4 className="font-medium mb-2">Características principales:</h4>
-                            <ul className="space-y-1 text-sm">
-                                <li>• Creación de preguntas por cualquier participante</li>
-                                <li>• Respuestas oficiales documentadas</li>
-                                <li>• Preguntas públicas y privadas</li>
-                                <li>• Categorización por disciplina</li>
-                                <li>• Seguimiento de estado</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="font-medium mb-2">Beneficios:</h4>
-                            <ul className="space-y-1 text-sm">
-                                <li>• Transparencia en el proceso</li>
-                                <li>• Igualdad de condiciones</li>
-                                <li>• Documentación completa</li>
-                                <li>• Reducción de consultas duplicadas</li>
-                                <li>• Historial de comunicaciones</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             {/* Back to Menu */}
             <div className="flex justify-center">

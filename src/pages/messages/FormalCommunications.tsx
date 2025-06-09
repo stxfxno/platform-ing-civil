@@ -335,10 +335,6 @@ const FormalCommunications: React.FC = () => {
                                 
                             </div>
                             <div className="flex items-center space-x-2">
-                                <button className="text-blue-600 hover:text-blue-900 px-3 py-1 rounded border border-blue-200 hover:bg-blue-50 transition-colors text-sm flex items-center space-x-1">
-                                    <Eye className="w-4 h-4" />
-                                    <span>Ver</span>
-                                </button>
                                 {comm.responseRequired && comm.status !== 'responded' && (
                                     <button className="text-green-600 hover:text-green-900 px-3 py-1 rounded border border-green-200 hover:bg-green-50 transition-colors text-sm flex items-center space-x-1">
                                         <Reply className="w-4 h-4" />

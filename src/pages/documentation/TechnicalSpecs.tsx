@@ -253,9 +253,6 @@ const TechnicalSpecs: React.FC = () => {
                         <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                             <span className="text-sm text-gray-500">{spec.fileSize}</span>
                             <div className="flex items-center space-x-2">
-                                <button className="text-blue-600 hover:text-blue-900 p-2 rounded transition-colors">
-                                    <Eye className="w-4 h-4" />
-                                </button>
                                 <button className="text-green-600 hover:text-green-900 p-2 rounded transition-colors">
                                     <Download className="w-4 h-4" />
                                 </button>

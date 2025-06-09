@@ -44,7 +44,10 @@ const ImportantDatesTracking: React.FC = () => {
     const [selectedView, setSelectedView] = useState<'calendar' | 'list' | 'timeline'>('calendar');
     const [selectedMonth,] = useState(new Date()); //setSelectedMonth
     const [selectedType, setSelectedType] = useState<string>('all');
-    const [, setShowAddModal] = useState(false); //showAddModal
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+    const [newDateTitle, setNewDateTitle] = useState('');
+    const [newDateDate, setNewDateDate] = useState('');
 
     const importantDates: ImportantDate[] = [
         {
@@ -229,10 +232,6 @@ const ImportantDatesTracking: React.FC = () => {
         selectedType === 'all' || date.type === selectedType
     );
 
-    const upcomingDates = filteredDates
-        .filter(date => date.status === 'upcoming' || date.status === 'today')
-        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
     const criticalDates = filteredDates.filter(date =>
         date.priority === 'critical' && (date.status === 'upcoming' || date.status === 'today')
     );
@@ -247,13 +246,21 @@ const ImportantDatesTracking: React.FC = () => {
                     </div>
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900">Seguimiento de Fechas Importantes</h1>
+                        <div className="text-sm text-gray-500 mb-1">
+                            {new Date().toLocaleDateString('es-ES', { 
+                                weekday: 'long', 
+                                year: 'numeric', 
+                                month: 'long', 
+                                day: 'numeric' 
+                            })}
+                        </div>
                         <p className="text-gray-600">Monitoreo de hitos, fechas límite e inspecciones críticas</p>
                     </div>
                 </div>
 
                 <div className="flex items-center space-x-2">
                     <button
-                        onClick={() => setShowAddModal(true)}
+                        onClick={() => setShowAddForm(true)}
                         className="flex items-center px-3 py-2 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700"
                     >
                         <Plus className="w-4 h-4 mr-2" />
@@ -272,7 +279,7 @@ const ImportantDatesTracking: React.FC = () => {
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-medium text-gray-600">Fechas Críticas</p>
+                            <p className="text-sm font-medium text-gray-600">Actividades Críticas</p>
                             <p className="text-3xl font-bold text-gray-900">{criticalDates.length}</p>
                         </div>
                         <div className="p-3 bg-red-100 rounded-lg">
@@ -644,6 +651,74 @@ const ImportantDatesTracking: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Simple Add Date Form */}
+            {showAddForm && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-96 max-w-md mx-4">
+                        <h3 className="text-lg font-semibold mb-4">Agregar Nueva Fecha</h3>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Título
+                                </label>
+                                <input
+                                    type="text"
+                                    value={newDateTitle}
+                                    onChange={(e) => setNewDateTitle(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    placeholder="Ingrese el título de la fecha"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Fecha
+                                </label>
+                                <input
+                                    type="date"
+                                    value={newDateDate}
+                                    onChange={(e) => setNewDateDate(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                />
+                            </div>
+                            <div className="flex justify-end space-x-3 pt-4">
+                                <button
+                                    onClick={() => {
+                                        setShowAddForm(false);
+                                        setNewDateTitle('');
+                                        setNewDateDate('');
+                                    }}
+                                    className="px-4 py-2 text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        if (newDateTitle && newDateDate) {
+                                            setShowAddForm(false);
+                                            setShowSuccessMessage(true);
+                                            setNewDateTitle('');
+                                            setNewDateDate('');
+                                            setTimeout(() => setShowSuccessMessage(false), 3000);
+                                        }
+                                    }}
+                                    className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+                                >
+                                    Agregar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Success Message */}
+            {showSuccessMessage && (
+                <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center">
+                    <CheckCircle className="w-5 h-5 mr-2" />
+                    Fecha agregada
+                </div>
+            )}
         </div>
     );
 };
