@@ -155,11 +155,20 @@ const QAModule: React.FC = () => {
     const [selectedQAForResponse, setSelectedQAForResponse] = useState<QAItem | null>(null);
 
     // Estados para formularios
-    const [newQuestion, setNewQuestion] = useState({
+    const [newQuestion, setNewQuestion] = useState<{
+        question: string;
+        discipline: string;
+        category: string;
+        priority: 'low' | 'medium' | 'high';
+        bidPackageId: string;
+        isPublic: boolean;
+        company: string;
+        askedBy: string;
+    }>({
         question: '',
         discipline: '',
         category: '',
-        priority: 'medium' as const,
+        priority: 'medium',
         bidPackageId: '',
         isPublic: true,
         company: 'Mi Empresa SAC',
