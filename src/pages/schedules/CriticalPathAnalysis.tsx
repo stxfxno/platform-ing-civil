@@ -6,7 +6,6 @@ import {
     Clock,
     Target,
     Activity,
-    RefreshCw,
     Download,
     Filter,
     ChevronRight,
@@ -29,16 +28,8 @@ interface CriticalActivity {
     riskLevel: 'low' | 'medium' | 'high' | 'critical';
 }
 
-interface PathSegment {
-    activities: string[];
-    totalDuration: number;
-    currentDelay: number;
-    riskScore: number;
-}
-
 const CriticalPathAnalysis: React.FC = () => {
-    const [selectedPath, setSelectedPath] = useState<number>(0);
-    const [showRiskAnalysis, setShowRiskAnalysis] = useState(false);
+    const [showRiskAnalysis, ] = useState(false);
     const [selectedTimeframe, setSelectedTimeframe] = useState<'week' | 'month' | 'quarter'>('month');
 
     const criticalActivities: CriticalActivity[] = [
@@ -119,21 +110,6 @@ const CriticalPathAnalysis: React.FC = () => {
             duration: 7,
             riskLevel: 'high',
             contractor: 'Fire Protection Corp.'
-        }
-    ];
-
-    const pathSegments: PathSegment[] = [
-        {
-            activities: ['crit-001', 'crit-002', 'crit-003'],
-            totalDuration: 32,
-            currentDelay: 2,
-            riskScore: 8.5
-        },
-        {
-            activities: ['alt-001', 'alt-002', 'alt-003'],
-            totalDuration: 28,
-            currentDelay: 0,
-            riskScore: 6.2
         }
     ];
 

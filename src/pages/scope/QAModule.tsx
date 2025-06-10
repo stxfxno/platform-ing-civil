@@ -9,17 +9,12 @@ import {
     Building,
     CheckCircle,
     Clock,
-    AlertCircle,
-    Eye,
-    MessageSquare,
     Filter,
     Search,
     Globe,
     Lock,
     Send,
-    Archive,
     X,
-    FileText
 } from 'lucide-react';
 
 interface QAItem {
