@@ -710,7 +710,7 @@ const MasterScheduleUpload: React.FC = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium text-gray-600">Total Actividades</p>
-                            <p className="text-2xl font-bold text-gray-900">247</p>
+                            <p className="text-2xl font-bold text-gray-900">195</p>
                         </div>
                         <div className="p-3 bg-green-100 rounded-lg">
                             <Target className="w-6 h-6 text-green-600" />
@@ -722,7 +722,7 @@ const MasterScheduleUpload: React.FC = () => {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium text-gray-600">Duración Proyecto</p>
-                            <p className="text-2xl font-bold text-gray-900">180</p>
+                            <p className="text-2xl font-bold text-gray-900">140</p>
                             <p className="text-xs text-gray-500">días</p>
                         </div>
                         <div className="p-3 bg-yellow-100 rounded-lg">

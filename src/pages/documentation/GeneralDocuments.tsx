@@ -10,9 +10,7 @@ import {
     Settings,
     Upload,
     Search,
-    Eye,
     BarChart3,
-    Filter,
     X,
     Building
 } from 'lucide-react';

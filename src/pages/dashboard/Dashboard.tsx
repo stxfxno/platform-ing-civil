@@ -36,14 +36,13 @@ const dashboardCards: DashboardCard[] = [
         title: 'RFIs Pendientes',
         value: 12,
         change: '+3 esta semana',
-        changeType: 'negative',
+        changeType: 'positive',
         icon: FileQuestion,
         color: 'bg-blue-500'
     },
     {
         title: 'Actividades en Progreso',
         value: 28,
-        change: '85% completadas',
         changeType: 'positive',
         icon: Calendar,
         color: 'bg-green-500'
@@ -51,7 +50,6 @@ const dashboardCards: DashboardCard[] = [
     {
         title: 'Documentos Pendientes',
         value: 7,
-        change: '-2 desde ayer',
         changeType: 'positive',
         icon: FileText,
         color: 'bg-yellow-500'
@@ -327,7 +325,7 @@ const Dashboard: React.FC = () => {
             </div>
             */}
 
-            {/* Upcoming Deadlines */}
+            {/* Upcoming Deadlines 
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Próximas Fechas Límite</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -358,7 +356,7 @@ const Dashboard: React.FC = () => {
                         <p className="text-sm text-gray-600">Programada: 5 Junio 2025</p>
                     </div>
                 </div>
-            </div>
+            </div>*/}
         </div>
     );
 };

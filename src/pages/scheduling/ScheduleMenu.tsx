@@ -88,11 +88,11 @@ const projectStats = [
     },
     {
         label: 'Semanas Restantes',
-        value: 13,
-        total: 16,
+        value: 15,
+        total: 20,
         icon: Clock,
         color: 'text-blue-600 bg-blue-50',
-        percentage: 28
+        percentage: 75
     },
     {
         label: 'Actividades en Retraso',
@@ -104,14 +104,14 @@ const projectStats = [
     },
     {
         label: 'Actividades Críticas',
-        value: 12,
-        total: 15,
+        value: 65,
+        total: 87,
         icon: AlertTriangle,
         color: 'text-red-600 bg-red-50',
-        percentage: 80
+        percentage: 75
     },
     {
-        label: 'Progreso General',
+        label: 'Progreso General de la Semana',
         value: 74,
         total: 100,
         icon: BarChart3,

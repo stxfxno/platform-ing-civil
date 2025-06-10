@@ -338,8 +338,8 @@ const weeklyData: Record<number, WeekData> = {
                 discipline: 'General',
                 subcontractor: 'Seguridad Total SAC',
                 plannedProgress: 95,
-                actualProgress: 80,
-                variance: -15,
+                actualProgress: 70,
+                variance: -25,
                 status: 'at_risk',
                 lastUpdate: '2025-05-24T09:30:00Z',
                 issues: [
@@ -486,8 +486,8 @@ const disciplineColors = {
 const statusColors = {
     'on_track': 'bg-green-100 text-green-800',
     'ahead': 'bg-blue-100 text-blue-800',
-    'delayed': 'bg-red-100 text-red-800',
-    'at_risk': 'bg-yellow-100 text-yellow-800',
+    'at_risk': 'bg-red-100 text-red-800',
+    'delayed': 'bg-yellow-100 text-yellow-800',
     'completed': 'bg-gray-100 text-gray-800'
 };
 
@@ -1032,14 +1032,14 @@ const ProgressTracking: React.FC = () => {
                     </div>
 
                     <div className="text-center p-4 bg-red-50 rounded-lg">
-                        <Clock className="w-6 h-6 text-red-600 mx-auto mb-2" />
-                        <p className="text-2xl font-bold text-red-600">{weekStats.delayed}</p>
-                        <p className="text-sm text-gray-600">Retrasado</p>
+                        <Clock className="w-6 h-6 text-yellow-600 mx-auto mb-2" />
+                        <p className="text-2xl font-bold text-yellow-600">{weekStats.delayed}</p>
+                        <p className="text-sm text-gray-600">Retraso</p>
                     </div>
 
-                    <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                        <AlertTriangle className="w-6 h-6 text-yellow-600 mx-auto mb-2" />
-                        <p className="text-2xl font-bold text-yellow-600">{weekStats.atRisk}</p>
+                    <div className="text-center p-4 bg-red-100 rounded-lg">
+                        <AlertTriangle className="w-6 h-6  text-red-600 mx-auto mb-2" />
+                        <p className="text-2xl font-bold text-red-600">{weekStats.atRisk}</p>
                         <p className="text-sm text-gray-600">En Riesgo</p>
                     </div>
 

@@ -5,8 +5,6 @@ import {
     Search,
     Calendar,
     Users,
-    CheckCircle,
-    Clock,
     ArrowLeft,
     Plus,
     Eye,

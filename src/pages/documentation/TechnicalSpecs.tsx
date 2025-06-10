@@ -5,11 +5,8 @@ import {
     Settings,
     Search,
     Download,
-    Eye,
     Edit,
     CheckCircle,
-    Clock,
-    FileText,
     ArrowLeft,
     Tag
 } from 'lucide-react';
@@ -98,35 +95,8 @@ const mockSpecs: TechnicalSpec[] = [
 
 const TechnicalSpecs: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterStatus, setFilterStatus] = useState('all');
+    const [filterStatus, ] = useState('all');
     const [filterDiscipline, setFilterDiscipline] = useState('all');
-
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'active': return 'bg-green-100 text-green-800';
-            case 'draft': return 'bg-blue-100 text-blue-800';
-            case 'superseded': return 'bg-gray-100 text-gray-800';
-            default: return 'bg-gray-100 text-gray-800';
-        }
-    };
-
-    const getStatusIcon = (status: string) => {
-        switch (status) {
-            case 'active': return <CheckCircle className="w-4 h-4 text-green-600" />;
-            case 'draft': return <Clock className="w-4 h-4 text-blue-600" />;
-            case 'superseded': return <FileText className="w-4 h-4 text-gray-600" />;
-            default: return <FileText className="w-4 h-4 text-gray-600" />;
-        }
-    };
-
-    const getStatusLabel = (status: string) => {
-        switch (status) {
-            case 'active': return 'Activa';
-            case 'draft': return 'Borrador';
-            case 'superseded': return 'Superseded';
-            default: return status;
-        }
-    };
 
     const filteredSpecs = mockSpecs.filter(spec => {
         const matchesSearch = spec.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

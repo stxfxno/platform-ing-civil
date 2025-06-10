@@ -1418,7 +1418,7 @@ const RFIInbox: React.FC = () => {
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Prioridad de seguimiento
+                                                Prioridad de respuesta
                                             </label>
                                             <select
                                                 value={replyModal.followUpPriority}

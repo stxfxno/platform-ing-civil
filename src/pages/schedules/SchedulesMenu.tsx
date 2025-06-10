@@ -1,18 +1,17 @@
 // src/pages/schedules/SchedulesMenu.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { 
-    Clock, 
-    Upload, 
-    BarChart3, 
-    Route, 
+import {
+    Clock,
+    Upload,
+    BarChart3,
+    Route,
     Calendar,
     TrendingUp,
     AlertTriangle,
     Target,
     Activity,
     FileText,
-    Users,
     CheckCircle
 } from 'lucide-react';
 
@@ -196,10 +195,10 @@ const SchedulesMenu: React.FC = () => {
     };
 
     const getDaysLeftColor = (daysLeft: number) => {
-        if (daysLeft <= 7) return 'text-red-600 bg-red-50 border-red-200';
-        if (daysLeft <= 14) return 'text-orange-600 bg-orange-50 border-orange-200';
-        if (daysLeft <= 21) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-        if (daysLeft <= 30) return 'text-green-600 bg-green-50 border-green-200';
+        if (daysLeft <= 7) return 'text-red-800 bg-red-100 border-red-300';
+        if (daysLeft <= 14) return 'text-orange-800 bg-orange-100 border-orange-300';
+        if (daysLeft <= 21) return 'text-yellow-800 bg-yellow-100 border-yellow-300';
+        if (daysLeft <= 30) return 'text-green-800 bg-green-100 border-green-300';
         return 'text-blue-600 bg-blue-50 border-blue-200';
     };
 
@@ -233,7 +232,7 @@ const SchedulesMenu: React.FC = () => {
                     {projectStats.map((stat, index) => {
                         const Icon = stat.icon;
                         const percentage = stat.total ? Math.round((stat.value / stat.total) * 100) : stat.value;
-                        
+
                         return (
                             <div key={index} className="relative">
                                 <div className="bg-white border border-gray-200 rounded-lg p-4">
@@ -252,7 +251,7 @@ const SchedulesMenu: React.FC = () => {
                                             <Icon className="w-6 h-6" />
                                         </div>
                                     </div>
-                                    
+
                                     {/* Progress bar */}
                                     {stat.total && stat.unit !== '%' && (
                                         <div className="mt-3">
@@ -300,10 +299,9 @@ const SchedulesMenu: React.FC = () => {
                                                 <div className="flex items-center space-x-1">
                                                     <span className="text-lg font-bold text-gray-900">{option.stats.count}</span>
                                                     {option.stats.trend && (
-                                                        <span className={`text-sm ${
-                                                            option.stats.trend === 'up' ? 'text-green-600' :
-                                                            option.stats.trend === 'down' ? 'text-red-600' : 'text-gray-600'
-                                                        }`}>
+                                                        <span className={`text-sm ${option.stats.trend === 'up' ? 'text-green-600' :
+                                                                option.stats.trend === 'down' ? 'text-red-600' : 'text-gray-600'
+                                                            }`}>
                                                             {getTrendIcon(option.stats.trend)}
                                                         </span>
                                                     )}
@@ -392,8 +390,8 @@ const SchedulesMenu: React.FC = () => {
                 <h3 className="text-lg font-semibold text-blue-900 mb-3">Gestión de Cronogramas MEP</h3>
                 <div className="text-sm text-blue-800 space-y-3">
                     <p>
-                        <strong>Gestión de Cronogramas</strong> centraliza el control del cronograma maestro del proyecto, 
-                        permitiendo la integración con herramientas como MS Project y Primavera P6, análisis de ruta crítica 
+                        <strong>Gestión de Cronogramas</strong> centraliza el control del cronograma maestro del proyecto,
+                        permitiendo la integración con herramientas como MS Project y Primavera P6, análisis de ruta crítica
                         y seguimiento de fechas importantes.
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">

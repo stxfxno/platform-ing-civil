@@ -7,7 +7,6 @@ import {
     Upload,
     Folder,
     ArrowRight,
-    AlertCircle
 } from 'lucide-react';
 
 interface DocumentationOption {

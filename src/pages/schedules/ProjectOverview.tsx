@@ -120,6 +120,32 @@ const ProjectOverview: React.FC = () => {
             isCritical: true,
             hoursWorked: 0,
             estimatedHours: 80
+        },
+        {
+            id: 'act-006',
+            name: 'Mecanismos de protección - Área B',
+            discipline: 'Protección de mecanismos',
+            startDate: '2025-06-10',
+            endDate: '2025-06-25',
+            progress: 0,
+            status: 'not_started',
+            contractor: 'Mecanicas SAC',
+            isCritical: false,
+            hoursWorked: 0,
+            estimatedHours: 200
+        },
+        {
+            id: 'act-007',
+            name: 'Tableros eléctricos principales',
+            discipline: 'Eléctrico',
+            startDate: '2025-06-15',
+            endDate: '2025-06-30',
+            progress: 0,
+            status: 'not_started',
+            contractor: 'Electro Instalaciones Perú',
+            isCritical: true,
+            hoursWorked: 0,
+            estimatedHours: 80
         }
     ]);
 

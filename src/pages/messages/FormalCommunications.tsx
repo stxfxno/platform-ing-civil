@@ -8,7 +8,6 @@ import {
     Clock,
     ArrowLeft,
     Plus,
-    Eye,
     Reply,
     Paperclip
 } from 'lucide-react';

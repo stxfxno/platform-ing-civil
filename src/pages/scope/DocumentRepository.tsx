@@ -205,7 +205,7 @@ const mockDocuments: ScopeDocument[] = [
         uploadedBy: 'Ing. Carlos Pérez',
         uploadedAt: '2025-05-10T11:15:00Z',
         tags: ['mecánico', 'planos', 'instalaciones'],
-        downloadCount: 20,
+        downloadCount: 1,
         downloadHistory: [
             {
                 id: 'dl-012',
@@ -214,14 +214,6 @@ const mockDocuments: ScopeDocument[] = [
                 userCompany: 'MEP Contractors Inc.',
                 downloadDate: '2025-05-23T07:45:00Z',
                 ipAddress: '192.168.1.89'
-            },
-            {
-                id: 'dl-013',
-                userId: 'user-010',
-                userName: 'Ing. Andrea Campos',
-                userCompany: 'Mecánica Industrial',
-                downloadDate: '2025-05-22T14:20:00Z',
-                ipAddress: '192.168.1.167'
             }
         ]
     }
@@ -369,17 +361,6 @@ const DocumentRepository: React.FC = () => {
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-gray-600">Documentos Activos</p>
-                            <p className="text-2xl font-bold text-green-600">
-                                {documents.filter(d => d.status === 'active').length}
-                            </p>
-                        </div>
-                        <FileText className="w-8 h-8 text-green-500" />
-                    </div>
-                </div>
-                <div className="bg-white p-4 rounded-lg border border-gray-200">
-                    <div className="flex items-center justify-between">
-                        <div>
                             <p className="text-sm text-gray-600">Total Descargas</p>
                             <p className="text-2xl font-bold text-purple-600">
                                 {documents.reduce((sum, doc) => sum + doc.downloadCount, 0)}
@@ -391,7 +372,7 @@ const DocumentRepository: React.FC = () => {
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-gray-600">Usuarios Únicos</p>
+                            <p className="text-sm text-gray-600">Usuarios involucrados</p>
                             <p className="text-2xl font-bold text-orange-600">
                                 {new Set(documents.flatMap(d => d.downloadHistory.map(h => h.userId))).size}
                             </p>

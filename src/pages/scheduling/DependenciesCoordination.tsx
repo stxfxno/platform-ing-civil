@@ -294,11 +294,11 @@ const DependenciesCoordination: React.FC = () => {
                 <div className="grid grid-cols-4 gap-4">
                     <div className="text-center p-3 bg-gray-50 rounded-lg">
                         <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-                        <p className="text-sm text-gray-600">Total Dependencias</p>
+                        <p className="text-sm text-gray-600">Predecesoras culminadas</p>
                     </div>
                     <div className="text-center p-3 bg-blue-50 rounded-lg">
                         <p className="text-2xl font-bold text-blue-600">{stats.active}</p>
-                        <p className="text-sm text-gray-600">Activas</p>
+                        <p className="text-sm text-gray-600">Predecesoras en ejecución</p>
                     </div>
                     <div className="text-center p-3 bg-red-50 rounded-lg">
                         <p className="text-2xl font-bold text-red-600">{stats.blocked}</p>
