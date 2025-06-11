@@ -8,17 +8,22 @@ import {
     Edit,
     CheckCircle,
     ArrowLeft,
-    Tag
+    Tag,
+    Upload,
+    X,
+    Save,
+    Trash2,
+    FileText
 } from 'lucide-react';
 
 interface TechnicalSpec {
     id: string;
     specId: string;
     title: string;
-    discipline: string;
+    discipline: 'Mecanicas' | 'Plomeria' | 'Electricas';
+    subcontractor: string;
     section: string;
     version: string;
-    status: 'draft' | 'active' | 'superseded';
     lastUpdate: string;
     author: string;
     fileSize: string;
@@ -30,10 +35,10 @@ const mockSpecs: TechnicalSpec[] = [
         id: '1',
         specId: 'SPEC-ELE-001',
         title: 'Especificaciones Técnicas para Instalaciones Eléctricas',
-        discipline: 'Eléctrico',
+        discipline: 'Electricas',
+        subcontractor: 'Electro Instalaciones SAC',
         section: '26 00 00',
         version: 'v3.2',
-        status: 'active',
         lastUpdate: '2025-05-20',
         author: 'Ing. María González',
         fileSize: '1.2 MB',
@@ -43,10 +48,10 @@ const mockSpecs: TechnicalSpec[] = [
         id: '2',
         specId: 'SPEC-HVAC-001',
         title: 'Especificaciones para Sistemas HVAC',
-        discipline: 'HVAC',
+        discipline: 'Mecanicas',
+        subcontractor: 'Climatización Total SAC',
         section: '23 00 00',
         version: 'v2.1',
-        status: 'draft',
         lastUpdate: '2025-05-22',
         author: 'Ing. Luis Torres',
         fileSize: '2.1 MB',
@@ -56,10 +61,10 @@ const mockSpecs: TechnicalSpec[] = [
         id: '3',
         specId: 'SPEC-PLU-001',
         title: 'Especificaciones de Plomería e Instalaciones Sanitarias',
-        discipline: 'Plomería',
+        discipline: 'Plomeria',
+        subcontractor: 'Plomería Industrial EIRL',
         section: '22 00 00',
         version: 'v1.8',
-        status: 'active',
         lastUpdate: '2025-05-18',
         author: 'Ing. Ana López',
         fileSize: '1.5 MB',
@@ -69,10 +74,10 @@ const mockSpecs: TechnicalSpec[] = [
         id: '4',
         specId: 'SPEC-FP-001',
         title: 'Especificaciones Sistema Contra Incendios',
-        discipline: 'Protección Contra Incendios',
+        discipline: 'Mecanicas',
+        subcontractor: 'Protección Contra Incendios SAC',
         section: '21 00 00',
         version: 'v2.0',
-        status: 'active',
         lastUpdate: '2025-05-15',
         author: 'Ing. Sofia Ramírez',
         fileSize: '1.8 MB',
@@ -82,10 +87,10 @@ const mockSpecs: TechnicalSpec[] = [
         id: '5',
         specId: 'SPEC-ELE-002',
         title: 'Especificaciones para Sistemas de Telecomunicaciones',
-        discipline: 'Telecomunicaciones',
+        discipline: 'Electricas',
+        subcontractor: 'Electro Instalaciones SAC',
         section: '27 00 00',
         version: 'v1.5',
-        status: 'superseded',
         lastUpdate: '2025-05-10',
         author: 'Ing. Carlos Mendoza',
         fileSize: '0.9 MB',
@@ -94,21 +99,136 @@ const mockSpecs: TechnicalSpec[] = [
 ];
 
 const TechnicalSpecs: React.FC = () => {
+    // Estado para las especificaciones (copia local de mockSpecs que se puede modificar)
+    const [specs, setSpecs] = useState<TechnicalSpec[]>(mockSpecs);
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterStatus, ] = useState('all');
     const [filterDiscipline, setFilterDiscipline] = useState('all');
+    const [showUploadModal, setShowUploadModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    
+    // Formulario para nueva especificación
+    const [uploadForm, setUploadForm] = useState({
+        specId: '',
+        title: '',
+        discipline: 'Mecanicas' as TechnicalSpec['discipline'],
+        subcontractor: '',
+        section: '',
+        version: 'v1.0',
+        author: '',
+        tags: '',
+        documento: null as File | null
+    });
 
-    const filteredSpecs = mockSpecs.filter(spec => {
+    // Formulario para editar especificación
+    const [editForm, setEditForm] = useState<TechnicalSpec>({
+        id: '',
+        specId: '',
+        title: '',
+        discipline: 'Mecanicas',
+        subcontractor: '',
+        section: '',
+        version: '',
+        lastUpdate: '',
+        author: '',
+        fileSize: '',
+        tags: []
+    });
+
+    const handleUploadSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        // Verificar si ya existe una especificación con el mismo ID
+        const existingSpec = specs.find(s => s.specId === uploadForm.specId);
+        if (existingSpec) {
+            alert('Ya existe una especificación con ese ID. Por favor, usa un ID diferente.');
+            return;
+        }
+        
+        // Crear nueva especificación con ID único
+        const newSpec: TechnicalSpec = {
+            id: Date.now().toString(),
+            specId: uploadForm.specId,
+            title: uploadForm.title,
+            discipline: uploadForm.discipline,
+            subcontractor: uploadForm.subcontractor,
+            section: uploadForm.section,
+            version: uploadForm.version,
+            lastUpdate: new Date().toISOString().split('T')[0],
+            author: uploadForm.author,
+            fileSize: uploadForm.documento ? `${(uploadForm.documento.size / (1024 * 1024)).toFixed(1)} MB` : '0 MB',
+            tags: uploadForm.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
+        };
+
+        // Agregar la nueva especificación al estado
+        setSpecs(prev => [...prev, newSpec]);
+        
+        // Cerrar modal y limpiar formulario
+        setShowUploadModal(false);
+        resetUploadForm();
+        
+        console.log('Especificación creada exitosamente:', newSpec);
+    };
+
+    const handleEdit = (spec: TechnicalSpec) => {
+        setEditForm(spec);
+        setShowEditModal(true);
+    };
+
+    const handleEditSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        // Verificar si ya existe otra especificación con el mismo ID (excluyendo la actual)
+        const existingSpec = specs.find(s => s.specId === editForm.specId && s.id !== editForm.id);
+        if (existingSpec) {
+            alert('Ya existe otra especificación con ese ID. Por favor, usa un ID diferente.');
+            return;
+        }
+        
+        // Actualizar la especificación en el estado
+        setSpecs(prev => prev.map(spec => 
+            spec.id === editForm.id ? { ...editForm, lastUpdate: new Date().toISOString().split('T')[0] } : spec
+        ));
+        
+        setShowEditModal(false);
+        console.log('Especificación editada exitosamente:', editForm);
+    };
+
+    const handleDelete = (specId: string) => {
+        if (window.confirm('¿Estás seguro de que deseas eliminar esta especificación?')) {
+            setSpecs(prev => prev.filter(spec => spec.id !== specId));
+            console.log('Especificación eliminada:', specId);
+        }
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] || null;
+        setUploadForm(prev => ({ ...prev, documento: file }));
+    };
+
+    const resetUploadForm = () => {
+        setUploadForm({
+            specId: '',
+            title: '',
+            discipline: 'Mecanicas',
+            subcontractor: '',
+            section: '',
+            version: 'v1.0',
+            author: '',
+            tags: '',
+            documento: null
+        });
+    };
+
+    const filteredSpecs = specs.filter(spec => {
         const matchesSearch = spec.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             spec.specId.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             spec.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-        const matchesStatus = filterStatus === 'all' || spec.status === filterStatus;
         const matchesDiscipline = filterDiscipline === 'all' || spec.discipline === filterDiscipline;
         
-        return matchesSearch && matchesStatus && matchesDiscipline;
+        return matchesSearch && matchesDiscipline;
     });
 
-    const disciplines = Array.from(new Set(mockSpecs.map(s => s.discipline)));
+    const disciplines = Array.from(new Set(specs.map(s => s.discipline)));
 
     return (
         <div className="space-y-6">
@@ -126,24 +246,67 @@ const TechnicalSpecs: React.FC = () => {
                         <p className="text-gray-600">Gestión de especificaciones y estándares técnicos</p>
                     </div>
                 </div>
-                <button className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center space-x-2">
+                <button 
+                    onClick={() => setShowUploadModal(true)}
+                    className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center space-x-2"
+                >
                     <Settings className="w-4 h-4" />
                     <span>Nueva Especificación</span>
                 </button>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <div className="flex items-center space-x-3">
+                        <div className="bg-blue-500 p-2 rounded-lg">
+                            <FileText className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                            <p className="text-2xl font-bold text-gray-900">{specs.length}</p>
+                            <p className="text-sm text-gray-600">Total Especificaciones</p>
+                        </div>
+                    </div>
+                </div>
+
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                     <div className="flex items-center space-x-3">
                         <div className="bg-green-500 p-2 rounded-lg">
-                            <CheckCircle className="w-5 h-5 text-white" />
+                            <Settings className="w-5 h-5 text-white" />
                         </div>
                         <div>
                             <p className="text-2xl font-bold text-green-600">
-                                {mockSpecs.filter(s => s.status === 'active').length}
+                                {specs.filter(s => s.discipline === 'Mecanicas').length}
                             </p>
-                            <p className="text-sm text-gray-600">Especificaciones Activas</p>
+                            <p className="text-sm text-gray-600">Mecánicas</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <div className="flex items-center space-x-3">
+                        <div className="bg-yellow-500 p-2 rounded-lg">
+                            <Settings className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                            <p className="text-2xl font-bold text-yellow-600">
+                                {specs.filter(s => s.discipline === 'Plomeria').length}
+                            </p>
+                            <p className="text-sm text-gray-600">Plomería</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <div className="flex items-center space-x-3">
+                        <div className="bg-purple-500 p-2 rounded-lg">
+                            <Settings className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                            <p className="text-2xl font-bold text-purple-600">
+                                {specs.filter(s => s.discipline === 'Electricas').length}
+                            </p>
+                            <p className="text-sm text-gray-600">Eléctricas</p>
                         </div>
                     </div>
                 </div>
@@ -201,6 +364,14 @@ const TechnicalSpecs: React.FC = () => {
                         <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
                             <div>
                                 <span className="text-gray-500">Disciplina:</span>
+                                <p className="font-medium text-gray-900">{spec.discipline}</p>
+                            </div>
+                            <div>
+                                <span className="text-gray-500">Subcontrata:</span>
+                                <p className="font-medium text-gray-900">{spec.subcontractor}</p>
+                            </div>
+                            <div>
+                                <span className="text-gray-500">Autor:</span>
                                 <p className="font-medium text-gray-900">{spec.author}</p>
                             </div>
                             <div>
@@ -221,13 +392,29 @@ const TechnicalSpecs: React.FC = () => {
 
                         {/* Actions */}
                         <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                            <span className="text-sm text-gray-500">{spec.fileSize}</span>
                             <div className="flex items-center space-x-2">
-                                <button className="text-green-600 hover:text-green-900 p-2 rounded transition-colors">
+                                <span className="text-sm text-gray-500">{spec.fileSize}</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <button 
+                                    className="text-green-600 hover:text-green-900 p-2 rounded transition-colors"
+                                    title="Descargar"
+                                >
                                     <Download className="w-4 h-4" />
                                 </button>
-                                <button className="text-gray-600 hover:text-gray-900 p-2 rounded transition-colors">
+                                <button 
+                                    onClick={() => handleEdit(spec)}
+                                    className="text-gray-600 hover:text-gray-900 p-2 rounded transition-colors"
+                                    title="Editar"
+                                >
                                     <Edit className="w-4 h-4" />
+                                </button>
+                                <button 
+                                    onClick={() => handleDelete(spec.id)}
+                                    className="text-red-600 hover:text-red-900 p-2 rounded transition-colors"
+                                    title="Eliminar"
+                                >
+                                    <Trash2 className="w-4 h-4" />
                                 </button>
                             </div>
                         </div>
@@ -239,6 +426,319 @@ const TechnicalSpecs: React.FC = () => {
                 <div className="text-center py-12">
                     <Settings className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-500">No se encontraron especificaciones con los filtros aplicados</p>
+                </div>
+            )}
+
+            {/* Modal para Nueva Especificación */}
+            {showUploadModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+                        <div className="p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900">Nueva Especificación</h2>
+                                <button
+                                    onClick={() => {
+                                        setShowUploadModal(false);
+                                        resetUploadForm();
+                                    }}
+                                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleUploadSubmit} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        ID Especificación <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={uploadForm.specId}
+                                        onChange={(e) => setUploadForm(prev => ({ ...prev, specId: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        placeholder="Ej: SPEC-ELE-001"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Título <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={uploadForm.title}
+                                        onChange={(e) => setUploadForm(prev => ({ ...prev, title: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        placeholder="Título de la especificación"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Disciplina <span className="text-red-500">*</span>
+                                    </label>
+                                    <select
+                                        value={uploadForm.discipline}
+                                        onChange={(e) => setUploadForm(prev => ({ 
+                                            ...prev, 
+                                            discipline: e.target.value as TechnicalSpec['discipline'] 
+                                        }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        required
+                                    >
+                                        <option value="Mecanicas">Mecánicas</option>
+                                        <option value="Plomeria">Plomería</option>
+                                        <option value="Electricas">Eléctricas</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Subcontrata <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={uploadForm.subcontractor}
+                                        onChange={(e) => setUploadForm(prev => ({ ...prev, subcontractor: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        placeholder="Nombre de la subcontrata"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Sección <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={uploadForm.section}
+                                        onChange={(e) => setUploadForm(prev => ({ ...prev, section: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        placeholder="Ej: 26 00 00"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Autor <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={uploadForm.author}
+                                        onChange={(e) => setUploadForm(prev => ({ ...prev, author: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        placeholder="Nombre del autor"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Tags
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={uploadForm.tags}
+                                        onChange={(e) => setUploadForm(prev => ({ ...prev, tags: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        placeholder="cables, tableros, iluminación (separados por coma)"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Documento <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="file"
+                                        onChange={handleFileChange}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        accept=".pdf,.doc,.docx"
+                                        required
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        Formatos aceptados: PDF, DOC, DOCX
+                                    </p>
+                                </div>
+
+                                <div className="flex justify-end space-x-3 pt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowUploadModal(false);
+                                            resetUploadForm();
+                                        }}
+                                        className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center space-x-2"
+                                    >
+                                        <Upload className="w-4 h-4" />
+                                        <span>Crear Especificación</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal para Editar Especificación */}
+            {showEditModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+                        <div className="p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900">Editar Especificación</h2>
+                                <button
+                                    onClick={() => setShowEditModal(false)}
+                                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleEditSubmit} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        ID Especificación <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={editForm.specId}
+                                        onChange={(e) => setEditForm(prev => ({ ...prev, specId: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Título <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={editForm.title}
+                                        onChange={(e) => setEditForm(prev => ({ ...prev, title: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Disciplina <span className="text-red-500">*</span>
+                                    </label>
+                                    <select
+                                        value={editForm.discipline}
+                                        onChange={(e) => setEditForm(prev => ({ 
+                                            ...prev, 
+                                            discipline: e.target.value as TechnicalSpec['discipline'] 
+                                        }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        required
+                                    >
+                                        <option value="Mecanicas">Mecánicas</option>
+                                        <option value="Plomeria">Plomería</option>
+                                        <option value="Electricas">Eléctricas</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Subcontrata <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={editForm.subcontractor}
+                                        onChange={(e) => setEditForm(prev => ({ ...prev, subcontractor: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Sección <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={editForm.section}
+                                        onChange={(e) => setEditForm(prev => ({ ...prev, section: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Versión <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={editForm.version}
+                                        onChange={(e) => setEditForm(prev => ({ ...prev, version: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Autor <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={editForm.author}
+                                        onChange={(e) => setEditForm(prev => ({ ...prev, author: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Tags
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={editForm.tags.join(', ')}
+                                        onChange={(e) => setEditForm(prev => ({ 
+                                            ...prev, 
+                                            tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
+                                        }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        placeholder="cables, tableros, iluminación (separados por coma)"
+                                    />
+                                </div>
+
+                                <div className="flex justify-end space-x-3 pt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowEditModal(false)}
+                                        className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center space-x-2"
+                                    >
+                                        <Save className="w-4 h-4" />
+                                        <span>Guardar Cambios</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

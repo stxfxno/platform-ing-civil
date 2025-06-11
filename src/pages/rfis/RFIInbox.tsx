@@ -25,7 +25,7 @@ import {
     Globe
 } from 'lucide-react';
 import type { RFI } from '../../types/rfi';
-import { MEP_DISCIPLINES } from '../../types/common';
+import { MEP_DISCIPLINES, type FileAttachment } from '../../types/common';
 import rfisData from '../../data/rfis.json';
 
 interface RFIFilters {
@@ -44,6 +44,7 @@ interface ReplyModalData {
     followUpPriority: string;
     notifyOthers: boolean;
     attachFiles: boolean;
+    attachedFiles: File[];
     isSubmitting: boolean;
     showSuccess: boolean;
 }
@@ -87,6 +88,7 @@ const RFIInbox: React.FC = () => {
         followUpPriority: 'none',
         notifyOthers: false,
         attachFiles: false,
+        attachedFiles: [],
         isSubmitting: false,
         showSuccess: false
     });
@@ -295,6 +297,7 @@ const RFIInbox: React.FC = () => {
             followUpPriority: 'none',
             notifyOthers: false,
             attachFiles: false,
+            attachedFiles: [],
             isSubmitting: false,
             showSuccess: false
         });
@@ -376,6 +379,17 @@ const RFIInbox: React.FC = () => {
 
         // Simular envío y actualizar RFI
         try {
+            // Simular procesamiento de archivos adjuntos
+            const attachments: FileAttachment[] = replyModal.attachedFiles.map((file, index) => ({
+                id: `attach-reply-${Date.now()}-${index}`,
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                url: `#`, // En un caso real, aquí iría la URL del archivo subido
+                uploadedAt: new Date().toISOString(),
+                uploadedBy: 'user-current'
+            }));
+
             const updatedRFI: RFI = {
                 ...replyModal.rfi!,
                 status: replyModal.responseStatus as RFI['status'],
@@ -383,6 +397,8 @@ const RFIInbox: React.FC = () => {
                 responseDate: new Date().toISOString(),
                 responseBy: 'user-current',
                 updatedAt: new Date().toISOString(),
+                // Agregar archivos adjuntos de la respuesta a los existentes
+                attachments: [...(replyModal.rfi!.attachments || []), ...attachments]
             };
 
             // Actualizar en localStorage si es una RFI guardada localmente
@@ -414,6 +430,7 @@ const RFIInbox: React.FC = () => {
                         followUpPriority: 'none',
                         notifyOthers: false,
                         attachFiles: false,
+                        attachedFiles: [],
                         isSubmitting: false,
                         showSuccess: false
                     });
@@ -437,6 +454,7 @@ const RFIInbox: React.FC = () => {
             followUpPriority: 'none',
             notifyOthers: false,
             attachFiles: false,
+            attachedFiles: [],
             isSubmitting: false,
             showSuccess: false
         });
@@ -473,6 +491,32 @@ const RFIInbox: React.FC = () => {
             ...prev,
             [field]: value
         }));
+    };
+
+    const handleFileAttachment = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (files) {
+            const newFiles = Array.from(files);
+            setReplyModal(prev => ({
+                ...prev,
+                attachedFiles: [...prev.attachedFiles, ...newFiles]
+            }));
+        }
+    };
+
+    const removeAttachedFile = (index: number) => {
+        setReplyModal(prev => ({
+            ...prev,
+            attachedFiles: prev.attachedFiles.filter((_, i) => i !== index)
+        }));
+    };
+
+    const formatFileSize = (bytes: number): string => {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     };
 
     const handleEditModalChange = (field: string, value: string) => {
@@ -1398,6 +1442,69 @@ const RFIInbox: React.FC = () => {
                                         </div>
                                     </div>
 
+                                    {/* File Attachments */}
+                                    <div>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <label className="block text-sm font-medium text-gray-700">
+                                                Archivos adjuntos
+                                            </label>
+                                            <span className="text-xs text-gray-500">Opcional</span>
+                                        </div>
+                                        
+                                        {/* File Upload Area */}
+                                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors">
+                                            <input
+                                                type="file"
+                                                id="reply-file-upload"
+                                                multiple
+                                                accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.dwg,.txt"
+                                                onChange={handleFileAttachment}
+                                                className="hidden"
+                                                disabled={replyModal.isSubmitting}
+                                            />
+                                            <label htmlFor="reply-file-upload" className="cursor-pointer">
+                                                <Paperclip className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+                                                <p className="text-sm text-gray-600">
+                                                    <span className="font-medium text-primary-600 hover:text-primary-500">
+                                                        Haz clic para seleccionar archivos
+                                                    </span> o arrástralos aquí
+                                                </p>
+                                                <p className="text-xs text-gray-500 mt-1">
+                                                    PDF, DOC, XLS, JPG, PNG, DWG (máx. 10MB por archivo)
+                                                </p>
+                                            </label>
+                                        </div>
+
+                                        {/* Attached Files List */}
+                                        {replyModal.attachedFiles.length > 0 && (
+                                            <div className="mt-3 space-y-2">
+                                                <p className="text-sm font-medium text-gray-700">
+                                                    Archivos seleccionados ({replyModal.attachedFiles.length})
+                                                </p>
+                                                <div className="space-y-2">
+                                                    {replyModal.attachedFiles.map((file, index) => (
+                                                        <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg border">
+                                                            <div className="flex items-center space-x-2">
+                                                                <Paperclip className="w-4 h-4 text-gray-400" />
+                                                                <div>
+                                                                    <p className="text-sm font-medium text-gray-900">{file.name}</p>
+                                                                    <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                                                                </div>
+                                                            </div>
+                                                            <button
+                                                                onClick={() => removeAttachedFile(index)}
+                                                                className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded"
+                                                                disabled={replyModal.isSubmitting}
+                                                            >
+                                                                <X className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
                                     {/* Response Details */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
@@ -1441,8 +1548,13 @@ const RFIInbox: React.FC = () => {
                                     <div className="text-sm text-gray-500">
                                         <div className="flex items-center space-x-1">
                                             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                                            <span>La respuesta se enviará por correo electrónico automáticamente</span>
+                                            <span>La respuesta{replyModal.attachedFiles.length > 0 ? ' y archivos adjuntos' : ''} se enviará por correo electrónico automáticamente</span>
                                         </div>
+                                        {replyModal.attachedFiles.length > 0 && (
+                                            <div className="mt-1 text-xs text-gray-400">
+                                                {replyModal.attachedFiles.length} archivo{replyModal.attachedFiles.length > 1 ? 's' : ''} adjunto{replyModal.attachedFiles.length > 1 ? 's' : ''}
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="flex items-center space-x-3">
                                         <button

@@ -31,6 +31,7 @@ interface ContractorReport {
     requestedAt?: string;
     requestedBy?: string;
     requestMessage?: string;
+    requestProblem?: string;
 }
 
 // Datos iniciales que se cargarán la primera vez
@@ -114,6 +115,7 @@ const ContractorReports: React.FC = () => {
     const [approvalComments, setApprovalComments] = useState('');
     const [rejectionReason, setRejectionReason] = useState('');
     const [requestMessage, setRequestMessage] = useState('');
+    const [requestProblem, setRequestProblem] = useState('');
 
     // Cargar datos del localStorage al montar el componente
     useEffect(() => {
@@ -239,38 +241,41 @@ const ContractorReports: React.FC = () => {
             return contacts[contractorName] || 'Ing. Responsable';
         };
 
-        // Crear nuevo reporte con estado 'pending'
+        // Crear nuevo reporte con estado 'submitted' (ya no 'pending')
         const newReport: ContractorReport = {
             id: `rep-${Date.now()}`,
-            week: '2025-05-26/2025-06-01', // Semana actual por defecto
+            week: '2025-06-02/2025-06-08', // Semana actual actualizada
             contractor: {
                 name: selectedContractor,
                 discipline: getDisciplineFromContractor(selectedContractor),
                 contact: getContactFromContractor(selectedContractor)
             },
             overallProgress: 0,
-            submittedAt: '',
-            submittedBy: '',
-            status: 'pending',
+            submittedAt: new Date().toISOString(),
+            submittedBy: getContactFromContractor(selectedContractor),
+            status: 'submitted', // Cambiado de 'pending' a 'submitted'
             activities: [],
-            issues: [],
+            issues: requestProblem.trim() ? [requestProblem.trim()] : [], // Incluir problema si se proporcionó
             nextWeekPlan: '',
             requestedAt: new Date().toISOString(),
             requestedBy: 'Usuario Actual', // En una app real sería el usuario autenticado
-            requestMessage: requestMessage
+            requestMessage: requestMessage,
+            requestProblem: requestProblem
         };
 
         // Agregar a la lista de reportes
         const updatedReports = [...reports, newReport];
         setReports(updatedReports);
+        saveToLocalStorage(updatedReports);
         
         // Mostrar mensaje de confirmación
-        alert(`Solicitud enviada exitosamente a ${selectedContractor}.\n\nMensaje: "${requestMessage}"\n\nEl reporte aparecerá en la lista con estado "Pendiente".`);
+        alert(`Solicitud enviada exitosamente a ${selectedContractor}.\n\nMensaje: "${requestMessage}"${requestProblem.trim() ? `\n\nProblema reportado: "${requestProblem.trim()}"` : ''}\n\nEl reporte aparece como "Enviado" y puede ser aprobado o rechazado.`);
         
         // Limpiar formulario y cerrar modal
         setShowRequestModal(false);
         setSelectedContractor('');
         setRequestMessage('');
+        setRequestProblem('');
     };
 
     // Función para limpiar todos los datos (útil para testing)
@@ -429,14 +434,15 @@ const ContractorReports: React.FC = () => {
                                         </div>
                                     </div>
 
-                                    {/* Solicitud de reporte (para reportes pendientes) */}
-                                    {report.status === 'pending' && report.requestMessage && (
-                                        <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg mb-3">
-                                            <h4 className="text-sm font-medium text-orange-800 mb-1">Solicitud enviada:</h4>
-                                            <p className="text-sm text-orange-700">"{report.requestMessage}"</p>
+                                    {/* Solicitud de reporte (para reportes enviados que fueron solicitados) */}
+                                    {report.status === 'submitted' && report.requestMessage && (
+                                        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg mb-3">
+                                            <h4 className="text-sm font-medium text-blue-800 mb-1">Reporte solicitado:</h4>
+                                            <p className="text-sm text-blue-700">"{report.requestMessage}"</p>
                                             {report.requestedBy && (
-                                                <p className="text-xs text-orange-600 mt-1">
-                                                    Solicitado por: {report.requestedBy}
+                                                <p className="text-xs text-blue-600 mt-1">
+                                                    Solicitado por: {report.requestedBy} el {report.requestedAt ? 
+                                                        new Date(report.requestedAt).toLocaleDateString('es-PE') : 'N/A'}
                                                 </p>
                                             )}
                                         </div>
@@ -548,14 +554,17 @@ const ContractorReports: React.FC = () => {
                                 <p className="text-sm text-gray-600 mt-1">Progreso: {selectedReport.overallProgress}%</p>
                             </div>
 
-                            {selectedReport.status === 'pending' && selectedReport.requestMessage && (
+                            {selectedReport.status === 'submitted' && selectedReport.requestMessage && (
                                 <div>
-                                    <h3 className="font-medium text-gray-900 mb-2">Solicitud Enviada</h3>
-                                    <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                                        <p className="text-sm text-orange-800">"{selectedReport.requestMessage}"</p>
-                                        <p className="text-xs text-orange-600 mt-2">
+                                    <h3 className="font-medium text-gray-900 mb-2">Reporte Solicitado</h3>
+                                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                        <p className="text-sm text-blue-800">"{selectedReport.requestMessage}"</p>
+                                        <p className="text-xs text-blue-600 mt-2">
                                             Solicitado el: {selectedReport.requestedAt ? 
                                                 new Date(selectedReport.requestedAt).toLocaleString('es-PE') : 'N/A'}
+                                        </p>
+                                        <p className="text-xs text-blue-600">
+                                            Por: {selectedReport.requestedBy}
                                         </p>
                                     </div>
                                 </div>
@@ -717,13 +726,29 @@ const ContractorReports: React.FC = () => {
                                     Mensaje *
                                 </label>
                                 <textarea
-                                    rows={4}
+                                    rows={3}
                                     value={requestMessage}
                                     onChange={(e) => setRequestMessage(e.target.value)}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                                    placeholder="Por favor envíe su reporte semanal con el progreso de las actividades MEP asignadas. Incluya información sobre avances, problemas encontrados y plan para la próxima semana."
+                                    placeholder="Por favor envíe su reporte semanal con el progreso de las actividades MEP asignadas."
                                     required
                                 />
+                            </div>
+
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Problema o Incidencia (opcional)
+                                </label>
+                                <textarea
+                                    rows={3}
+                                    value={requestProblem}
+                                    onChange={(e) => setRequestProblem(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                    placeholder="Describa cualquier problema o incidencia que necesite ser reportada..."
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Si hay algún problema específico que el subcontratista debe incluir en su reporte
+                                </p>
                             </div>
 
                             <div className="flex justify-end space-x-3">
@@ -732,6 +757,7 @@ const ContractorReports: React.FC = () => {
                                         setShowRequestModal(false);
                                         setSelectedContractor('');
                                         setRequestMessage('');
+                                        setRequestProblem('');
                                     }}
                                     className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
                                 >

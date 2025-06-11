@@ -7,8 +7,12 @@ import {
     Target,
     Activity,
     Download,
-    Filter,
     ChevronRight,
+    Edit,
+    Save,
+    X,
+    Plus,
+    ChevronLeft,
 } from 'lucide-react';
 
 interface CriticalActivity {
@@ -30,58 +34,242 @@ interface CriticalActivity {
 
 const CriticalPathAnalysis: React.FC = () => {
     const [showRiskAnalysis, ] = useState(false);
-    const [selectedTimeframe, setSelectedTimeframe] = useState<'week' | 'month' | 'quarter'>('month');
+    const [currentMonth, setCurrentMonth] = useState(new Date(2025, 5, 10)); // June 2025
+    const [editingActivity, setEditingActivity] = useState<string | null>(null);
+    const [editForm, setEditForm] = useState<Partial<CriticalActivity>>({});
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [newActivity, setNewActivity] = useState<Partial<CriticalActivity>>({});
+    const [activities, setActivities] = useState<CriticalActivity[]>([]);
+    const [editedActivities, setEditedActivities] = useState<{[key: string]: Partial<CriticalActivity>}>({});
 
-    const criticalActivities: CriticalActivity[] = [
-        {
-            id: 'crit-001',
-            name: 'Instalación ductos principales HVAC',
-            discipline: 'HVAC',
-            startDate: '2025-06-01',
-            endDate: '2025-06-15',
-            duration: 14,
-            totalFloat: 0,
-            freeFloat: 0,
-            progress: 85,
-            status: 'in_progress',
-            predecessor: ['struct-001'],
-            successor: ['hvac-002', 'hvac-003'],
-            contractor: 'HVAC Solutions S.A.C.',
-            riskLevel: 'medium'
-        },
-        {
-            id: 'crit-002',
-            name: 'Instalación tableros eléctricos principales',
-            discipline: 'Eléctrico',
-            startDate: '2025-06-16',
-            endDate: '2025-06-25',
-            duration: 9,
-            totalFloat: 0,
-            freeFloat: 0,
-            progress: 0,
-            status: 'not_started',
-            predecessor: ['crit-001'],
-            successor: ['elec-003'],
-            contractor: 'Electro Instalaciones Perú',
-            riskLevel: 'high'
-        },
-        {
-            id: 'crit-003',
-            name: 'Conexión sistemas principales MEP',
-            discipline: 'Mecánico',
-            startDate: '2025-06-26',
-            endDate: '2025-07-05',
-            duration: 9,
-            totalFloat: 0,
-            freeFloat: 0,
-            progress: 0,
-            status: 'not_started',
-            predecessor: ['crit-002'],
-            successor: ['test-001'],
-            contractor: 'MEP Contractors Inc.',
-            riskLevel: 'critical'
+    // Generate activities based on current month
+    const getActivitiesForMonth = (month: Date): CriticalActivity[] => {
+        const monthIndex = month.getMonth();
+        
+        // Get base activities for the month
+        let baseActivities: CriticalActivity[] = [];
+        
+        if (monthIndex === 4) { // May 2025 (previous month - completed)
+            baseActivities = [
+                {
+                    id: 'may-001',
+                    name: 'Preparación y marcado de estructuras',
+                    discipline: 'Estructural',
+                    startDate: '2025-05-01',
+                    endDate: '2025-05-10',
+                    duration: 10,
+                    totalFloat: 0,
+                    freeFloat: 0,
+                    progress: 100,
+                    status: 'completed',
+                    predecessor: [],
+                    successor: ['may-002'],
+                    contractor: 'Estructuras y Construcción SAC',
+                    riskLevel: 'low'
+                },
+                {
+                    id: 'may-002',
+                    name: 'Instalación de anclajes principales',
+                    discipline: 'Mecánico',
+                    startDate: '2025-05-11',
+                    endDate: '2025-05-20',
+                    duration: 9,
+                    totalFloat: 0,
+                    freeFloat: 0,
+                    progress: 100,
+                    status: 'completed',
+                    predecessor: ['may-001'],
+                    successor: ['may-003'],
+                    contractor: 'MEP Contractors Inc.',
+                    riskLevel: 'low'
+                },
+                {
+                    id: 'may-003',
+                    name: 'Pruebas de resistencia estructural',
+                    discipline: 'Control de Calidad',
+                    startDate: '2025-05-21',
+                    endDate: '2025-05-31',
+                    duration: 11,
+                    totalFloat: 0,
+                    freeFloat: 0,
+                    progress: 100,
+                    status: 'completed',
+                    predecessor: ['may-002'],
+                    successor: ['crit-001'],
+                    contractor: 'QA Solutions Perú',
+                    riskLevel: 'low'
+                }
+            ];
+        } else if (monthIndex === 5) { // June 2025 (current month)
+            baseActivities = [
+                {
+                    id: 'crit-001',
+                    name: 'Instalación ductos principales HVAC',
+                    discipline: 'HVAC',
+                    startDate: '2025-06-01',
+                    endDate: '2025-06-15',
+                    duration: 14,
+                    totalFloat: 0,
+                    freeFloat: 0,
+                    progress: 85,
+                    status: 'in_progress',
+                    predecessor: ['may-003'],
+                    successor: ['crit-002'],
+                    contractor: 'HVAC Solutions S.A.C.',
+                    riskLevel: 'medium'
+                },
+                {
+                    id: 'crit-002',
+                    name: 'Instalación tableros eléctricos principales',
+                    discipline: 'Eléctrico',
+                    startDate: '2025-06-16',
+                    endDate: '2025-06-25',
+                    duration: 9,
+                    totalFloat: 0,
+                    freeFloat: 0,
+                    progress: 0,
+                    status: 'not_started',
+                    predecessor: ['crit-001'],
+                    successor: ['crit-003'],
+                    contractor: 'Electro Instalaciones Perú',
+                    riskLevel: 'high'
+                },
+                {
+                    id: 'crit-003',
+                    name: 'Conexión sistemas principales MEP',
+                    discipline: 'Mecánico',
+                    startDate: '2025-06-26',
+                    endDate: '2025-06-30',
+                    duration: 5,
+                    totalFloat: 0,
+                    freeFloat: 0,
+                    progress: 0,
+                    status: 'not_started',
+                    predecessor: ['crit-002'],
+                    successor: ['jul-001'],
+                    contractor: 'MEP Contractors Inc.',
+                    riskLevel: 'critical'
+                }
+            ];
+        } else if (monthIndex === 6) { // July 2025 (next month)
+            baseActivities = [
+                {
+                    id: 'jul-001',
+                    name: 'Pruebas de sistemas integrados',
+                    discipline: 'Comisionado',
+                    startDate: '2025-07-01',
+                    endDate: '2025-07-10',
+                    duration: 10,
+                    totalFloat: 0,
+                    freeFloat: 0,
+                    progress: 0,
+                    status: 'not_started',
+                    predecessor: ['crit-003'],
+                    successor: ['jul-002'],
+                    contractor: 'Commissioning Experts SAC',
+                    riskLevel: 'medium'
+                },
+                {
+                    id: 'jul-002',
+                    name: 'Certificación de sistemas HVAC',
+                    discipline: 'HVAC',
+                    startDate: '2025-07-11',
+                    endDate: '2025-07-20',
+                    duration: 9,
+                    totalFloat: 0,
+                    freeFloat: 0,
+                    progress: 0,
+                    status: 'not_started',
+                    predecessor: ['jul-001'],
+                    successor: ['jul-003'],
+                    contractor: 'HVAC Solutions S.A.C.',
+                    riskLevel: 'medium'
+                },
+                {
+                    id: 'jul-003',
+                    name: 'Entrega final de documentación',
+                    discipline: 'Documentación',
+                    startDate: '2025-07-21',
+                    endDate: '2025-07-31',
+                    duration: 11,
+                    totalFloat: 0,
+                    freeFloat: 0,
+                    progress: 0,
+                    status: 'not_started',
+                    predecessor: ['jul-002'],
+                    successor: [],
+                    contractor: 'Gestión Documental Perú',
+                    riskLevel: 'low'
+                }
+            ];
         }
-    ];
+        
+        // Apply any edits to base activities
+        const editedBaseActivities = baseActivities.map(activity => {
+            const edits = editedActivities[activity.id];
+            return edits ? { ...activity, ...edits } : activity;
+        });
+        
+        // Merge with user-added activities for this month
+        const monthKey = `${month.getFullYear()}-${month.getMonth()}`;
+        const userActivities = activities.filter(activity => {
+            const activityDate = new Date(activity.startDate || '');
+            return `${activityDate.getFullYear()}-${activityDate.getMonth()}` === monthKey;
+        });
+        
+        return [...editedBaseActivities, ...userActivities];
+    };
+
+    const criticalActivities = getActivitiesForMonth(currentMonth);
+
+    // Helper functions for month navigation
+    const getMonthName = (date: Date) => {
+        return date.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    };
+
+    const navigateMonth = (direction: 'prev' | 'next') => {
+        const newMonth = new Date(currentMonth);
+        if (direction === 'prev') {
+            newMonth.setMonth(newMonth.getMonth() - 1);
+        } else {
+            newMonth.setMonth(newMonth.getMonth() + 1);
+        }
+        setCurrentMonth(newMonth);
+    };
+
+    // Edit functions
+    const startEdit = (activity: CriticalActivity) => {
+        setEditingActivity(activity.id);
+        setEditForm(activity);
+    };
+
+    const saveEdit = () => {
+        if (editForm && editingActivity) {
+            if (editingActivity.startsWith('user-')) {
+                // Update user-added activities
+                const updatedActivities = activities.map(activity => 
+                    activity.id === editingActivity 
+                        ? { ...activity, ...editForm } as CriticalActivity
+                        : activity
+                );
+                setActivities(updatedActivities);
+            } else {
+                // For base activities, store the edits in editedActivities state
+                setEditedActivities(prev => ({
+                    ...prev,
+                    [editingActivity]: editForm
+                }));
+            }
+            console.log('Saving activity:', editForm);
+        }
+        setEditingActivity(null);
+        setEditForm({});
+    };
+
+    const cancelEdit = () => {
+        setEditingActivity(null);
+        setEditForm({});
+    };
 
     const nearCriticalActivities = [
         {
@@ -89,17 +277,17 @@ const CriticalPathAnalysis: React.FC = () => {
             name: 'Instalación tuberías agua fría - Área B',
             discipline: 'Plomería',
             totalFloat: 2,
-            duration: 8,
-            riskLevel: 'medium',
+            startDate: '2025-06-10',
+            endDate: '2025-06-18',
             contractor: 'Plomería Industrial SAC'
         },
         {
             id: 'near-002',
             name: 'Cableado secundario - Pisos 4-6',
             discipline: 'Eléctrico',
-            totalFloat: 3,
-            duration: 12,
-            riskLevel: 'low',
+            totalFloat: 4,
+            startDate: '2025-06-12',
+            endDate: '2025-06-24',
             contractor: 'Electro Instalaciones Perú'
         },
         {
@@ -107,20 +295,53 @@ const CriticalPathAnalysis: React.FC = () => {
             name: 'Sistema rociadores - Zona comercial',
             discipline: 'Protección Contra Incendios',
             totalFloat: 1,
-            duration: 7,
-            riskLevel: 'high',
+            startDate: '2025-06-15',
+            endDate: '2025-06-22',
             contractor: 'Fire Protection Corp.'
+        },
+        {
+            id: 'near-004',
+            name: 'Instalación ductos de ventilación secundarios',
+            discipline: 'HVAC',
+            totalFloat: 3,
+            startDate: '2025-06-20',
+            endDate: '2025-06-28',
+            contractor: 'HVAC Solutions S.A.C.'
+        },
+        {
+            id: 'near-005',
+            name: 'Montaje de tableros de distribución auxiliares',
+            discipline: 'Eléctrico',
+            totalFloat: 5,
+            startDate: '2025-06-18',
+            endDate: '2025-06-30',
+            contractor: 'Electro Instalaciones Perú'
+        },
+        {
+            id: 'near-006',
+            name: 'Instalación válvulas de control principales',
+            discipline: 'Mecánico',
+            totalFloat: 2,
+            startDate: '2025-06-25',
+            endDate: '2025-07-02',
+            contractor: 'MEP Contractors Inc.'
         }
     ];
 
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'completed': return 'bg-green-500';
-            case 'in_progress': return 'bg-blue-500';
-            case 'delayed': return 'bg-red-500';
-            case 'not_started': return 'bg-gray-300';
-            default: return 'bg-gray-300';
-        }
+    // Function to get risk level based on totalFloat (holgura)
+    const getRiskLevelByFloat = (totalFloat: number): 'low' | 'medium' | 'high' => {
+        if (totalFloat === 1) return 'high';
+        if (totalFloat >= 2 && totalFloat <= 3) return 'medium';
+        if (totalFloat >= 4 && totalFloat <= 5) return 'low';
+        return 'low'; // fallback
+    };
+
+    const getProgressBarColor = (progress: number) => {
+        if (progress >= 90) return 'bg-green-500';
+        if (progress >= 80) return 'bg-yellow-500';
+        if (progress >= 65) return 'bg-orange-500';
+        if (progress >= 50) return 'bg-red-500';
+        return 'bg-gray-300';
     };
 
     const getRiskColor = (risk: string) => {
@@ -182,6 +403,43 @@ const CriticalPathAnalysis: React.FC = () => {
                         </div>
                     </div>
                 </div>
+
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-gray-600">Actividades Críticas Mecánicas</p>
+                            <p className="text-3xl font-bold text-gray-900">15</p>
+                            <p className="text-xs text-gray-500">actividades</p>
+                        </div>
+                        <div className="p-3 bg-blue-100 rounded-lg">
+                            <Activity className="w-6 h-6 text-blue-600" />
+                        </div>
+                    </div>
+                </div>
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-gray-600">Actividades Críticas Plomería</p>
+                            <p className="text-3xl font-bold text-gray-900">25</p>
+                            <p className="text-xs text-gray-500">actividades</p>
+                        </div>
+                        <div className="p-3 bg-green-100 rounded-lg">
+                            <Activity className="w-6 h-6 text-green-600" />
+                        </div>
+                    </div>
+                </div>
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm font-medium text-gray-600">Actividades Críticas Eléctricas</p>
+                            <p className="text-3xl font-bold text-gray-900">20</p>
+                            <p className="text-xs text-gray-500">actividades</p>
+                        </div>
+                        <div className="p-3 bg-yellow-100 rounded-lg">
+                            <Activity className="w-6 h-6 text-yellow-600" />
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Critical Path Visualization */}
@@ -189,18 +447,31 @@ const CriticalPathAnalysis: React.FC = () => {
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-gray-900">Ruta Crítica Principal</h2>
                     <div className="flex items-center space-x-2">
-                        <select
-                            value={selectedTimeframe}
-                            onChange={(e) => setSelectedTimeframe(e.target.value as 'week' | 'month' | 'quarter')}
-                            className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                        {/* Month Navigation */}
+                        <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
+                            <button
+                                onClick={() => navigateMonth('prev')}
+                                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-white rounded-md transition-colors"
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                            </button>
+                            <span className="px-3 py-1 text-sm font-medium text-gray-900 min-w-[140px] text-center">
+                                {getMonthName(currentMonth)}
+                            </span>
+                            <button
+                                onClick={() => navigateMonth('next')}
+                                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-white rounded-md transition-colors"
+                            >
+                                <ChevronRight className="w-4 h-4" />
+                            </button>
+                        </div>
+                        
+                        <button 
+                            onClick={() => setShowAddForm(true)}
+                            className="flex items-center px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                         >
-                            <option value="week">Esta Semana</option>
-                            <option value="month">Este Mes</option>
-                            <option value="quarter">Este Trimestre</option>
-                        </select>
-                        <button className="flex items-center px-3 py-2 text-sm bg-gray-100 rounded-lg hover:bg-gray-200">
-                            <Filter className="w-4 h-4 mr-2" />
-                            Filtros
+                            <Plus className="w-4 h-4 mr-2" />
+                            Agregar Actividad
                         </button>
                     </div>
                 </div>
@@ -218,40 +489,119 @@ const CriticalPathAnalysis: React.FC = () => {
 
                                         <div className="flex items-center justify-between mb-2">
                                             <div className="flex items-center space-x-2">
-                                                <Activity className="w-4 h-4 text-gray-600" />
-                                                <span className="text-sm font-medium text-gray-900">{activity.discipline}</span>
+                                                <div className="flex items-center space-x-1">
+                                                    <span className="text-xs font-bold text-gray-500 bg-gray-200 px-2 py-1 rounded">
+                                                        {index + 1}
+                                                    </span>
+                                                    <Activity className="w-4 h-4 text-gray-600" />
+                                                </div>
+                                                {editingActivity === activity.id ? (
+                                                    <input
+                                                        type="text"
+                                                        value={editForm.discipline || ''}
+                                                        onChange={(e) => setEditForm({...editForm, discipline: e.target.value})}
+                                                        className="text-sm font-medium text-gray-900 border border-gray-300 rounded px-2 py-1 w-20"
+                                                    />
+                                                ) : (
+                                                    <span className="text-sm font-medium text-gray-900">{activity.discipline}</span>
+                                                )}
                                             </div>
-                                            <span className={`px-2 py-1 text-xs font-medium rounded border ${getRiskColor(activity.riskLevel)}`}>
-                                                {activity.riskLevel === 'critical' ? 'CRÍTICO' :
-                                                    activity.riskLevel === 'high' ? 'ALTO' :
-                                                        activity.riskLevel === 'medium' ? 'MEDIO' : 'BAJO'}
-                                            </span>
+                                            <div className="flex items-center space-x-2">
+                                                {editingActivity === activity.id ? (
+                                                    <select
+                                                        value={editForm.riskLevel || ''}
+                                                        onChange={(e) => setEditForm({...editForm, riskLevel: e.target.value as 'low' | 'medium' | 'high' | 'critical'})}
+                                                        className="text-xs font-medium rounded border px-2 py-1"
+                                                    >
+                                                        <option value="low">BAJO</option>
+                                                        <option value="medium">MEDIO</option>
+                                                        <option value="high">ALTO</option>
+                                                        <option value="critical">CRÍTICO</option>
+                                                    </select>
+                                                ) : (
+                                                    <span className={`px-2 py-1 text-xs font-medium rounded border ${getRiskColor(activity.riskLevel)}`}>
+                                                        {activity.riskLevel === 'critical' ? 'CRÍTICO' :
+                                                            activity.riskLevel === 'high' ? 'ALTO' :
+                                                                activity.riskLevel === 'medium' ? 'MEDIO' : 'BAJO'}
+                                                    </span>
+                                                )}
+                                                
+                                                {editingActivity === activity.id ? (
+                                                    <div className="flex space-x-1">
+                                                        <button
+                                                            onClick={saveEdit}
+                                                            className="p-1 text-green-600 hover:bg-green-100 rounded"
+                                                        >
+                                                            <Save className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={cancelEdit}
+                                                            className="p-1 text-red-600 hover:bg-red-100 rounded"
+                                                        >
+                                                            <X className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => startEdit(activity)}
+                                                        className="p-1 text-blue-600 hover:bg-blue-100 rounded"
+                                                    >
+                                                        <Edit className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
 
-                                        <h4 className="font-medium text-gray-900 mb-2 text-sm leading-tight">
-                                            {activity.name}
-                                        </h4>
+                                        {editingActivity === activity.id ? (
+                                            <textarea
+                                                value={editForm.name || ''}
+                                                onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                                                className="w-full font-medium text-gray-900 mb-2 text-sm leading-tight border border-gray-300 rounded px-2 py-1 resize-none"
+                                                rows={2}
+                                            />
+                                        ) : (
+                                            <h4 className="font-medium text-gray-900 mb-2 text-sm leading-tight">
+                                                {activity.name}
+                                            </h4>
+                                        )}
 
                                         <div className="space-y-2">
                                             <div className="flex items-center justify-between text-xs text-gray-600">
-                                                <span>Duración: {activity.duration} días</span>
                                                 <span>Holgura: {activity.totalFloat} días</span>
                                             </div>
 
                                             <div className="flex items-center justify-between text-xs text-gray-600">
                                                 <span>{formatDate(activity.startDate)} - {formatDate(activity.endDate)}</span>
-                                                <span className="font-medium">{activity.progress}%</span>
+                                                <span className="font-medium">
+                                                    {editingActivity === activity.id ? (
+                                                        <input
+                                                            type="number"
+                                                            min="0"
+                                                            max="100"
+                                                            value={editForm.progress || ''}
+                                                            onChange={(e) => setEditForm({...editForm, progress: parseInt(e.target.value)})}
+                                                            className="w-12 border border-gray-300 rounded px-1"
+                                                        />
+                                                    ) : activity.progress}%
+                                                </span>
                                             </div>
 
                                             <div className="w-full bg-gray-200 rounded-full h-2">
                                                 <div
-                                                    className={`h-2 rounded-full transition-all duration-300 ${getStatusColor(activity.status)}`}
+                                                    className={`h-2 rounded-full transition-all duration-300 ${getProgressBarColor(activity.progress)}`}
                                                     style={{ width: `${activity.progress}%` }}
                                                 ></div>
                                             </div>
 
                                             <div className="text-xs text-gray-500 truncate">
-                                                {activity.contractor}
+                                                {editingActivity === activity.id ? (
+                                                    <input
+                                                        type="text"
+                                                        value={editForm.contractor || ''}
+                                                        onChange={(e) => setEditForm({...editForm, contractor: e.target.value})}
+                                                        className="w-full border border-gray-300 rounded px-1"
+                                                    />
+                                                ) : activity.contractor}
                                             </div>
                                         </div>
                                     </div>
@@ -271,15 +621,15 @@ const CriticalPathAnalysis: React.FC = () => {
                 <div className="mt-6 p-4 bg-gray-50 rounded-lg">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
                         <div>
-                            <span className="text-gray-600">Duración Total:</span>
+                            <span className="text-gray-600">Total de actividades de la ruta critica:</span>
                             <span className="ml-2 font-medium text-gray-900">32 días</span>
                         </div>
                         <div>
-                            <span className="text-gray-600">Progreso Promedio:</span>
+                            <span className="text-gray-600">Progreso de la ruta:</span>
                             <span className="ml-2 font-medium text-gray-900">{calculatePathProgress()}%</span>
                         </div>
                         <div>
-                            <span className="text-gray-600">Actividades Retrasadas:</span>
+                            <span className="text-gray-600">Actividades en retraso:</span>
                             <span className="ml-2 font-medium text-red-600">1</span>
                         </div>
                         <div>
@@ -294,42 +644,48 @@ const CriticalPathAnalysis: React.FC = () => {
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-gray-900">Actividades Casi Críticas</h2>
-                    <span className="text-sm text-gray-500">Holgura ≤ 3 días</span>
+                    <span className="text-sm text-gray-500">Holgura ≤ 5 días</span>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {nearCriticalActivities.map((activity) => (
-                        <div key={activity.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                            <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm font-medium text-gray-600">{activity.discipline}</span>
-                                <span className={`px-2 py-1 text-xs font-medium rounded border ${getRiskColor(activity.riskLevel)}`}>
-                                    {activity.riskLevel.toUpperCase()}
-                                </span>
-                            </div>
-
-                            <h4 className="font-medium text-gray-900 mb-3 text-sm leading-tight">
-                                {activity.name}
-                            </h4>
-
-                            <div className="space-y-2 text-xs text-gray-600">
-                                <div className="flex justify-between">
-                                    <span>Holgura Total:</span>
-                                    <span className={`font-medium ${activity.totalFloat <= 1 ? 'text-red-600' :
-                                            activity.totalFloat <= 2 ? 'text-orange-600' : 'text-yellow-600'
-                                        }`}>
-                                        {activity.totalFloat} días
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {nearCriticalActivities.map((activity) => {
+                        const riskLevel = getRiskLevelByFloat(activity.totalFloat);
+                        return (
+                            <div key={activity.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                                <div className="flex items-center justify-between mb-3">
+                                    <span className="text-sm font-medium text-gray-600">{activity.discipline}</span>
+                                    <span className={`px-2 py-1 text-xs font-medium rounded border ${getRiskColor(riskLevel)}`}>
+                                        {riskLevel === 'high' ? 'ALTO' : riskLevel === 'medium' ? 'MEDIO' : 'BAJO'}
                                     </span>
                                 </div>
-                                <div className="flex justify-between">
-                                    <span>Duración:</span>
-                                    <span className="font-medium text-gray-900">{activity.duration} días</span>
-                                </div>
-                                <div className="text-gray-500 truncate">
-                                    {activity.contractor}
+
+                                <h4 className="font-medium text-gray-900 mb-3 text-sm leading-tight">
+                                    {activity.name}
+                                </h4>
+
+                                <div className="space-y-2 text-xs text-gray-600">
+                                    <div className="flex justify-between">
+                                        <span>Holgura:</span>
+                                        <span className={`font-medium ${activity.totalFloat === 1 ? 'text-red-600' :
+                                                activity.totalFloat <= 3 ? 'text-orange-600' : 'text-yellow-600'
+                                            }`}>
+                                            {activity.totalFloat} días
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span>Duración:</span>
+                                        <span className="font-medium text-gray-900">
+                                            {formatDate(activity.startDate)} - {formatDate(activity.endDate)}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Subcontrata:</span>
+                                        <p className="font-medium text-gray-900 truncate mt-1">{activity.contractor}</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
 
@@ -444,51 +800,188 @@ const CriticalPathAnalysis: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-3">
-                        <h4 className="font-medium text-blue-900">Esta Semana</h4>
+                        <h4 className="font-medium text-blue-900">Este mes</h4>
                         {[
-                            { action: 'Revisar progreso instalación ductos HVAC', priority: 'high', due: 'Mañana' },
-                            { action: 'Coordinar entrega materiales eléctricos', priority: 'critical', due: 'Miércoles' },
-                            { action: 'Reunión de coordinación con subcontratistas', priority: 'medium', due: 'Viernes' }
+                            { action: 'Revisar progreso instalación ductos HVAC', due: '11/06/2025' },
+                            { action: 'Coordinar entrega materiales eléctricos', due: '12/06/2025' },
+                            { action: 'Reunión de coordinación con subcontratistas', due: '14/06/2025' }
                         ].map((item, index) => (
                             <div key={index} className="flex items-center justify-between p-3 bg-white rounded-lg border border-blue-200">
                                 <div className="flex-1">
                                     <p className="text-sm font-medium text-gray-900">{item.action}</p>
-                                    <p className="text-xs text-gray-500">Vence: {item.due}</p>
+                                    <p className="text-xs text-gray-500">Fecha de culminación: {item.due}</p>
                                 </div>
-                                <span className={`px-2 py-1 text-xs font-medium rounded ${item.priority === 'critical' ? 'bg-red-100 text-red-600' :
-                                        item.priority === 'high' ? 'bg-orange-100 text-orange-600' :
-                                            'bg-yellow-100 text-yellow-600'
-                                    }`}>
-                                    {item.priority.toUpperCase()}
-                                </span>
                             </div>
                         ))}
                     </div>
 
                     <div className="space-y-3">
-                        <h4 className="font-medium text-blue-900">Próximas 2 Semanas</h4>
+                        <h4 className="font-medium text-blue-900">Próximo Mes</h4>
                         {[
-                            { action: 'Preparar materiales para tableros eléctricos', priority: 'high', due: '5 Jun' },
-                            { action: 'Validar disponibilidad equipo mecánico', priority: 'medium', due: '8 Jun' },
-                            { action: 'Actualizar cronograma con nuevos hitos', priority: 'low', due: '12 Jun' }
+                            { action: 'Preparar materiales para tableros eléctricos', due: '05/07/2025' },
+                            { action: 'Validar disponibilidad equipo mecánico', due: '08/07/2025' },
+                            { action: 'Actualizar cronograma con nuevos hitos', due: '12/07/2025' }
                         ].map((item, index) => (
                             <div key={index} className="flex items-center justify-between p-3 bg-white rounded-lg border border-blue-200">
                                 <div className="flex-1">
                                     <p className="text-sm font-medium text-gray-900">{item.action}</p>
-                                    <p className="text-xs text-gray-500">Vence: {item.due}</p>
+                                    <p className="text-xs text-gray-500">Fecha de culminación: {item.due}</p>
                                 </div>
-                                <span className={`px-2 py-1 text-xs font-medium rounded ${item.priority === 'critical' ? 'bg-red-100 text-red-600' :
-                                        item.priority === 'high' ? 'bg-orange-100 text-orange-600' :
-                                            item.priority === 'medium' ? 'bg-yellow-100 text-yellow-600' :
-                                                'bg-green-100 text-green-600'
-                                    }`}>
-                                    {item.priority.toUpperCase()}
-                                </span>
                             </div>
                         ))}
                     </div>
                 </div>
             </div>
+
+            {/* Add New Activity Modal */}
+            {showAddForm && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+                        <h3 className="text-lg font-semibold mb-4">Agregar Nueva Actividad Crítica</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Nombre de la Actividad
+                                </label>
+                                <input
+                                    type="text"
+                                    value={newActivity.name || ''}
+                                    onChange={(e) => setNewActivity({...newActivity, name: e.target.value})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Ej: Instalación de sistema eléctrico"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Disciplina
+                                </label>
+                                <select
+                                    value={newActivity.discipline || ''}
+                                    onChange={(e) => setNewActivity({...newActivity, discipline: e.target.value})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="">Seleccionar disciplina</option>
+                                    <option value="HVAC">HVAC</option>
+                                    <option value="Eléctrico">Eléctrico</option>
+                                    <option value="Mecánico">Mecánico</option>
+                                    <option value="Plomería">Plomería</option>
+                                    <option value="Estructural">Estructural</option>
+                                    <option value="Protección Contra Incendios">Protección Contra Incendios</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Fecha de Inicio
+                                </label>
+                                <input
+                                    type="date"
+                                    value={newActivity.startDate || ''}
+                                    onChange={(e) => setNewActivity({...newActivity, startDate: e.target.value})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Fecha de Fin
+                                </label>
+                                <input
+                                    type="date"
+                                    value={newActivity.endDate || ''}
+                                    onChange={(e) => setNewActivity({...newActivity, endDate: e.target.value})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Contratista
+                                </label>
+                                <input
+                                    type="text"
+                                    value={newActivity.contractor || ''}
+                                    onChange={(e) => setNewActivity({...newActivity, contractor: e.target.value})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Ej: Empresa Constructora SAC"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Nivel de Riesgo
+                                </label>
+                                <select
+                                    value={newActivity.riskLevel || ''}
+                                    onChange={(e) => setNewActivity({...newActivity, riskLevel: e.target.value as 'low' | 'medium' | 'high' | 'critical'})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="">Seleccionar riesgo</option>
+                                    <option value="low">Bajo</option>
+                                    <option value="medium">Medio</option>
+                                    <option value="high">Alto</option>
+                                    <option value="critical">Crítico</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Progreso (%)
+                                </label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    value={newActivity.progress || 0}
+                                    onChange={(e) => setNewActivity({...newActivity, progress: parseInt(e.target.value)})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="0"
+                                />
+                            </div>
+                        </div>
+                        <div className="flex justify-end space-x-3 pt-6">
+                            <button
+                                onClick={() => {
+                                    setShowAddForm(false);
+                                    setNewActivity({});
+                                }}
+                                className="px-4 py-2 text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (newActivity.name && newActivity.discipline && newActivity.startDate && newActivity.endDate) {
+                                        // Calculate duration from dates
+                                        const start = new Date(newActivity.startDate);
+                                        const end = new Date(newActivity.endDate);
+                                        const duration = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+                                        
+                                        const activityToAdd: CriticalActivity = {
+                                            id: `user-${Date.now()}`,
+                                            name: newActivity.name,
+                                            discipline: newActivity.discipline,
+                                            startDate: newActivity.startDate,
+                                            endDate: newActivity.endDate,
+                                            duration: duration,
+                                            totalFloat: 0,
+                                            freeFloat: 0,
+                                            progress: newActivity.progress || 0,
+                                            status: (newActivity.progress || 0) > 0 ? 'in_progress' : 'not_started',
+                                            predecessor: [],
+                                            successor: [],
+                                            contractor: newActivity.contractor || '',
+                                            riskLevel: newActivity.riskLevel || 'medium'
+                                        };
+                                        
+                                        setActivities([...activities, activityToAdd]);
+                                        setShowAddForm(false);
+                                        setNewActivity({});
+                                    }
+                                }}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                            >
+                                Agregar Actividad
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

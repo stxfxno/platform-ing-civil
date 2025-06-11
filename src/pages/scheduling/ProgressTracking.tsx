@@ -15,7 +15,7 @@ import {
     Save,
     User,
     //Edit,
-    //Trash2,
+    Trash2,
     ChevronLeft,
     ChevronRight
 } from 'lucide-react';
@@ -530,6 +530,9 @@ const ProgressTracking: React.FC = () => {
     const [showProgressModal, setShowProgressModal] = useState(false);
     const [selectedActivity, setSelectedActivity] = useState<ProgressData | null>(null);
     const [activeTab, setActiveTab] = useState<'progress' | 'comments' | 'issues' | 'photos'>('progress');
+    
+    // Estado para los datos de semanas (ahora mutable)
+    const [weeklyDataState, setWeeklyDataState] = useState<Record<number, WeekData>>(weeklyData);
 
     // Form states
     const [newProgress, setNewProgress] = useState(0);
@@ -548,9 +551,10 @@ const ProgressTracking: React.FC = () => {
     });
     const [selectedPhotoType, setSelectedPhotoType] = useState<keyof typeof photoTypes>('durante');
     const [photoDescription, setPhotoDescription] = useState('');
+    const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
     //const [editingIssue, setEditingIssue] = useState<Issue | null>(null);
 
-    const currentWeekData = weeklyData[currentWeek];
+    const currentWeekData = weeklyDataState[currentWeek];
     const progressData = currentWeekData.activities;
 
     // Función para obtener color de progreso según nueva escala
@@ -624,16 +628,33 @@ const ProgressTracking: React.FC = () => {
     const handleAddComment = () => {
         if (!selectedActivity || !newComment.trim()) return;
 
-        /*const comment: Comment = {
+        const comment: Comment = {
             id: `comment-${Date.now()}`,
             activityId: selectedActivity.activityId,
             text: newComment,
             author: 'Usuario Actual',
             timestamp: new Date().toISOString(),
             isPublic: true
-        };*/
+        };
 
-        // Aquí actualizarías el estado global o localStorage
+        // Actualizar el estado con el nuevo comentario
+        const updatedWeeklyData = { ...weeklyDataState };
+        const weekData = updatedWeeklyData[currentWeek];
+        const activityIndex = weekData.activities.findIndex(
+            activity => activity.id === selectedActivity.id
+        );
+        
+        if (activityIndex !== -1) {
+            weekData.activities[activityIndex].comments.push(comment);
+            setWeeklyDataState(updatedWeeklyData);
+            
+            // Actualizar la actividad seleccionada
+            setSelectedActivity({
+                ...selectedActivity,
+                comments: [...selectedActivity.comments, comment]
+            });
+        }
+
         setNewComment('');
         alert('Comentario agregado exitosamente');
     };
@@ -642,7 +663,7 @@ const ProgressTracking: React.FC = () => {
     const handleReportIssue = () => {
         if (!selectedActivity || !newIssue.title.trim()) return;
 
-        /*const issue: Issue = {
+        const issue: Issue = {
             id: `issue-${Date.now()}`,
             activityId: selectedActivity.activityId,
             title: newIssue.title,
@@ -652,20 +673,222 @@ const ProgressTracking: React.FC = () => {
             status: 'nuevo',
             reportedBy: 'Usuario Actual',
             reportedAt: new Date().toISOString()
-        };*/
+        };
 
-        // Aquí actualizarías el estado global o localStorage
+        // Actualizar el estado con el nuevo problema
+        const updatedWeeklyData = { ...weeklyDataState };
+        const weekData = updatedWeeklyData[currentWeek];
+        const activityIndex = weekData.activities.findIndex(
+            activity => activity.id === selectedActivity.id
+        );
+        
+        if (activityIndex !== -1) {
+            weekData.activities[activityIndex].issues.push(issue);
+            setWeeklyDataState(updatedWeeklyData);
+            
+            // Actualizar la actividad seleccionada
+            setSelectedActivity({
+                ...selectedActivity,
+                issues: [...selectedActivity.issues, issue]
+            });
+        }
+
         setNewIssue({ title: '', description: '', category: 'material', impact: 'medio' });
         alert('Problema reportado exitosamente');
+    };
+
+    // Eliminar problema
+    const handleDeleteIssue = (issueId: string) => {
+        if (!selectedActivity) return;
+        
+        if (!confirm('¿Estás seguro de que deseas eliminar este problema?')) return;
+
+        // Actualizar el estado eliminando el problema
+        const updatedWeeklyData = { ...weeklyDataState };
+        const weekData = updatedWeeklyData[currentWeek];
+        const activityIndex = weekData.activities.findIndex(
+            activity => activity.id === selectedActivity.id
+        );
+        
+        if (activityIndex !== -1) {
+            const updatedIssues = weekData.activities[activityIndex].issues.filter(
+                issue => issue.id !== issueId
+            );
+            weekData.activities[activityIndex].issues = updatedIssues;
+            setWeeklyDataState(updatedWeeklyData);
+            
+            // Actualizar la actividad seleccionada
+            setSelectedActivity({
+                ...selectedActivity,
+                issues: updatedIssues
+            });
+        }
+
+        alert('Problema eliminado exitosamente');
+    };
+
+    // Eliminar comentario
+    const handleDeleteComment = (commentId: string) => {
+        if (!selectedActivity) return;
+        
+        if (!confirm('¿Estás seguro de que deseas eliminar este comentario?')) return;
+
+        // Actualizar el estado eliminando el comentario
+        const updatedWeeklyData = { ...weeklyDataState };
+        const weekData = updatedWeeklyData[currentWeek];
+        const activityIndex = weekData.activities.findIndex(
+            activity => activity.id === selectedActivity.id
+        );
+        
+        if (activityIndex !== -1) {
+            const updatedComments = weekData.activities[activityIndex].comments.filter(
+                comment => comment.id !== commentId
+            );
+            weekData.activities[activityIndex].comments = updatedComments;
+            setWeeklyDataState(updatedWeeklyData);
+            
+            // Actualizar la actividad seleccionada
+            setSelectedActivity({
+                ...selectedActivity,
+                comments: updatedComments
+            });
+        }
+
+        alert('Comentario eliminado exitosamente');
+    };
+
+    // Manejar selección de archivos
+    const handleFileSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = event.target.files;
+        if (files && files.length > 0) {
+            setSelectedFiles(files);
+        }
+    };
+
+    // Subir fotos
+    const handleUploadPhotos = () => {
+        if (!selectedActivity || !selectedFiles || selectedFiles.length === 0) return;
+
+        const newPhotos: Photo[] = [];
+        
+        Array.from(selectedFiles).forEach((file, index) => {
+            // Crear URL temporal para la imagen
+            const imageUrl = URL.createObjectURL(file);
+            
+            const photo: Photo = {
+                id: `photo-${Date.now()}-${index}`,
+                activityId: selectedActivity.activityId,
+                url: imageUrl,
+                filename: file.name,
+                type: selectedPhotoType,
+                timestamp: new Date().toISOString(),
+                description: photoDescription.trim() || `Foto ${selectedPhotoType}`,
+                uploadedBy: 'Usuario Actual'
+            };
+            
+            newPhotos.push(photo);
+        });
+
+        // Actualizar el estado con las nuevas fotos
+        const updatedWeeklyData = { ...weeklyDataState };
+        const weekData = updatedWeeklyData[currentWeek];
+        const activityIndex = weekData.activities.findIndex(
+            activity => activity.id === selectedActivity.id
+        );
+        
+        if (activityIndex !== -1) {
+            weekData.activities[activityIndex].photos.push(...newPhotos);
+            setWeeklyDataState(updatedWeeklyData);
+            
+            // Actualizar la actividad seleccionada
+            setSelectedActivity({
+                ...selectedActivity,
+                photos: [...selectedActivity.photos, ...newPhotos]
+            });
+        }
+
+        // Limpiar formulario
+        setSelectedFiles(null);
+        setPhotoDescription('');
+        const fileInput = document.getElementById('photoUpload') as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
+        
+        alert(`${newPhotos.length} foto${newPhotos.length > 1 ? 's' : ''} subida${newPhotos.length > 1 ? 's' : ''} exitosamente`);
+    };
+
+    // Eliminar foto
+    const handleDeletePhoto = (photoId: string) => {
+        if (!selectedActivity) return;
+        
+        if (!confirm('¿Estás seguro de que deseas eliminar esta foto?')) return;
+
+        // Actualizar el estado eliminando la foto
+        const updatedWeeklyData = { ...weeklyDataState };
+        const weekData = updatedWeeklyData[currentWeek];
+        const activityIndex = weekData.activities.findIndex(
+            activity => activity.id === selectedActivity.id
+        );
+        
+        if (activityIndex !== -1) {
+            const photoToDelete = weekData.activities[activityIndex].photos.find(p => p.id === photoId);
+            
+            // Revocar la URL del objeto para liberar memoria
+            if (photoToDelete && photoToDelete.url.startsWith('blob:')) {
+                URL.revokeObjectURL(photoToDelete.url);
+            }
+            
+            const updatedPhotos = weekData.activities[activityIndex].photos.filter(
+                photo => photo.id !== photoId
+            );
+            weekData.activities[activityIndex].photos = updatedPhotos;
+            setWeeklyDataState(updatedWeeklyData);
+            
+            // Actualizar la actividad seleccionada
+            setSelectedActivity({
+                ...selectedActivity,
+                photos: updatedPhotos
+            });
+        }
+
+        alert('Foto eliminada exitosamente');
     };
 
     const handleSaveProgress = () => {
         if (!selectedActivity) return;
 
-        // Aquí actualizarías el estado global o localStorage
+        // Crear una copia del estado actual de las semanas
+        const updatedWeeklyData = { ...weeklyDataState };
+        
+        // Encontrar y actualizar la actividad específica
+        const weekData = updatedWeeklyData[currentWeek];
+        const activityIndex = weekData.activities.findIndex(
+            activity => activity.id === selectedActivity.id
+        );
+        
+        if (activityIndex !== -1) {
+            // Actualizar la actividad con los nuevos valores
+            const updatedActivity = {
+                ...weekData.activities[activityIndex],
+                actualProgress: newProgress,
+                status: newStatus as ProgressData['status'],
+                variance: newProgress - weekData.activities[activityIndex].plannedProgress,
+                lastUpdate: new Date().toISOString()
+            };
+            
+            // Actualizar el array de actividades
+            weekData.activities[activityIndex] = updatedActivity;
+            
+            // Actualizar el estado
+            setWeeklyDataState(updatedWeeklyData);
+            
+            // Actualizar la actividad seleccionada para reflejar los cambios en el modal
+            setSelectedActivity(updatedActivity);
+        }
+
+        // Cerrar el modal y mostrar confirmación
         setShowProgressModal(false);
         setActiveTab('progress');
-        alert('Progreso actualizado exitosamente');
+        alert(`Progreso actualizado exitosamente:\n- Progreso: ${newProgress}%\n- Estado: ${statusLabels[newStatus as keyof typeof statusLabels]}`);
     };
 
     const renderProgressTab = () => (
@@ -729,7 +952,7 @@ const ProgressTracking: React.FC = () => {
                 {selectedActivity?.comments.map((comment) => (
                     <div key={comment.id} className="bg-gray-50 rounded-lg p-3">
                         <div className="flex items-start justify-between mb-2">
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-2 flex-1">
                                 <User className="w-4 h-4 text-gray-500" />
                                 <span className="text-sm font-medium text-gray-900">{comment.author}</span>
                                 {!comment.isPublic && (
@@ -738,9 +961,18 @@ const ProgressTracking: React.FC = () => {
                                     </span>
                                 )}
                             </div>
-                            <span className="text-xs text-gray-500">
-                                {new Date(comment.timestamp).toLocaleString('es-PE')}
-                            </span>
+                            <div className="flex items-center space-x-2">
+                                <span className="text-xs text-gray-500">
+                                    {new Date(comment.timestamp).toLocaleString('es-PE')}
+                                </span>
+                                <button
+                                    onClick={() => handleDeleteComment(comment.id)}
+                                    className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-100 rounded transition-colors"
+                                    title="Eliminar comentario"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                            </div>
                         </div>
                         <p className="text-sm text-gray-700">{comment.text}</p>
                     </div>
@@ -782,14 +1014,23 @@ const ProgressTracking: React.FC = () => {
                 {selectedActivity?.issues.map((issue) => (
                     <div key={issue.id} className="border border-red-200 bg-red-50 rounded-lg p-3">
                         <div className="flex items-start justify-between mb-2">
-                            <h4 className="font-medium text-red-900">{issue.title}</h4>
-                            <span className={`px-2 py-1 text-xs rounded-full ${issue.impact === 'critico' ? 'bg-red-200 text-red-800' :
-                                issue.impact === 'alto' ? 'bg-orange-200 text-orange-800' :
-                                    issue.impact === 'medio' ? 'bg-yellow-200 text-yellow-800' :
-                                        'bg-green-200 text-green-800'
-                                }`}>
-                                {issueImpacts[issue.impact]}
-                            </span>
+                            <h4 className="font-medium text-red-900 flex-1">{issue.title}</h4>
+                            <div className="flex items-center space-x-2">
+                                <span className={`px-2 py-1 text-xs rounded-full ${issue.impact === 'critico' ? 'bg-red-200 text-red-800' :
+                                    issue.impact === 'alto' ? 'bg-orange-200 text-orange-800' :
+                                        issue.impact === 'medio' ? 'bg-yellow-200 text-yellow-800' :
+                                            'bg-green-200 text-green-800'
+                                    }`}>
+                                    {issueImpacts[issue.impact]}
+                                </span>
+                                <button
+                                    onClick={() => handleDeleteIssue(issue.id)}
+                                    className="p-1 text-red-600 hover:text-red-800 hover:bg-red-100 rounded transition-colors"
+                                    title="Eliminar problema"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                            </div>
                         </div>
                         <p className="text-sm text-red-800 mb-2">{issue.description}</p>
                         <div className="text-xs text-red-600">
@@ -884,9 +1125,20 @@ const ProgressTracking: React.FC = () => {
                                     alt={photo.description || photo.filename}
                                     className="w-full h-24 object-cover rounded-lg"
                                     onError={(e) => {
-                                        e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMiAxNkM5Ljc5IDEzLjc5IDkuNzkgMTAuMjEgMTIgOCIgc3Ryb2tlPSIjOUI5QkEwIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L3N2Zz4K';
+                                        e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjRjNGNEY2Ci8+CjxwYXRoIGQ9Ik0xMiAxNkM5Ljc5IDEzLjc5IDkuNzkgMTAuMjEgMTIgOCIgc3Ryb2tlPSIjOUI5QkEwIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L3N2Zz4K';
                                     }}
                                 />
+                                {/* Overlay con información */}
+                                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 rounded-lg flex items-center justify-center">
+                                    <button
+                                        onClick={() => handleDeletePhoto(photo.id)}
+                                        className="opacity-0 group-hover:opacity-100 p-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-all"
+                                        title="Eliminar foto"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
+                                </div>
+                                {/* Etiqueta de tipo */}
                                 <div className="absolute bottom-1 left-1 right-1">
                                     <span className={`px-1 py-0.5 text-xs rounded ${photo.type === 'antes' ? 'bg-gray-800 text-white' :
                                         photo.type === 'durante' ? 'bg-blue-800 text-white' :
@@ -895,6 +1147,12 @@ const ProgressTracking: React.FC = () => {
                                                     'bg-purple-800 text-white'
                                         }`}>
                                         {photoTypes[photo.type]}
+                                    </span>
+                                </div>
+                                {/* Nombre del archivo */}
+                                <div className="absolute top-1 left-1 right-1">
+                                    <span className="px-1 py-0.5 text-xs bg-black bg-opacity-60 text-white rounded truncate block">
+                                        {photo.filename}
                                     </span>
                                 </div>
                             </div>
@@ -933,6 +1191,27 @@ const ProgressTracking: React.FC = () => {
                             placeholder="Describe lo que muestra la foto..."
                         />
                     </div>
+                    
+                    {/* Vista previa de archivos seleccionados */}
+                    {selectedFiles && selectedFiles.length > 0 && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            <h4 className="text-sm font-medium text-blue-900 mb-2">
+                                Archivos seleccionados ({selectedFiles.length}):
+                            </h4>
+                            <div className="space-y-1">
+                                {Array.from(selectedFiles).map((file, index) => (
+                                    <div key={index} className="flex items-center space-x-2 text-sm text-blue-800">
+                                        <Camera className="w-4 h-4" />
+                                        <span className="truncate">{file.name}</span>
+                                        <span className="text-xs text-blue-600">
+                                            ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Seleccionar Fotos
@@ -944,7 +1223,7 @@ const ProgressTracking: React.FC = () => {
                                 type="file"
                                 multiple
                                 accept="image/*"
-                                onChange={() => alert('Funcionalidad de subida de fotos simulada')}
+                                onChange={handleFileSelection}
                                 className="hidden"
                                 id="photoUpload"
                             />
@@ -955,6 +1234,15 @@ const ProgressTracking: React.FC = () => {
                                 Seleccionar Fotos
                             </label>
                         </div>
+                        {selectedFiles && selectedFiles.length > 0 && (
+                            <button
+                                onClick={handleUploadPhotos}
+                                className="w-full mt-3 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center"
+                            >
+                                <Camera className="w-4 h-4 mr-2" />
+                                Subir {selectedFiles.length} foto{selectedFiles.length > 1 ? 's' : ''}
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -1302,6 +1590,10 @@ const ProgressTracking: React.FC = () => {
                                     setNewComment('');
                                     setNewIssue({ title: '', description: '', category: 'material', impact: 'medio' });
                                     setPhotoDescription('');
+                                    setSelectedFiles(null);
+                                    // Limpiar input de archivos
+                                    const fileInput = document.getElementById('photoUpload') as HTMLInputElement;
+                                    if (fileInput) fileInput.value = '';
                                     //setEditingIssue(null);
                                 }}
                                 className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"

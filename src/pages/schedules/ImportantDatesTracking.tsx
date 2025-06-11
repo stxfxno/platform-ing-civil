@@ -41,15 +41,27 @@ interface NotificationSetting {
 }
 
 const ImportantDatesTracking: React.FC = () => {
-    const [selectedView, setSelectedView] = useState<'calendar' | 'list' | 'timeline'>('calendar');
-    const [selectedMonth,] = useState(new Date()); //setSelectedMonth
+    const [selectedView, setSelectedView] = useState<'calendar' | 'timeline'>('calendar');
+    const [selectedMonth, setSelectedMonth] = useState(new Date());
     const [selectedType, setSelectedType] = useState<string>('all');
     const [showAddForm, setShowAddForm] = useState(false);
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-    const [newDateTitle, setNewDateTitle] = useState('');
-    const [newDateDate, setNewDateDate] = useState('');
+    
+    // Form state
+    const [formData, setFormData] = useState({
+        title: '',
+        description: '',
+        date: '',
+        type: 'milestone' as ImportantDate['type'],
+        priority: 'medium' as ImportantDate['priority'],
+        assignedTo: '',
+        location: '',
+        notificationEnabled: true,
+        notificationAdvance: 3
+    });
 
-    const importantDates: ImportantDate[] = [
+    // Make importantDates a state so we can add to it
+    const [importantDates, setImportantDates] = useState<ImportantDate[]>([
         {
             id: 'date-001',
             title: 'Entrega Final Submittals HVAC',
@@ -156,7 +168,64 @@ const ImportantDatesTracking: React.FC = () => {
                 recipients: ['legal-department', 'project-manager']
             }
         }
-    ];
+    ]);
+
+    // Add new date function
+    const addNewDate = () => {
+        if (formData.title && formData.date) {
+            const newDate: ImportantDate = {
+                id: `date-${Date.now()}`,
+                title: formData.title,
+                description: formData.description,
+                date: formData.date,
+                type: formData.type,
+                status: 'upcoming',
+                priority: formData.priority,
+                assignedTo: formData.assignedTo,
+                location: formData.location,
+                relatedActivities: [],
+                notifications: {
+                    enabled: formData.notificationEnabled,
+                    advance: formData.notificationAdvance,
+                    recipients: []
+                }
+            };
+            
+            setImportantDates([...importantDates, newDate]);
+            setShowAddForm(false);
+            setShowSuccessMessage(true);
+            
+            // Reset form
+            setFormData({
+                title: '',
+                description: '',
+                date: '',
+                type: 'milestone',
+                priority: 'medium',
+                assignedTo: '',
+                location: '',
+                notificationEnabled: true,
+                notificationAdvance: 3
+            });
+            
+            setTimeout(() => setShowSuccessMessage(false), 3000);
+        }
+    };
+
+    const cancelAddForm = () => {
+        setShowAddForm(false);
+        setFormData({
+            title: '',
+            description: '',
+            date: '',
+            type: 'milestone',
+            priority: 'medium',
+            assignedTo: '',
+            location: '',
+            notificationEnabled: true,
+            notificationAdvance: 3
+        });
+    };
 
     const dateTypes = [
         { value: 'all', label: 'Todas las Fechas', icon: Calendar },
@@ -167,17 +236,6 @@ const ImportantDatesTracking: React.FC = () => {
         { value: 'meeting', label: 'Reuniones', icon: Users },
         { value: 'permit', label: 'Permisos', icon: Star }
     ];
-
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'completed': return 'text-green-600 bg-green-50 border-green-200';
-            case 'today': return 'text-blue-600 bg-blue-50 border-blue-200';
-            case 'upcoming': return 'text-gray-600 bg-gray-50 border-gray-200';
-            case 'at_risk': return 'text-orange-600 bg-orange-50 border-orange-200';
-            case 'missed': return 'text-red-600 bg-red-50 border-red-200';
-            default: return 'text-gray-600 bg-gray-50 border-gray-200';
-        }
-    };
 
     const getPriorityColor = (priority: string) => {
         switch (priority) {
@@ -210,22 +268,63 @@ const ImportantDatesTracking: React.FC = () => {
         });
     };
 
-    const formatDateLong = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('es-PE', {
-            weekday: 'long',
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric'
-        });
-    };
-
     const getDaysUntil = (dateString: string) => {
         const today = new Date();
         const targetDate = new Date(dateString);
         const diffTime = targetDate.getTime() - today.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
+    };
+
+    // Funciones para navegación de calendario
+    const goToPreviousMonth = () => {
+        setSelectedMonth(prev => {
+            const newDate = new Date(prev);
+            newDate.setMonth(prev.getMonth() - 1);
+            return newDate;
+        });
+    };
+
+    const goToNextMonth = () => {
+        setSelectedMonth(prev => {
+            const newDate = new Date(prev);
+            newDate.setMonth(prev.getMonth() + 1);
+            return newDate;
+        });
+    };
+
+    // Función para generar días del calendario
+    const generateCalendarDays = () => {
+        const year = selectedMonth.getFullYear();
+        const month = selectedMonth.getMonth();
+        
+        // Primer día del mes
+        const firstDay = new Date(year, month, 1);
+        // Último día del mes
+        const lastDay = new Date(year, month + 1, 0);
+        // Día de la semana del primer día (0 = domingo, 1 = lunes, etc.)
+        const startingDayOfWeek = firstDay.getDay();
+        // Total de días en el mes
+        const daysInMonth = lastDay.getDate();
+        
+        const days = [];
+        
+        // Agregar días vacíos del mes anterior
+        for (let i = 0; i < startingDayOfWeek; i++) {
+            days.push(null);
+        }
+        
+        // Agregar días del mes actual
+        for (let day = 1; day <= daysInMonth; day++) {
+            days.push(day);
+        }
+        
+        // Completar la grilla con días del siguiente mes si es necesario
+        while (days.length < 42) { // 6 semanas * 7 días
+            days.push(null);
+        }
+        
+        return days;
     };
 
     const filteredDates = importantDates.filter(date =>
@@ -342,13 +441,19 @@ const ImportantDatesTracking: React.FC = () => {
                     </div>
 
                     <div className="flex items-center space-x-2">
-                        <button className="p-2 text-gray-400 hover:text-gray-600">
+                        <button 
+                            onClick={goToPreviousMonth}
+                            className="p-2 text-gray-400 hover:text-gray-600"
+                        >
                             <ChevronLeft className="w-4 h-4" />
                         </button>
                         <span className="text-sm font-medium text-gray-900">
                             {selectedMonth.toLocaleDateString('es-PE', { month: 'long', year: 'numeric' })}
                         </span>
-                        <button className="p-2 text-gray-400 hover:text-gray-600">
+                        <button 
+                            onClick={goToNextMonth}
+                            className="p-2 text-gray-400 hover:text-gray-600"
+                        >
                             <ChevronRight className="w-4 h-4" />
                         </button>
                         <button className="flex items-center px-3 py-2 text-sm bg-gray-100 rounded-lg hover:bg-gray-200">
@@ -374,11 +479,15 @@ const ImportantDatesTracking: React.FC = () => {
                     </div>
 
                     <div className="grid grid-cols-7 gap-1">
-                        {Array.from({ length: 35 }, (_, i) => {
-                            const dayNumber = i - 2; // Ajustar para empezar en el día correcto
-                            const isCurrentMonth = dayNumber > 0 && dayNumber <= 31;
-                            const currentDate = `2025-05-${dayNumber.toString().padStart(2, '0')}`;
-                            const dayEvents = filteredDates.filter(date => date.date === currentDate);
+                        {generateCalendarDays().map((day, i) => {
+                            const year = selectedMonth.getFullYear();
+                            const month = selectedMonth.getMonth();
+                            const isCurrentMonth = day !== null;
+                            const currentDate = day ? 
+                                `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}` 
+                                : '';
+                            const dayEvents = isCurrentMonth ? 
+                                filteredDates.filter(date => date.date === currentDate) : [];
 
                             return (
                                 <div
@@ -386,10 +495,10 @@ const ImportantDatesTracking: React.FC = () => {
                                     className={`h-32 border border-gray-200 p-2 ${isCurrentMonth ? 'bg-white' : 'bg-gray-50'
                                         }`}
                                 >
-                                    {isCurrentMonth && (
+                                    {isCurrentMonth && day && (
                                         <>
-                                            <div className={`text-sm mb-2 ${dayEvents.length > 0 ? 'font-semibold' : 'text-gray-600'}`}>
-                                                {dayNumber}
+                                            <div className={`text-sm mb-2 ${dayEvents.length > 0 ? 'font-semibold text-blue-600' : 'text-gray-600'}`}>
+                                                {day}
                                             </div>
                                             <div className="space-y-1">
                                                 {dayEvents.slice(0, 2).map((event, idx) => (
@@ -418,75 +527,6 @@ const ImportantDatesTracking: React.FC = () => {
                                 </div>
                             );
                         })}
-                    </div>
-                </div>
-            )}
-
-            {/* List View */}
-            {selectedView === 'list' && (
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <h2 className="text-lg font-semibold text-gray-900 mb-4">Lista de Fechas Importantes</h2>
-
-                    <div className="space-y-4">
-                        {filteredDates
-                            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-                            .map((date) => (
-                                <div key={date.id} className={`border rounded-lg p-4 ${getStatusColor(date.status)}`}>
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex-1">
-                                            <div className="flex items-center space-x-3 mb-2">
-                                                <div className={`p-2 rounded-lg ${getPriorityColor(date.priority)}`}>
-                                                    {getTypeIcon(date.type)}
-                                                </div>
-                                                <div>
-                                                    <h3 className="font-semibold text-gray-900">{date.title}</h3>
-                                                    <p className="text-sm text-gray-600">{date.description}</p>
-                                                </div>
-                                            </div>
-
-                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
-                                                <div className="flex items-center text-sm text-gray-600">
-                                                    <Calendar className="w-4 h-4 mr-2" />
-                                                    <span>{formatDateLong(date.date)}</span>
-                                                </div>
-                                                {date.location && (
-                                                    <div className="flex items-center text-sm text-gray-600">
-                                                        <MapPin className="w-4 h-4 mr-2" />
-                                                        <span>{date.location}</span>
-                                                    </div>
-                                                )}
-                                                <div className="flex items-center text-sm text-gray-600">
-                                                    <Users className="w-4 h-4 mr-2" />
-                                                    <span>{date.assignedTo}</span>
-                                                </div>
-                                            </div>
-
-                                            {date.relatedActivities.length > 0 && (
-                                                <div className="mt-3 flex items-center">
-                                                    <span className="text-sm text-gray-500 mr-2">Actividades relacionadas:</span>
-                                                    <span className="text-sm font-medium text-blue-600">
-                                                        {date.relatedActivities.length} actividades
-                                                    </span>
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div className="text-right ml-4">
-                                            <span className={`px-3 py-1 text-sm font-medium rounded-full ${getPriorityColor(date.priority)}`}>
-                                                {date.priority === 'critical' ? 'CRÍTICO' :
-                                                    date.priority === 'high' ? 'ALTO' :
-                                                        date.priority === 'medium' ? 'MEDIO' : 'BAJO'}
-                                            </span>
-                                            <div className="mt-2 text-sm text-gray-500">
-                                                {getDaysUntil(date.date) >= 0
-                                                    ? `${getDaysUntil(date.date)} días restantes`
-                                                    : `${Math.abs(getDaysUntil(date.date))} días de retraso`
-                                                }
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
                     </div>
                 </div>
             )}
@@ -652,59 +692,178 @@ const ImportantDatesTracking: React.FC = () => {
                 </div>
             </div>
 
-            {/* Simple Add Date Form */}
+            {/* Complete Add Date Form */}
             {showAddForm && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-96 max-w-md mx-4">
-                        <h3 className="text-lg font-semibold mb-4">Agregar Nueva Fecha</h3>
+                    <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+                        <h3 className="text-lg font-semibold mb-4">Agregar Nueva Fecha Importante</h3>
                         <div className="space-y-4">
+                            {/* Título */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Título
+                                    Título *
                                 </label>
                                 <input
                                     type="text"
-                                    value={newDateTitle}
-                                    onChange={(e) => setNewDateTitle(e.target.value)}
+                                    value={formData.title}
+                                    onChange={(e) => setFormData({...formData, title: e.target.value})}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                    placeholder="Ingrese el título de la fecha"
+                                    placeholder="Ej: Entrega Final Submittals HVAC"
+                                    required
                                 />
                             </div>
+
+                            {/* Descripción */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Fecha
+                                    Descripción
                                 </label>
-                                <input
-                                    type="date"
-                                    value={newDateDate}
-                                    onChange={(e) => setNewDateDate(e.target.value)}
+                                <textarea
+                                    value={formData.description}
+                                    onChange={(e) => setFormData({...formData, description: e.target.value})}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    placeholder="Descripción detallada de la actividad o fecha importante"
+                                    rows={3}
                                 />
                             </div>
-                            <div className="flex justify-end space-x-3 pt-4">
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Fecha */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Fecha *
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={formData.date}
+                                        onChange={(e) => setFormData({...formData, date: e.target.value})}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        required
+                                    />
+                                </div>
+
+                                {/* Tipo */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Tipo *
+                                    </label>
+                                    <select
+                                        value={formData.type}
+                                        onChange={(e) => setFormData({...formData, type: e.target.value as ImportantDate['type']})}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        required
+                                    >
+                                        <option value="milestone">Hito</option>
+                                        <option value="deadline">Fecha Límite</option>
+                                        <option value="inspection">Inspección</option>
+                                        <option value="delivery">Entrega</option>
+                                        <option value="meeting">Reunión</option>
+                                        <option value="permit">Permiso</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Prioridad */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Prioridad
+                                    </label>
+                                    <select
+                                        value={formData.priority}
+                                        onChange={(e) => setFormData({...formData, priority: e.target.value as ImportantDate['priority']})}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    >
+                                        <option value="low">Baja</option>
+                                        <option value="medium">Media</option>
+                                        <option value="high">Alta</option>
+                                        <option value="critical">Crítica</option>
+                                    </select>
+                                </div>
+
+                                {/* Responsable */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Responsable
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.assignedTo}
+                                        onChange={(e) => setFormData({...formData, assignedTo: e.target.value})}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        placeholder="Ej: HVAC Solutions S.A.C."
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Ubicación */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Ubicación
+                                </label>
+                                <input
+                                    type="text"
+                                    value={formData.location}
+                                    onChange={(e) => setFormData({...formData, location: e.target.value})}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    placeholder="Ej: Oficina de Proyecto, Sótano Principal"
+                                />
+                            </div>
+
+                            {/* Configuración de Notificaciones */}
+                            <div className="border-t pt-4">
+                                <h4 className="text-sm font-medium text-gray-900 mb-3">Configuración de Notificaciones</h4>
+                                
+                                <div className="flex items-center justify-between mb-4">
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-700">Habilitar notificaciones</p>
+                                        <p className="text-xs text-gray-500">Recibir recordatorios antes de la fecha</p>
+                                    </div>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={formData.notificationEnabled}
+                                            onChange={(e) => setFormData({...formData, notificationEnabled: e.target.checked})}
+                                            className="sr-only peer" 
+                                        />
+                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                                    </label>
+                                </div>
+
+                                {formData.notificationEnabled && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Días de anticipación
+                                        </label>
+                                        <select
+                                            value={formData.notificationAdvance}
+                                            onChange={(e) => setFormData({...formData, notificationAdvance: parseInt(e.target.value)})}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        >
+                                            <option value={1}>1 día antes</option>
+                                            <option value={3}>3 días antes</option>
+                                            <option value={5}>5 días antes</option>
+                                            <option value={7}>7 días antes</option>
+                                            <option value={15}>15 días antes</option>
+                                        </select>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Botones */}
+                            <div className="flex justify-end space-x-3 pt-6 border-t">
                                 <button
-                                    onClick={() => {
-                                        setShowAddForm(false);
-                                        setNewDateTitle('');
-                                        setNewDateDate('');
-                                    }}
-                                    className="px-4 py-2 text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200"
+                                    onClick={cancelAddForm}
+                                    className="px-4 py-2 text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
                                 >
                                     Cancelar
                                 </button>
                                 <button
-                                    onClick={() => {
-                                        if (newDateTitle && newDateDate) {
-                                            setShowAddForm(false);
-                                            setShowSuccessMessage(true);
-                                            setNewDateTitle('');
-                                            setNewDateDate('');
-                                            setTimeout(() => setShowSuccessMessage(false), 3000);
-                                        }
-                                    }}
-                                    className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+                                    onClick={addNewDate}
+                                    disabled={!formData.title || !formData.date}
+                                    className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                                 >
-                                    Agregar
+                                    Agregar Fecha
                                 </button>
                             </div>
                         </div>

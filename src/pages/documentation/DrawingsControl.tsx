@@ -10,7 +10,11 @@ import {
     CheckCircle,
     Clock,
     AlertCircle,
-    ArrowLeft
+    ArrowLeft,
+    Upload,
+    X,
+    Save,
+    Trash2
 } from 'lucide-react';
 import { downloadFile, previewFile } from '../../utils/fileUtils'; //canPreviewInBrowser
 
@@ -18,7 +22,8 @@ interface Drawing {
     id: string;
     drawingNumber: string;
     title: string;
-    discipline: string;
+    discipline: 'Mecanicas' | 'Plomeria' | 'Electricas';
+    subcontractor: string;
     revision: string;
     revisionDate: string;
     status: 'draft' | 'review' | 'approved' | 'superseded';
@@ -31,7 +36,8 @@ const mockDrawings: Drawing[] = [
         id: '1',
         drawingNumber: 'E-001',
         title: 'Plano General Eléctrico - Piso 1',
-        discipline: 'Eléctrico',
+        discipline: 'Electricas',
+        subcontractor: 'Electro Instalaciones SAC',
         revision: 'Rev-03',
         revisionDate: '2025-05-20',
         status: 'approved',
@@ -42,7 +48,8 @@ const mockDrawings: Drawing[] = [
         id: '2',
         drawingNumber: 'M-101',
         title: 'Ductos HVAC - Zona A Sótano',
-        discipline: 'Eléctrico',
+        discipline: 'Mecanicas',
+        subcontractor: 'Climatización Total SAC',
         revision: 'Rev-02',
         revisionDate: '2025-05-22',
         status: 'review',
@@ -53,7 +60,8 @@ const mockDrawings: Drawing[] = [
         id: '3',
         drawingNumber: 'P-201',
         title: 'Sistema de Plomería - Piso 2',
-        discipline: 'Plomería',
+        discipline: 'Plomeria',
+        subcontractor: 'Plomería Industrial EIRL',
         revision: 'Rev-01',
         revisionDate: '2025-05-19',
         status: 'draft',
@@ -65,6 +73,7 @@ const mockDrawings: Drawing[] = [
         drawingNumber: 'FP-101',
         title: 'Sistema Contra Incendios - Área General',
         discipline: 'Mecanicas',
+        subcontractor: 'Protección Contra Incendios SAC',
         revision: 'Rev-02',
         revisionDate: '2025-05-18',
         status: 'approved',
@@ -75,7 +84,8 @@ const mockDrawings: Drawing[] = [
         id: '5',
         drawingNumber: 'E-003',
         title: 'Tableros Eléctricos - Piso 3',
-        discipline: 'Eléctrico',
+        discipline: 'Electricas',
+        subcontractor: 'Electro Instalaciones SAC',
         revision: 'Rev-01',
         revisionDate: '2025-05-15',
         status: 'superseded',
@@ -85,9 +95,39 @@ const mockDrawings: Drawing[] = [
 ];
 
 const DrawingsControl: React.FC = () => {
+    // Estado para los planos (copia local de mockDrawings que se puede modificar)
+    const [drawings, setDrawings] = useState<Drawing[]>(mockDrawings);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
     const [filterDiscipline, setFilterDiscipline] = useState('all');
+    const [showUploadModal, setShowUploadModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    
+    // Formulario para subir plano
+    const [uploadForm, setUploadForm] = useState({
+        discipline: 'Mecanicas' as Drawing['discipline'],
+        subcontractor: '',
+        fecha: '',
+        author: '',
+        documento: null as File | null,
+        drawingNumber: '',
+        title: '',
+        revision: 'Rev-01'
+    });
+
+    // Formulario para editar plano
+    const [editForm, setEditForm] = useState<Drawing>({
+        id: '',
+        drawingNumber: '',
+        title: '',
+        discipline: 'Mecanicas',
+        subcontractor: '',
+        revision: '',
+        revisionDate: '',
+        status: 'draft',
+        author: '',
+        fileSize: ''
+    });
 
     const getStatusIcon = (status: string) => {
         switch (status) {
@@ -129,7 +169,90 @@ const DrawingsControl: React.FC = () => {
         previewFile('documento_prueba.docx', `${drawing.drawingNumber} - ${drawing.title}`);
     };
 
-    const filteredDrawings = mockDrawings.filter(drawing => {
+    const handleUploadSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        // Verificar si ya existe un plano con el mismo número
+        const existingDrawing = drawings.find(d => d.drawingNumber === uploadForm.drawingNumber);
+        if (existingDrawing) {
+            alert('Ya existe un plano con ese número. Por favor, usa un número diferente.');
+            return;
+        }
+        
+        // Crear nuevo plano con ID único
+        const newDrawing: Drawing = {
+            id: Date.now().toString(),
+            drawingNumber: uploadForm.drawingNumber,
+            title: uploadForm.title,
+            discipline: uploadForm.discipline,
+            subcontractor: uploadForm.subcontractor,
+            revision: uploadForm.revision,
+            revisionDate: uploadForm.fecha,
+            status: 'draft',
+            author: uploadForm.author,
+            fileSize: uploadForm.documento ? `${(uploadForm.documento.size / (1024 * 1024)).toFixed(1)} MB` : '0 MB'
+        };
+
+        // Agregar el nuevo plano al estado
+        setDrawings(prev => [...prev, newDrawing]);
+        
+        // Cerrar modal y limpiar formulario
+        setShowUploadModal(false);
+        resetUploadForm();
+        
+        console.log('Plano subido exitosamente:', newDrawing);
+    };
+
+    const handleEdit = (drawing: Drawing) => {
+        setEditForm(drawing);
+        setShowEditModal(true);
+    };
+
+    const handleEditSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        // Verificar si ya existe un plano con el mismo número (excluyendo el actual)
+        const existingDrawing = drawings.find(d => d.drawingNumber === editForm.drawingNumber && d.id !== editForm.id);
+        if (existingDrawing) {
+            alert('Ya existe otro plano con ese número. Por favor, usa un número diferente.');
+            return;
+        }
+        
+        // Actualizar el plano en el estado
+        setDrawings(prev => prev.map(drawing => 
+            drawing.id === editForm.id ? editForm : drawing
+        ));
+        
+        setShowEditModal(false);
+        console.log('Plano editado exitosamente:', editForm);
+    };
+
+    const handleDelete = (drawingId: string) => {
+        if (window.confirm('¿Estás seguro de que deseas eliminar este plano?')) {
+            setDrawings(prev => prev.filter(drawing => drawing.id !== drawingId));
+            console.log('Plano eliminado:', drawingId);
+        }
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] || null;
+        setUploadForm(prev => ({ ...prev, documento: file }));
+    };
+
+    const resetUploadForm = () => {
+        setUploadForm({
+            discipline: 'Mecanicas',
+            subcontractor: '',
+            fecha: '',
+            author: '',
+            documento: null,
+            drawingNumber: '',
+            title: '',
+            revision: 'Rev-01'
+        });
+    };
+
+    const filteredDrawings = drawings.filter(drawing => {
         const matchesSearch = drawing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             drawing.drawingNumber.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = filterStatus === 'all' || drawing.status === filterStatus;
@@ -138,7 +261,7 @@ const DrawingsControl: React.FC = () => {
         return matchesSearch && matchesStatus && matchesDiscipline;
     });
 
-    const disciplines = Array.from(new Set(mockDrawings.map(d => d.discipline)));
+    const disciplines = Array.from(new Set(drawings.map(d => d.discipline)));
 
     return (
         <div className="space-y-6">
@@ -156,7 +279,10 @@ const DrawingsControl: React.FC = () => {
                         <p className="text-gray-600">Gestión y control de versiones de planos técnicos MEP</p>
                     </div>
                 </div>
-                <button className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center space-x-2">
+                <button 
+                    onClick={() => setShowUploadModal(true)}
+                    className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center space-x-2"
+                >
                     <FileText className="w-4 h-4" />
                     <span>Subir Plano</span>
                 </button>
@@ -170,7 +296,7 @@ const DrawingsControl: React.FC = () => {
                             <FileText className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                            <p className="text-2xl font-bold text-gray-900">{mockDrawings.length}</p>
+                            <p className="text-2xl font-bold text-gray-900">{drawings.length}</p>
                             <p className="text-sm text-gray-600">Total Planos</p>
                         </div>
                     </div>
@@ -183,7 +309,7 @@ const DrawingsControl: React.FC = () => {
                         </div>
                         <div>
                             <p className="text-2xl font-bold text-green-600">
-                                {mockDrawings.filter(d => d.status === 'approved').length}
+                                {drawings.filter(d => d.status === 'approved').length}
                             </p>
                             <p className="text-sm text-gray-600">Aprobados</p>
                         </div>
@@ -197,9 +323,23 @@ const DrawingsControl: React.FC = () => {
                         </div>
                         <div>
                             <p className="text-2xl font-bold text-yellow-600">
-                                {mockDrawings.filter(d => d.status === 'review').length}
+                                {drawings.filter(d => d.status === 'review').length}
                             </p>
                             <p className="text-sm text-gray-600">En Revisión</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <div className="flex items-center space-x-3">
+                        <div className="bg-gray-500 p-2 rounded-lg">
+                            <Edit className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                            <p className="text-2xl font-bold text-gray-600">
+                                {drawings.filter(d => d.status === 'draft').length}
+                            </p>
+                            <p className="text-sm text-gray-600">Borradores</p>
                         </div>
                     </div>
                 </div>
@@ -261,6 +401,9 @@ const DrawingsControl: React.FC = () => {
                                     Disciplina
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Subcontrata
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Revisión
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -298,6 +441,9 @@ const DrawingsControl: React.FC = () => {
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {drawing.discipline}
                                     </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                        {drawing.subcontractor}
+                                    </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="text-sm text-gray-900">{drawing.revision}</div>
                                         <div className="text-xs text-gray-500">{drawing.revisionDate}</div>
@@ -327,8 +473,19 @@ const DrawingsControl: React.FC = () => {
                                             >
                                                 <Download className="w-4 h-4" />
                                             </button>
-                                            <button className="text-gray-600 hover:text-gray-900 p-1 rounded transition-colors">
+                                            <button 
+                                                onClick={() => handleEdit(drawing)}
+                                                className="text-gray-600 hover:text-gray-900 p-1 rounded transition-colors"
+                                                title="Editar"
+                                            >
                                                 <Edit className="w-4 h-4" />
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDelete(drawing.id)}
+                                                className="text-red-600 hover:text-red-900 p-1 rounded transition-colors"
+                                                title="Eliminar"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
                                             </button>
                                         </div>
                                     </td>
@@ -345,6 +502,309 @@ const DrawingsControl: React.FC = () => {
                     </div>
                 )}
             </div>
+
+            {/* Modal para Subir Plano */}
+            {showUploadModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+                        <div className="p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900">Subir Plano</h2>
+                                <button
+                                    onClick={() => {
+                                        setShowUploadModal(false);
+                                        resetUploadForm();
+                                    }}
+                                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleUploadSubmit} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Disciplina <span className="text-red-500">*</span>
+                                    </label>
+                                    <select
+                                        value={uploadForm.discipline}
+                                        onChange={(e) => setUploadForm(prev => ({ 
+                                            ...prev, 
+                                            discipline: e.target.value as Drawing['discipline'] 
+                                        }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        required
+                                    >
+                                        <option value="Mecanicas">Mecánicas</option>
+                                        <option value="Plomeria">Plomería</option>
+                                        <option value="Electricas">Eléctricas</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Subcontrata <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={uploadForm.subcontractor}
+                                        onChange={(e) => setUploadForm(prev => ({ ...prev, subcontractor: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        placeholder="Nombre de la subcontrata"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Fecha <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={uploadForm.fecha}
+                                        onChange={(e) => setUploadForm(prev => ({ ...prev, fecha: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Autor <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={uploadForm.author}
+                                        onChange={(e) => setUploadForm(prev => ({ ...prev, author: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        placeholder="Nombre del autor"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Número de Plano <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={uploadForm.drawingNumber}
+                                        onChange={(e) => setUploadForm(prev => ({ ...prev, drawingNumber: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        placeholder="Ej: E-001"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Título <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={uploadForm.title}
+                                        onChange={(e) => setUploadForm(prev => ({ ...prev, title: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        placeholder="Título del plano"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Documento <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="file"
+                                        onChange={handleFileChange}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        accept=".pdf,.dwg,.dxf"
+                                        required
+                                    />
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        Formatos aceptados: PDF, DWG, DXF
+                                    </p>
+                                </div>
+
+                                <div className="flex justify-end space-x-3 pt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowUploadModal(false);
+                                            resetUploadForm();
+                                        }}
+                                        className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center space-x-2"
+                                    >
+                                        <Upload className="w-4 h-4" />
+                                        <span>Subir Plano</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal para Editar Plano */}
+            {showEditModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+                        <div className="p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-xl font-semibold text-gray-900">Editar Plano</h2>
+                                <button
+                                    onClick={() => setShowEditModal(false)}
+                                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleEditSubmit} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Número de Plano <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={editForm.drawingNumber}
+                                        onChange={(e) => setEditForm(prev => ({ ...prev, drawingNumber: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Título <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={editForm.title}
+                                        onChange={(e) => setEditForm(prev => ({ ...prev, title: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Disciplina <span className="text-red-500">*</span>
+                                    </label>
+                                    <select
+                                        value={editForm.discipline}
+                                        onChange={(e) => setEditForm(prev => ({ 
+                                            ...prev, 
+                                            discipline: e.target.value as Drawing['discipline'] 
+                                        }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        required
+                                    >
+                                        <option value="Mecanicas">Mecánicas</option>
+                                        <option value="Plomeria">Plomería</option>
+                                        <option value="Electricas">Eléctricas</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Subcontrata <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={editForm.subcontractor}
+                                        onChange={(e) => setEditForm(prev => ({ ...prev, subcontractor: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Revisión <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={editForm.revision}
+                                        onChange={(e) => setEditForm(prev => ({ ...prev, revision: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Fecha de Revisión <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={editForm.revisionDate}
+                                        onChange={(e) => setEditForm(prev => ({ ...prev, revisionDate: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Estado <span className="text-red-500">*</span>
+                                    </label>
+                                    <select
+                                        value={editForm.status}
+                                        onChange={(e) => setEditForm(prev => ({ 
+                                            ...prev, 
+                                            status: e.target.value as Drawing['status'] 
+                                        }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        required
+                                    >
+                                        <option value="draft">Borrador</option>
+                                        <option value="review">En Revisión</option>
+                                        <option value="approved">Aprobado</option>
+                                        <option value="superseded">Superseded</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Autor <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={editForm.author}
+                                        onChange={(e) => setEditForm(prev => ({ ...prev, author: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="flex justify-end space-x-3 pt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowEditModal(false)}
+                                        className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors flex items-center space-x-2"
+                                    >
+                                        <Save className="w-4 h-4" />
+                                        <span>Guardar Cambios</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
