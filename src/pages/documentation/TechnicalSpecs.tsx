@@ -6,7 +6,6 @@ import {
     Search,
     Download,
     Edit,
-    CheckCircle,
     ArrowLeft,
     Tag,
     Upload,
