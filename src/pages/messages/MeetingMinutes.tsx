@@ -74,6 +74,82 @@ const initialMockMeetings: MeetingMinute[] = [
         notes: 'Se identificaron conflictos en zona norte que requieren atención inmediata',
         createdAt: '2025-05-23T10:00:00Z',
         updatedAt: '2025-05-23T12:00:00Z'
+    },
+    {
+        id: '2',
+        title: 'Revisión Técnica - Sistema de Protección Contra Incendios',
+        date: '2025-06-15',
+        time: '14:30',
+        type: 'technical',
+        attendees: ['Ing. Roberto Medina', 'Ing. Patricia Silva', 'Especialista Fire Protection', 'Inspector Municipal'],
+        decisions: [
+            { id: 'd3', description: 'Aprobar sistema de rociadores propuesto', responsible: 'Ing. Roberto Medina', priority: 'high' },
+            { id: 'd4', description: 'Instalar detectores adicionales en área de servidores', responsible: 'Especialista Fire Protection', priority: 'high' },
+            { id: 'd5', description: 'Modificar salidas de emergencia según normativa', responsible: 'Ing. Patricia Silva', priority: 'high' }
+        ],
+        actionItems: [
+            { id: 'a3', description: 'Presentar certificación de equipos contra incendios', responsible: 'Especialista Fire Protection', dueDate: '2025-06-20', priority: 'high', status: 'pending' },
+            { id: 'a4', description: 'Coordinar pruebas hidráulicas con bomberos', responsible: 'Ing. Roberto Medina', dueDate: '2025-06-25', priority: 'high', status: 'pending' },
+            { id: 'a5', description: 'Actualizar planos de rutas de evacuación', responsible: 'Ing. Patricia Silva', dueDate: '2025-06-18', priority: 'medium', status: 'in-progress' }
+        ],
+        status: 'scheduled',
+        organizer: 'Ing. Roberto Medina',
+        location: 'Oficina de Seguridad - Piso 2',
+        objective: 'Revisar y aprobar el sistema completo de protección contra incendios antes de la instalación',
+        notes: 'Reunión crítica para obtener aprobaciones finales. Presencia del inspector municipal es obligatoria.',
+        createdAt: '2025-06-10T14:30:00Z',
+        updatedAt: '2025-06-10T14:30:00Z'
+    },
+    {
+        id: '3',
+        title: 'Seguimiento de Progreso Mensual - Mayo 2025',
+        date: '2025-05-30',
+        time: '09:00',
+        type: 'progress',
+        attendees: ['Project Manager', 'Ing. Luis Fernández', 'Coordinador HVAC', 'Coordinador Eléctrico', 'Coordinador Plomería', 'Cliente Principal'],
+        decisions: [
+            { id: 'd6', description: 'Acelerar instalación eléctrica en piso 3', responsible: 'Coordinador Eléctrico', priority: 'high' },
+            { id: 'd7', description: 'Solicitar recursos adicionales para HVAC', responsible: 'Coordinador HVAC', priority: 'medium' },
+            { id: 'd8', description: 'Reorganizar cronograma de plomería', responsible: 'Coordinador Plomería', priority: 'medium' }
+        ],
+        actionItems: [
+            { id: 'a6', description: 'Generar reporte detallado de avance por disciplina', responsible: 'Project Manager', dueDate: '2025-06-02', priority: 'high', status: 'completed' },
+            { id: 'a7', description: 'Contratar personal adicional para instalaciones eléctricas', responsible: 'Coordinador Eléctrico', dueDate: '2025-06-05', priority: 'high', status: 'in-progress' },
+            { id: 'a8', description: 'Revisar presupuesto para recursos HVAC adicionales', responsible: 'Ing. Luis Fernández', dueDate: '2025-06-03', priority: 'medium', status: 'pending' },
+            { id: 'a9', description: 'Coordinar nuevo cronograma con subcontratistas', responsible: 'Coordinador Plomería', dueDate: '2025-06-07', priority: 'medium', status: 'pending' }
+        ],
+        status: 'completed',
+        organizer: 'Project Manager',
+        location: 'Sala de Juntas Principal',
+        objective: 'Evaluar el progreso mensual del proyecto y ajustar estrategias para cumplir cronograma',
+        notes: 'El proyecto mantiene 85% de progreso general. Se identificaron retrasos menores en instalaciones eléctricas que requieren atención inmediata. Cliente satisfecho con calidad de trabajo.',
+        createdAt: '2025-05-30T09:00:00Z',
+        updatedAt: '2025-05-30T11:30:00Z'
+    },
+    {
+        id: '4',
+        title: 'Reunión de Seguridad - Protocolo COVID y EPP',
+        date: '2025-06-08',
+        time: '07:30',
+        type: 'safety',
+        attendees: ['Coordinador de Seguridad', 'Médico Ocupacional', 'Representantes de cada cuadrilla', 'Supervisor HSE', 'Jefe de Obra'],
+        decisions: [
+            { id: 'd9', description: 'Implementar protocolo de sanitización reforzado', responsible: 'Coordinador de Seguridad', priority: 'high' },
+            { id: 'd10', description: 'Renovar stock de EPP para todo el personal', responsible: 'Jefe de Obra', priority: 'high' },
+            { id: 'd11', description: 'Establecer turnos escalonados para reducir aglomeraciones', responsible: 'Supervisor HSE', priority: 'medium' }
+        ],
+        actionItems: [
+            { id: 'a10', description: 'Capacitar personal en nuevos protocolos de seguridad', responsible: 'Coordinador de Seguridad', dueDate: '2025-06-12', priority: 'high', status: 'pending' },
+            { id: 'a11', description: 'Inspeccionar y reemplazar EPP dañado', responsible: 'Supervisor HSE', dueDate: '2025-06-10', priority: 'high', status: 'in-progress' },
+            { id: 'a12', description: 'Instalar dispensadores de alcohol en puntos estratégicos', responsible: 'Jefe de Obra', dueDate: '2025-06-11', priority: 'medium', status: 'pending' }
+        ],
+        status: 'scheduled',
+        organizer: 'Coordinador de Seguridad',
+        location: 'Área de Seguridad - Caseta Principal',
+        objective: 'Reforzar protocolos de seguridad y salud ocupacional en obra',
+        notes: 'Reunión obligatoria para todo el personal. Se requiere actualización de protocolos según nuevas normativas ministeriales.',
+        createdAt: '2025-06-01T07:30:00Z',
+        updatedAt: '2025-06-01T07:30:00Z'
     }
 ];
 
@@ -81,7 +157,7 @@ const MeetingMinutes: React.FC = () => {
     const [meetings, setMeetings] = useState<MeetingMinute[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('all');
-    const [filterStatus, setFilterStatus] = useState('all');
+    const [filterStatus, ] = useState('all');
     const [showModal, setShowModal] = useState(false);
     const [modalMode, setModalMode] = useState<'create' | 'edit' | 'view'>('create');
     const [selectedMeeting, setSelectedMeeting] = useState<MeetingMinute | null>(null);
@@ -122,15 +198,6 @@ const MeetingMinutes: React.FC = () => {
             case 'progress': return 'Avance';
             case 'safety': return 'Seguridad';
             default: return type;
-        }
-    };
-
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'completed': return 'bg-green-100 text-green-800';
-            case 'scheduled': return 'bg-yellow-100 text-yellow-800';
-            case 'cancelled': return 'bg-red-100 text-red-800';
-            default: return 'bg-gray-100 text-gray-800';
         }
     };
 
@@ -371,6 +438,19 @@ Documento generado el: ${new Date().toLocaleString()}
                     </div>
                 </div>
 
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <div className="flex items-center space-x-3">
+                        <div className="bg-purple-500 p-2 rounded-lg">
+                            <Users className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                            <p className="text-2xl font-bold text-gray-900">
+                                {meetings.reduce((total, meeting) => total + meeting.decisions.length, 0)}
+                            </p>
+                            <p className="text-sm text-gray-600">Decisiones</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Filters */}
@@ -401,23 +481,12 @@ Documento generado el: ${new Date().toLocaleString()}
                             <option value="progress">Avance</option>
                             <option value="safety">Seguridad</option>
                         </select>
-
-                        <select
-                            value={filterStatus}
-                            onChange={(e) => setFilterStatus(e.target.value)}
-                            className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                        >
-                            <option value="all">Todos los estados</option>
-                            <option value="scheduled">Programada</option>
-                            <option value="completed">Completada</option>
-                            <option value="cancelled">Cancelada</option>
-                        </select>
                     </div>
                 </div>
             </div>
 
             {/* Meetings List */}
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {filteredMeetings.map((meeting) => (
                     <div key={meeting.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
                         <div className="flex items-start justify-between mb-4">
@@ -444,50 +513,19 @@ Documento generado el: ${new Date().toLocaleString()}
                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(meeting.type)}`}>
                                     {getTypeLabel(meeting.type)}
                                 </span>
-                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(meeting.status)}`}>
-                                    {getStatusLabel(meeting.status)}
-                                </span>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
-                            <div className="text-center p-4 bg-blue-50 rounded-lg">
-                                <p className="text-2xl font-bold text-blue-600">{meeting.decisions.length}</p>
-                                <p className="text-sm text-blue-600">Decisiones</p>
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                            <div className="text-center p-3 bg-blue-50 rounded-lg">
+                                <p className="text-xl font-bold text-blue-600">{meeting.decisions.length}</p>
+                                <p className="text-xs text-blue-600">Decisiones</p>
                             </div>
-                            <div className="text-center p-4 bg-green-50 rounded-lg">
-                                <p className="text-2xl font-bold text-green-600">
-                                    {meeting.actionItems.filter(a => a.status === 'completed').length}
-                                </p>
-                                <p className="text-sm text-green-600">Tareas Completadas</p>
-                            </div>
-                            <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                                <p className="text-2xl font-bold text-yellow-600">
-                                    {meeting.actionItems.filter(a => a.status !== 'completed').length}
-                                </p>
-                                <p className="text-sm text-yellow-600">Tareas Pendientes</p>
+                            <div className="text-center p-3 bg-green-50 rounded-lg">
+                                <p className="text-xl font-bold text-green-600">{meeting.actionItems.length}</p>
+                                <p className="text-xs text-green-600">Tareas</p>
                             </div>
                         </div>
-
-                        {/* Progress Bar for Action Items */}
-                        {meeting.actionItems.length > 0 && (
-                            <div className="mb-4">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-sm font-medium text-gray-700">Progreso de Tareas</span>
-                                    <span className="text-sm text-gray-500">
-                                        {Math.round((meeting.actionItems.filter(a => a.status === 'completed').length / meeting.actionItems.length) * 100)}%
-                                    </span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div
-                                        className="bg-green-600 h-2 rounded-full transition-all duration-300"
-                                        style={{
-                                            width: `${(meeting.actionItems.filter(a => a.status === 'completed').length / meeting.actionItems.length) * 100}%`
-                                        }}
-                                    ></div>
-                                </div>
-                            </div>
-                        )}
 
                         {/* Actions */}
                         <div className="flex items-center justify-between pt-4 border-t border-gray-200">
@@ -666,7 +704,7 @@ Documento generado el: ${new Date().toLocaleString()}
                                             <label className="block text-sm font-medium text-gray-700 mb-1">Tipo *</label>
                                             <select
                                                 value={editingMeeting.type || 'coordination'}
-                                                onChange={(e) => setEditingMeeting({ ...editingMeeting, type: e.target.value as any })}
+                                                onChange={(e) => setEditingMeeting({ ...editingMeeting, type: e.target.value as MeetingMinute['type'] })}
                                                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                             >
                                                 <option value="coordination">Coordinación</option>
@@ -719,7 +757,7 @@ Documento generado el: ${new Date().toLocaleString()}
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
                                         <select
                                             value={editingMeeting.status || 'scheduled'}
-                                            onChange={(e) => setEditingMeeting({ ...editingMeeting, status: e.target.value as any })}
+                                            onChange={(e) => setEditingMeeting({ ...editingMeeting, status: e.target.value as MeetingMinute['status'] })}
                                             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                         >
                                             <option value="scheduled">Programada</option>
@@ -837,7 +875,7 @@ Documento generado el: ${new Date().toLocaleString()}
                                                                 value={action.status}
                                                                 onChange={(e) => {
                                                                     const updatedActions = editingMeeting.actionItems?.map(a =>
-                                                                        a.id === action.id ? { ...a, status: e.target.value as any } : a
+                                                                        a.id === action.id ? { ...a, status: e.target.value as ActionItem['status'] } : a
                                                                     ) || [];
                                                                     setEditingMeeting({ ...editingMeeting, actionItems: updatedActions });
                                                                 }}

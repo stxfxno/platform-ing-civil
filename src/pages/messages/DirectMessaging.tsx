@@ -9,9 +9,10 @@ import {
     Users,
     ArrowLeft,
     Plus,
-    MoreVertical,
     Hash,
-    User
+    User,
+    X,
+    CheckCircle
 } from 'lucide-react';
 
 interface Conversation {
@@ -39,7 +40,29 @@ interface Message {
     timestamp: string;
     hasAttachments: boolean;
     isRead: boolean;
+    conversationId: string;
 }
+
+interface Contact {
+    id: string;
+    name: string;
+    role: string;
+    department: string;
+    isOnline: boolean;
+}
+
+const mockContacts: Contact[] = [
+    { id: 'carlos-mendoza', name: 'Ing. Carlos Mendoza', role: 'Especialista HVAC', department: 'MEP', isOnline: true },
+    { id: 'maria-gonzalez', name: 'Ing. María González', role: 'Especialista Eléctrico', department: 'MEP', isOnline: true },
+    { id: 'ana-lopez', name: 'Ing. Ana López', role: 'Especialista Plomería', department: 'MEP', isOnline: false },
+    { id: 'luis-torres', name: 'Ing. Luis Torres', role: 'Supervisor Técnico', department: 'Supervisión', isOnline: true },
+    { id: 'sofia-ramirez', name: 'Ing. Sofia Ramírez', role: 'Especialista Fire Protection', department: 'Seguridad', isOnline: false },
+    { id: 'roberto-medina', name: 'Ing. Roberto Medina', role: 'Coordinador de Seguridad', department: 'Seguridad', isOnline: true },
+    { id: 'patricia-silva', name: 'Ing. Patricia Silva', role: 'Arquitecta', department: 'Diseño', isOnline: true },
+    { id: 'supervisor-general', name: 'Supervisor General', role: 'Supervisor de Obra', department: 'Supervisión', isOnline: true },
+    { id: 'cliente-tecnico', name: 'Cliente Técnico', role: 'Representante del Cliente', department: 'Cliente', isOnline: false },
+    { id: 'supervisor-obra', name: 'Supervisor de Obra', role: 'Jefe de Obra', department: 'Supervisión', isOnline: true }
+];
 
 const mockConversations: Conversation[] = [
     {
@@ -149,139 +172,218 @@ const mockConversations: Conversation[] = [
     }
 ];
 
-const mockMessages: Message[] = [
-    {
-        id: '1',
-        senderId: 'supervisor',
-        senderName: 'Supervisor General',
-        content: 'Buenos días equipo, necesitamos revisar las interferencias detectadas en el piso 3 zona norte.',
-        timestamp: '2025-05-23T08:30:00Z',
-        hasAttachments: false,
-        isRead: true
-    },
-    {
-        id: '2',
-        senderId: 'carlos-mendoza',
-        senderName: 'Ing. Carlos Mendoza (HVAC)',
-        content: 'Ya revisé los planos. El ducto principal de retorno está chocando con la tubería de agua helada.',
-        timestamp: '2025-05-23T08:35:00Z',
-        hasAttachments: false,
-        isRead: true
-    },
-    {
-        id: '3',
-        senderId: 'maria-gonzalez',
-        senderName: 'Ing. María González (Eléctrico)',
-        content: 'Confirmo, las bandejas eléctricas también tienen conflicto en esa zona. Adjunto el clash detection.',
-        timestamp: '2025-05-23T08:42:00Z',
-        hasAttachments: true,
-        isRead: true
-    },
-    {
-        id: '4',
-        senderId: 'ana-lopez',
-        senderName: 'Ing. Ana López (Plomería)',
-        content: 'Puedo subir la tubería de agua helada 20cm, eso liberaría espacio para el ducto.',
-        timestamp: '2025-05-23T08:45:00Z',
-        hasAttachments: false,
-        isRead: true
-    },
-    {
-        id: '5',
-        senderId: 'carlos-mendoza',
-        senderName: 'Ing. Carlos Mendoza (HVAC)',
-        content: 'Perfecto Ana 👍 Con esos 20cm ya no hay interferencia. ¿Necesitas modificar el soporte?',
-        timestamp: '2025-05-23T08:47:00Z',
-        hasAttachments: false,
-        isRead: true
-    },
-    {
-        id: '6',
-        senderId: 'ana-lopez',
-        senderName: 'Ing. Ana López (Plomería)',
-        content: 'Sí, pero es menor. Solo ajustar las abrazaderas. Lo tengo listo para mañana.',
-        timestamp: '2025-05-23T08:50:00Z',
-        hasAttachments: false,
-        isRead: true
-    },
-    {
-        id: '7',
-        senderId: 'maria-gonzalez',
-        senderName: 'Ing. María González (Eléctrico)',
-        content: '¿Y las bandejas eléctricas? Necesito confirmar la altura final para coordinar los pases.',
-        timestamp: '2025-05-23T08:52:00Z',
-        hasAttachments: false,
-        isRead: true
-    },
-    {
-        id: '8',
-        senderId: 'carlos-mendoza',
-        senderName: 'Ing. Carlos Mendoza (HVAC)',
-        content: 'Con el ducto a 2.80m y la tubería a 2.60m, tu bandeja queda bien a 2.40m ¿ok?',
-        timestamp: '2025-05-23T08:55:00Z',
-        hasAttachments: false,
-        isRead: true
-    },
-    {
-        id: '9',
-        senderId: 'maria-gonzalez',
-        senderName: 'Ing. María González (Eléctrico)',
-        content: 'Perfecto, esa altura me funciona. Actualizo los planos hoy.',
-        timestamp: '2025-05-23T08:57:00Z',
-        hasAttachments: false,
-        isRead: true
-    },
-    {
-        id: '10',
-        senderId: 'supervisor',
-        senderName: 'Supervisor General',
-        content: 'Excelente coordinación equipo! 🎯 Carlos, ¿puedes mandar el plano actualizado al RFI-2025-001?',
-        timestamp: '2025-05-23T09:00:00Z',
-        hasAttachments: false,
-        isRead: true
-    },
-    {
-        id: '11',
-        senderId: 'carlos-mendoza',
-        senderName: 'Ing. Carlos Mendoza (HVAC)',
-        content: 'Claro, lo subo en 30 min junto con el isométrico actualizado.',
-        timestamp: '2025-05-23T09:02:00Z',
-        hasAttachments: false,
-        isRead: true
-    },
-    {
-        id: '12',
-        senderId: 'supervisor',
-        senderName: 'Supervisor General',
-        content: 'Perfecto. Reunión de seguimiento mañana 10:00 AM para cerrar este tema. Confirmen asistencia 📅',
-        timestamp: '2025-05-23T09:05:00Z',
-        hasAttachments: false,
-        isRead: false
-    },
-    {
-        id: '13',
-        senderId: 'ana-lopez',
-        senderName: 'Ing. Ana López (Plomería)',
-        content: 'Confirmado ✅',
-        timestamp: '2025-05-23T09:06:00Z',
-        hasAttachments: false,
-        isRead: false
-    },
-    {
-        id: '14',
-        senderId: 'maria-gonzalez',
-        senderName: 'Ing. María González (Eléctrico)',
-        content: 'Confirmado ✅',
-        timestamp: '2025-05-23T09:07:00Z',
-        hasAttachments: false,
-        isRead: false
-    }
-];
+const mockMessages: { [conversationId: string]: Message[] } = {
+    '1': [
+        {
+            id: '1-1',
+            senderId: 'supervisor-general',
+            senderName: 'Supervisor General',
+            content: 'Buenos días equipo, necesitamos revisar las interferencias detectadas en el piso 3 zona norte.',
+            timestamp: '2025-05-23T08:30:00Z',
+            hasAttachments: false,
+            isRead: true,
+            conversationId: '1'
+        },
+        {
+            id: '1-2',
+            senderId: 'carlos-mendoza',
+            senderName: 'Ing. Carlos Mendoza (HVAC)',
+            content: 'Ya revisé los planos. El ducto principal de retorno está chocando con la tubería de agua helada.',
+            timestamp: '2025-05-23T08:35:00Z',
+            hasAttachments: false,
+            isRead: true,
+            conversationId: '1'
+        },
+        {
+            id: '1-3',
+            senderId: 'maria-gonzalez',
+            senderName: 'Ing. María González (Eléctrico)',
+            content: 'Confirmo, las bandejas eléctricas también tienen conflicto en esa zona. Adjunto el clash detection.',
+            timestamp: '2025-05-23T08:42:00Z',
+            hasAttachments: true,
+            isRead: true,
+            conversationId: '1'
+        },
+        {
+            id: '1-4',
+            senderId: 'ana-lopez',
+            senderName: 'Ing. Ana López (Plomería)',
+            content: 'Puedo subir la tubería de agua helada 20cm, eso liberaría espacio para el ducto.',
+            timestamp: '2025-05-23T08:45:00Z',
+            hasAttachments: false,
+            isRead: true,
+            conversationId: '1'
+        }
+    ],
+    '2': [
+        {
+            id: '2-1',
+            senderId: 'depto-seguridad',
+            senderName: 'Depto. Seguridad',
+            content: 'Nueva directiva de seguridad publicada - revisar antes del viernes',
+            timestamp: '2025-05-23T13:45:00Z',
+            hasAttachments: true,
+            isRead: true,
+            conversationId: '2'
+        },
+        {
+            id: '2-2',
+            senderId: 'supervisor-general',
+            senderName: 'Supervisor General',
+            content: '¿Hay cambios significativos en los protocolos de EPP?',
+            timestamp: '2025-05-23T13:50:00Z',
+            hasAttachments: false,
+            isRead: true,
+            conversationId: '2'
+        },
+        {
+            id: '2-3',
+            senderId: 'depto-seguridad',
+            senderName: 'Depto. Seguridad',
+            content: 'Sí, nuevos requisitos para trabajo en altura y manejo de químicos. Capacitación obligatoria.',
+            timestamp: '2025-05-23T13:52:00Z',
+            hasAttachments: false,
+            isRead: false,
+            conversationId: '2'
+        }
+    ],
+    '3': [
+        {
+            id: '3-1',
+            senderId: 'carlos-mendoza',
+            senderName: 'Ing. Carlos Mendoza',
+            content: 'Las pruebas de balanceo están programadas para mañana',
+            timestamp: '2025-05-23T12:20:00Z',
+            hasAttachments: false,
+            isRead: true,
+            conversationId: '3'
+        },
+        {
+            id: '3-2',
+            senderId: 'luis-vargas',
+            senderName: 'Luis Vargas',
+            content: '¿A qué hora empezamos? Necesito preparar los instrumentos.',
+            timestamp: '2025-05-23T12:25:00Z',
+            hasAttachments: false,
+            isRead: true,
+            conversationId: '3'
+        },
+        {
+            id: '3-3',
+            senderId: 'carlos-mendoza',
+            senderName: 'Ing. Carlos Mendoza',
+            content: 'A las 7:00 AM. Ya coordiné con facilities para el acceso temprano.',
+            timestamp: '2025-05-23T12:30:00Z',
+            hasAttachments: false,
+            isRead: false,
+            conversationId: '3'
+        }
+    ],
+    '6': [
+        {
+            id: '6-1',
+            senderId: 'luis-torres',
+            senderName: 'Ing. Luis Torres',
+            content: '¿Podemos revisar las especificaciones HVAC mañana?',
+            timestamp: '2025-05-23T09:45:00Z',
+            hasAttachments: false,
+            isRead: true,
+            conversationId: '6'
+        },
+        {
+            id: '6-2',
+            senderId: 'current-user',
+            senderName: 'Tú',
+            content: 'Claro, ¿tienes alguna duda específica o es revisión general?',
+            timestamp: '2025-05-23T09:50:00Z',
+            hasAttachments: false,
+            isRead: true,
+            conversationId: '6'
+        },
+        {
+            id: '6-3',
+            senderId: 'luis-torres',
+            senderName: 'Ing. Luis Torres',
+            content: 'Principalmente sobre los caudales en zona de servidores. Creo que necesitamos ajustar.',
+            timestamp: '2025-05-23T09:55:00Z',
+            hasAttachments: false,
+            isRead: false,
+            conversationId: '6'
+        }
+    ]
+};
 
 const DirectMessaging: React.FC = () => {
     const [selectedConversation, setSelectedConversation] = useState<string>('1');
     const [searchTerm, setSearchTerm] = useState('');
     const [newMessage, setNewMessage] = useState('');
+    const [showNewConversationModal, setShowNewConversationModal] = useState(false);
+    const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
+    const [contactSearchTerm, setContactSearchTerm] = useState('');
+    const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+    const [groupName, setGroupName] = useState('');
+    const [messages, setMessages] = useState(mockMessages);
+
+    const handleSendMessage = () => {
+        if (!newMessage.trim() || !selectedConversation) return;
+        
+        const newMsg: Message = {
+            id: `${selectedConversation}-${Date.now()}`,
+            senderId: 'current-user',
+            senderName: 'Tú',
+            content: newMessage.trim(),
+            timestamp: new Date().toISOString(),
+            hasAttachments: false,
+            isRead: true,
+            conversationId: selectedConversation
+        };
+        
+        setMessages(prev => ({
+            ...prev,
+            [selectedConversation]: [...(prev[selectedConversation] || []), newMsg]
+        }));
+        
+        setNewMessage('');
+    };
+
+    const handleCreateConversation = () => {
+        if (selectedContacts.length === 0) return;
+        
+        const isGroup = selectedContacts.length > 1;
+        
+        // Validar nombre de grupo si es necesario
+        if (isGroup && !groupName.trim()) {
+            alert('Por favor ingresa un nombre para el grupo');
+            return;
+        }
+        
+        const message = isGroup ? 'Grupo creado' : 'Chat creado';
+        
+        setSuccessMessage(message);
+        setShowSuccessPopup(true);
+        setShowNewConversationModal(false);
+        setSelectedContacts([]);
+        setContactSearchTerm('');
+        setGroupName('');
+        
+        setTimeout(() => {
+            setShowSuccessPopup(false);
+        }, 3000);
+    };
+
+    const toggleContactSelection = (contactId: string) => {
+        setSelectedContacts(prev => 
+            prev.includes(contactId) 
+                ? prev.filter(id => id !== contactId)
+                : [...prev, contactId]
+        );
+    };
+
+    const filteredContacts = mockContacts.filter(contact =>
+        contact.name.toLowerCase().includes(contactSearchTerm.toLowerCase()) ||
+        contact.role.toLowerCase().includes(contactSearchTerm.toLowerCase())
+    );
 
     const getConversationIcon = (conversation: Conversation) => {
         if (conversation.type === 'direct') {
@@ -341,7 +443,10 @@ const DirectMessaging: React.FC = () => {
                         <p className="text-gray-600">Comunicación contextualizada del proyecto</p>
                     </div>
                 </div>
-                <button className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center space-x-2">
+                <button 
+                    onClick={() => setShowNewConversationModal(true)}
+                    className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center space-x-2"
+                >
                     <Plus className="w-4 h-4" />
                     <span>Nueva Conversación</span>
                 </button>
@@ -431,15 +536,12 @@ const DirectMessaging: React.FC = () => {
                                                 )}
                                             </div>
                                         </div>
-                                        <button className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
-                                            <MoreVertical className="w-5 h-5" />
-                                        </button>
                                     </div>
                                 </div>
 
                                 {/* Messages */}
                                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                                    {mockMessages.map((message) => (
+                                    {(messages[selectedConversation] || []).map((message: Message) => (
                                         <div key={message.id} className="flex space-x-3">
                                             <div className="flex-shrink-0">
                                                 <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
@@ -455,8 +557,18 @@ const DirectMessaging: React.FC = () => {
                                                         {formatMessageTime(message.timestamp)}
                                                     </span>
                                                 </div>
-                                                <div className="bg-gray-100 rounded-lg p-3">
-                                                    <p className="text-sm text-gray-900">{message.content}</p>
+                                                <div className={`rounded-lg p-3 ${
+                                                    message.senderId === 'current-user' 
+                                                        ? 'bg-primary-500 text-white ml-8' 
+                                                        : 'bg-gray-100'
+                                                }`}>
+                                                    <p className={`text-sm ${
+                                                        message.senderId === 'current-user' 
+                                                            ? 'text-white' 
+                                                            : 'text-gray-900'
+                                                    }`}>
+                                                        {message.content}
+                                                    </p>
                                                     {message.hasAttachments && (
                                                         <div className="flex items-center space-x-1 mt-2 text-blue-600">
                                                             <Paperclip className="w-4 h-4" />
@@ -480,9 +592,17 @@ const DirectMessaging: React.FC = () => {
                                             placeholder="Escribe un mensaje..."
                                             value={newMessage}
                                             onChange={(e) => setNewMessage(e.target.value)}
+                                            onKeyPress={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    handleSendMessage();
+                                                }
+                                            }}
                                             className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                                         />
-                                        <button className="bg-primary-600 text-white p-2 rounded-lg hover:bg-primary-700 transition-colors">
+                                        <button 
+                                            onClick={handleSendMessage}
+                                            className="bg-primary-600 text-white p-2 rounded-lg hover:bg-primary-700 transition-colors"
+                                        >
                                             <Send className="w-5 h-5" />
                                         </button>
                                     </div>
@@ -499,6 +619,154 @@ const DirectMessaging: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Modal Nueva Conversación */}
+            {showNewConversationModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-hidden">
+                        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                            <h2 className="text-lg font-semibold text-gray-900">
+                                {selectedContacts.length > 1 ? 'Nuevo Grupo' : 'Nueva Conversación'}
+                            </h2>
+                            <button
+                                onClick={() => {
+                                    setShowNewConversationModal(false);
+                                    setSelectedContacts([]);
+                                    setContactSearchTerm('');
+                                    setGroupName('');
+                                }}
+                                className="text-gray-400 hover:text-gray-600"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <div className="p-4">
+                            {/* Búsqueda de contactos */}
+                            <div className="mb-4">
+                                <div className="relative">
+                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                    <input
+                                        type="text"
+                                        placeholder="Buscar contactos..."
+                                        value={contactSearchTerm}
+                                        onChange={(e) => setContactSearchTerm(e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Nombre del grupo (solo si hay más de 1 contacto seleccionado) */}
+                            {selectedContacts.length > 1 && (
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Nombre del grupo *
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="Ingresa el nombre del grupo..."
+                                        value={groupName}
+                                        onChange={(e) => setGroupName(e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                                    />
+                                </div>
+                            )}
+
+                            {/* Contactos seleccionados */}
+                            {selectedContacts.length > 0 && (
+                                <div className="mb-4">
+                                    <p className="text-sm text-gray-600 mb-2">Seleccionados ({selectedContacts.length}):</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {selectedContacts.map(contactId => {
+                                            const contact = mockContacts.find(c => c.id === contactId);
+                                            return (
+                                                <span key={contactId} className="inline-flex items-center px-2 py-1 bg-primary-100 text-primary-800 rounded-md text-sm">
+                                                    {contact?.name}
+                                                    <button
+                                                        onClick={() => toggleContactSelection(contactId)}
+                                                        className="ml-1 text-primary-600 hover:text-primary-800"
+                                                    >
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                </span>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Lista de contactos */}
+                            <div className="max-h-60 overflow-y-auto space-y-1">
+                                {filteredContacts.map((contact) => (
+                                    <div
+                                        key={contact.id}
+                                        onClick={() => toggleContactSelection(contact.id)}
+                                        className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-colors ${
+                                            selectedContacts.includes(contact.id)
+                                                ? 'bg-primary-50 border border-primary-200'
+                                                : 'hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        <div className="flex-shrink-0">
+                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                                contact.isOnline ? 'bg-green-100' : 'bg-gray-100'
+                                            }`}>
+                                                <User className={`w-4 h-4 ${
+                                                    contact.isOnline ? 'text-green-600' : 'text-gray-600'
+                                                }`} />
+                                            </div>
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-sm font-medium text-gray-900 truncate">
+                                                {contact.name}
+                                            </p>
+                                            <p className="text-xs text-gray-500 truncate">
+                                                {contact.role} - {contact.department}
+                                            </p>
+                                        </div>
+                                        <div className="flex-shrink-0">
+                                            {contact.isOnline && (
+                                                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-end space-x-3 p-4 border-t border-gray-200">
+                            <button
+                                onClick={() => {
+                                    setShowNewConversationModal(false);
+                                    setSelectedContacts([]);
+                                    setContactSearchTerm('');
+                                    setGroupName('');
+                                }}
+                                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleCreateConversation}
+                                disabled={selectedContacts.length === 0}
+                                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                            >
+                                Crear {selectedContacts.length > 1 ? 'Grupo' : 'Chat'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Popup de éxito */}
+            {showSuccessPopup && (
+                <div className="fixed top-4 right-4 z-50">
+                    <div className="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2">
+                        <CheckCircle className="w-5 h-5" />
+                        <span>{successMessage}</span>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
