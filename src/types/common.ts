@@ -106,11 +106,7 @@ export const SYSTEM_PRIORITIES = {
 
 // Disciplinas MEP
 export const MEP_DISCIPLINES = {
-    MECHANICAL: { key: 'mechanical', label: 'Mecánico' },
-    ELECTRICAL: { key: 'electrical', label: 'Eléctrico' },
-    PLUMBING: { key: 'plumbing', label: 'Plomería' },
-    FIRE_PROTECTION: { key: 'fire_protection', label: 'Protección Contra Incendios' },
-    HVAC: { key: 'hvac', label: 'HVAC' },
-    TELECOMMUNICATIONS: { key: 'telecommunications', label: 'Telecomunicaciones' },
-    AUTOMATION: { key: 'automation', label: 'Automatización' },
+    ELECTRICAS: { key: 'electricas', label: 'Eléctricas' },
+    MECANICAS: { key: 'mecanicas', label: 'Mecánicas' },
+    PLOMERIA: { key: 'plomeria', label: 'Plomería' },
 } as const;

@@ -1,5 +1,6 @@
 // src/pages/schedules/ContractorReports.tsx
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 import {
     FileBarChart,
     Users,
@@ -45,15 +46,15 @@ const initialReports: ContractorReport[] = [
         id: 'rep-001',
         week: '2025-05-26/2025-06-01',
         contractor: {
-            name: 'HVAC Solutions S.A.C.',
-            discipline: 'HVAC',
-            contact: 'Ing. Ricardo Fernández'
+            name: 'Fernández Mecánicas S.A.C.',
+            discipline: 'Mecánicas',
+            contact: 'Ing. Piero Fernández'
         },
         overallProgress: 75,
         submittedAt: '2025-05-26T16:30:00Z',
-        submittedBy: 'Ricardo Fernández',
+        submittedBy: 'Piero Fernández',
         status: 'submitted',
-        activities: ['Instalación ductos HVAC - Área A (75%)'],
+        activities: ['Instalación ductos HVAC - Área A (75%)', 'Conexiones de aire acondicionado - Piso 2 (60%)'],
         issues: [],
         nextWeekPlan: 'Completar instalación ductos área A y comenzar conexiones principales',
         attachments: ['/files/documento_prueba.docx']
@@ -62,34 +63,68 @@ const initialReports: ContractorReport[] = [
         id: 'rep-002',
         week: '2025-05-26/2025-06-01',
         contractor: {
-            name: 'Electro Instalaciones Perú',
-            discipline: 'Eléctrico',
-            contact: 'Ing. Carmen Vásquez'
+            name: 'Vargas Plomería Industrial',
+            discipline: 'Plomería',
+            contact: 'Ing. Bryan Vargas'
         },
-        overallProgress: 15,
-        submittedAt: '2025-05-26T18:15:00Z',
-        submittedBy: 'Carmen Vásquez',
-        status: 'submitted',
-        activities: ['Cableado eléctrico principal - Piso 3 (15%)'],
-        issues: ['Retraso en entrega de materiales', 'Problema con permisos'],
-        nextWeekPlan: 'Acelerar instalación una vez recibidos materiales',
+        overallProgress: 45,
+        submittedAt: '2025-05-26T14:45:00Z',
+        submittedBy: 'Bryan Vargas',
+        status: 'approved',
+        activities: ['Instalación tuberías agua fría - Zona B (45%)', 'Sistema de desagüe - Piso 1 (30%)'],
+        issues: ['Interferencia con estructura en zona B'],
+        nextWeekPlan: 'Replanificar ruta de tuberías según nueva coordinación',
         attachments: ['/files/documento_prueba.docx']
     },
     {
         id: 'rep-003',
         week: '2025-05-26/2025-06-01',
         contractor: {
-            name: 'Plomería Industrial SAC',
-            discipline: 'Plomería',
-            contact: 'Ing. Manuel Gutiérrez'
+            name: 'Electro Instalaciones Torres',
+            discipline: 'Eléctricas',
+            contact: 'Ing. Carlos Torres'
         },
-        overallProgress: 45,
-        submittedAt: '2025-05-26T14:45:00Z',
-        submittedBy: 'Manuel Gutiérrez',
+        overallProgress: 35,
+        submittedAt: '2025-05-26T18:15:00Z',
+        submittedBy: 'Carlos Torres',
+        status: 'submitted',
+        activities: ['Cableado eléctrico principal - Piso 3 (35%)', 'Instalación tableros eléctricos (25%)'],
+        issues: ['Retraso en entrega de materiales', 'Coordinación pendiente con MEP'],
+        nextWeekPlan: 'Acelerar instalación una vez recibidos materiales y coordinar interfaces',
+        attachments: ['/files/documento_prueba.docx']
+    },
+    {
+        id: 'rep-004',
+        week: '2025-06-02/2025-06-08',
+        contractor: {
+            name: 'Fernández Mecánicas S.A.C.',
+            discipline: 'Mecánicas',
+            contact: 'Ing. Piero Fernández'
+        },
+        overallProgress: 85,
+        submittedAt: '2025-06-02T17:00:00Z',
+        submittedBy: 'Piero Fernández',
         status: 'approved',
-        activities: ['Instalación tuberías agua fría - Zona B (45%)'],
-        issues: ['Interferencia con estructura'],
-        nextWeekPlan: 'Replanificar ruta de tuberías según nueva coordinación',
+        activities: ['Finalización ductos HVAC - Área A (100%)', 'Conexiones principales HVAC (70%)'],
+        issues: [],
+        nextWeekPlan: 'Completar conexiones y realizar pruebas de funcionamiento',
+        attachments: ['/files/documento_prueba.docx']
+    },
+    {
+        id: 'rep-005',
+        week: '2025-06-02/2025-06-08',
+        contractor: {
+            name: 'Vargas Plomería Industrial',
+            discipline: 'Plomería',
+            contact: 'Ing. Bryan Vargas'
+        },
+        overallProgress: 60,
+        submittedAt: '2025-06-02T15:30:00Z',
+        submittedBy: 'Bryan Vargas',
+        status: 'submitted',
+        activities: ['Tuberías agua fría - Zona B completa (100%)', 'Sistema agua caliente - Inicio (20%)'],
+        issues: ['Espera de aprobación para cambio de ruta'],
+        nextWeekPlan: 'Continuar con sistema agua caliente según nueva ruta aprobada',
         attachments: ['/files/documento_prueba.docx']
     }
 ];
@@ -111,6 +146,7 @@ const statusLabels = {
 const STORAGE_KEY = 'contractor_reports_data';
 
 const ContractorReports: React.FC = () => {
+    const { user } = useAuth();
     const [reports, setReports] = useState<ContractorReport[]>([]);
     const [filterStatus, setFilterStatus] = useState<string>('');
     const [filterContractor, setFilterContractor] = useState<string>('');
@@ -133,13 +169,66 @@ const ContractorReports: React.FC = () => {
     const [editFiles, setEditFiles] = useState<File[]>([]);
     const [editExistingFiles, setEditExistingFiles] = useState<string[]>([]);
 
+    // Mapeo de departamentos del usuario a nombres de empresa
+    const getUserContractorName = (userDepartment: string): string => {
+        switch (userDepartment) {
+            case 'Mecánicas':
+                return 'Fernández Mecánicas S.A.C.';
+            case 'Plomería':
+                return 'Vargas Plomería Industrial';
+            case 'Eléctricas':
+                return 'Electro Instalaciones Torres';
+            default:
+                return '';
+        }
+    };
+
+    // Filtrar reportes según el rol del usuario
+    const getFilteredReportsByRole = (allReports: ContractorReport[]): ContractorReport[] => {
+        console.log('Usuario actual:', user);
+        console.log('Todos los reportes:', allReports);
+        
+        if (!user) return [];
+        
+        if (user.role === 'admin') {
+            // El admin puede ver todos los reportes
+            console.log('Usuario admin, mostrando todos los reportes');
+            return allReports;
+        } else if (user.role === 'subcontractor') {
+            // Los subcontratistas solo pueden ver sus propios reportes
+            const userContractorName = getUserContractorName(user.department);
+            console.log('Usuario subcontratista:', user.department);
+            console.log('Nombre de empresa esperado:', userContractorName);
+            
+            const filteredReports = allReports.filter(report => {
+                console.log(`Comparando: "${report.contractor.name}" === "${userContractorName}"`);
+                return report.contractor.name === userContractorName;
+            });
+            
+            console.log('Reportes filtrados para subcontratista:', filteredReports);
+            return filteredReports;
+        }
+        
+        return [];
+    };
+
     // Cargar datos del localStorage al montar el componente
     useEffect(() => {
         const savedReports = localStorage.getItem(STORAGE_KEY);
+        console.log('Datos guardados en localStorage:', savedReports);
+        
         if (savedReports) {
             try {
                 const parsedReports = JSON.parse(savedReports);
-                setReports(parsedReports);
+                console.log('Reportes parseados:', parsedReports);
+                // Verificar si hay datos válidos, si no usar los iniciales
+                if (parsedReports && Array.isArray(parsedReports) && parsedReports.length > 0) {
+                    setReports(parsedReports);
+                } else {
+                    console.log('No hay reportes válidos, usando datos iniciales');
+                    setReports(initialReports);
+                    saveToLocalStorage(initialReports);
+                }
             } catch (error) {
                 console.error('Error parsing saved reports:', error);
                 // Si hay error, usar datos iniciales
@@ -148,6 +237,7 @@ const ContractorReports: React.FC = () => {
             }
         } else {
             // Primera vez que se carga, usar datos iniciales
+            console.log('Primera carga, usando datos iniciales');
             setReports(initialReports);
             saveToLocalStorage(initialReports);
         }
@@ -169,30 +259,51 @@ const ContractorReports: React.FC = () => {
         }
     }, [reports]);
 
+    // Obtener reportes filtrados por rol
+    const roleFilteredReports = getFilteredReportsByRole(reports);
+    
+    // Debug para ver los reportes filtrados por rol
+    useEffect(() => {
+        console.log('🔍 DEBUGGING - Usuario:', user);
+        console.log('🔍 DEBUGGING - Reportes totales:', reports.length);
+        console.log('🔍 DEBUGGING - Reportes filtrados por rol:', roleFilteredReports.length);
+        console.log('🔍 DEBUGGING - roleFilteredReports:', roleFilteredReports);
+    }, [user, reports, roleFilteredReports]);
+
     const stats = {
-        total: reports.length,
-        submitted: reports.filter(r => r.status === 'submitted').length,
-        pending: reports.filter(r => r.status === 'pending').length,
-        approved: reports.filter(r => r.status === 'approved').length,
-        rejected: reports.filter(r => r.status === 'rejected').length
+        total: roleFilteredReports.length,
+        submitted: roleFilteredReports.filter(r => r.status === 'submitted').length,
+        pending: roleFilteredReports.filter(r => r.status === 'pending').length,
+        approved: roleFilteredReports.filter(r => r.status === 'approved').length,
+        rejected: roleFilteredReports.filter(r => r.status === 'rejected').length
     };
 
-    const filteredReports = reports.filter(report => {
+    const filteredReports = roleFilteredReports.filter(report => {
         const matchesStatus = !filterStatus || report.status === filterStatus;
         const matchesContractor = !filterContractor || report.contractor.name.toLowerCase().includes(filterContractor.toLowerCase());
         return matchesStatus && matchesContractor;
     });
 
-    const contractors = [
-        'HVAC Solutions S.A.C.',
-        'Electro Instalaciones Perú',
-        'Plomería Industrial SAC',
-        'Fire Protection Corp.',
-        'MEP Contractors Inc.',
-        'Mecánica Avanzada S.A.C.',
-        'Instalaciones Técnicas Perú',
-        'Sistemas Integrados MEP'
-    ];
+    // Obtener lista de contratistas disponibles según el rol
+    const getAvailableContractors = (): string[] => {
+        if (!user) return [];
+        
+        if (user.role === 'admin') {
+            // El admin puede ver todos los contratistas
+            return Array.from(new Set(reports.map(r => r.contractor.name)));
+        } else if (user.role === 'subcontractor') {
+            // Los subcontratistas solo ven su propia empresa
+            const userContractorName = getUserContractorName(user.department);
+            return userContractorName ? [userContractorName] : [];
+        }
+        
+        return [];
+    };
+
+    const availableContractors = getAvailableContractors();
+
+    // Lista de contratistas dinámica basada en permisos
+    const contractors = availableContractors;
 
     // Función para aprobar reporte - CORREGIDA
     const handleApprove = () => {
@@ -234,25 +345,18 @@ const ContractorReports: React.FC = () => {
         
         // Obtener disciplina del contratista seleccionado
         const getDisciplineFromContractor = (contractorName: string) => {
-            if (contractorName.includes('HVAC')) return 'HVAC';
-            if (contractorName.includes('Electro')) return 'Eléctrico';
+            if (contractorName.includes('Mecánicas')) return 'Mecánicas';
             if (contractorName.includes('Plomería')) return 'Plomería';
-            if (contractorName.includes('Fire')) return 'Protección Contra Incendios';
-            if (contractorName.includes('MEP') || contractorName.includes('Mecánica')) return 'Mecánico';
+            if (contractorName.includes('Electro')) return 'Eléctricas';
             return 'General';
         };
 
         // Obtener contacto del contratista
         const getContactFromContractor = (contractorName: string) => {
             const contacts: { [key: string]: string } = {
-                'HVAC Solutions S.A.C.': 'Ing. Ricardo Fernández',
-                'Electro Instalaciones Perú': 'Ing. Carmen Vásquez',
-                'Plomería Industrial SAC': 'Ing. Manuel Gutiérrez',
-                'Fire Protection Corp.': 'Ing. Laura Mendoza',
-                'MEP Contractors Inc.': 'Ing. Pablo Morales',
-                'Mecánica Avanzada S.A.C.': 'Ing. Ana Torres',
-                'Instalaciones Técnicas Perú': 'Ing. Carlos Rivera',
-                'Sistemas Integrados MEP': 'Ing. Sofia Campos'
+                'Fernández Mecánicas S.A.C.': 'Ing. Piero Fernández',
+                'Vargas Plomería Industrial': 'Ing. Bryan Vargas',
+                'Electro Instalaciones Torres': 'Ing. Carlos Torres'
             };
             return contacts[contractorName] || 'Ing. Responsable';
         };
@@ -342,8 +446,16 @@ const ContractorReports: React.FC = () => {
         if (confirm('¿Estás seguro de que deseas limpiar todos los datos? Esta acción no se puede deshacer.')) {
             localStorage.removeItem(STORAGE_KEY);
             setReports(initialReports);
+            saveToLocalStorage(initialReports);
             alert('Datos limpiados. Se han restaurado los datos iniciales.');
         }
+    };
+
+    // Función para forzar datos iniciales (para debugging)
+    const forceInitialData = () => {
+        setReports(initialReports);
+        saveToLocalStorage(initialReports);
+        alert('Datos iniciales restaurados exitosamente');
     };
 
     return (
@@ -356,24 +468,41 @@ const ContractorReports: React.FC = () => {
                     </div>
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900">Reporte de Subcontratistas</h1>
-                        <p className="text-gray-600">Gestión de reportes semanales MEP</p>
+                        <p className="text-gray-600">
+                            Gestión de reportes semanales MEP
+                            {user?.role === 'admin' ? ' - Vista Administrador' : 
+                             user?.role === 'subcontractor' ? ` - ${user.department}` : ''}
+                        </p>
                     </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                    <button 
-                        onClick={() => setShowRequestModal(true)}
-                        className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center"
-                    >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Solicitar Reporte
-                    </button>
-                    {/* Botón para limpiar datos (solo para testing) */}
+                    {/* Botón solicitar reporte - solo para admin */}
+                    {user?.role === 'admin' && (
+                        <button 
+                            onClick={() => setShowRequestModal(true)}
+                            className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center"
+                        >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Solicitar Reporte
+                        </button>
+                    )}
+                    
+                    {/* Botón para limpiar datos - para desarrollo */}
                     <button 
                         onClick={clearAllData}
                         className="px-3 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm"
                         title="Limpiar todos los datos"
                     >
                         Reset
+                    </button>
+                    
+                    {/* Botón temporal para restaurar datos iniciales (debugging) */}
+                    <button 
+                        onClick={forceInitialData}
+                        className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
+                        title="Restaurar datos iniciales"
+                    >
+                        Restaurar Datos
                     </button>
                 </div>
             </div>
@@ -432,7 +561,7 @@ const ContractorReports: React.FC = () => {
                         </select>
                     </div>
                     <div className="text-sm text-gray-600">
-                        Mostrando {filteredReports.length} de {reports.length} reportes
+                        Mostrando {filteredReports.length} de {roleFilteredReports.length} reportes
                     </div>
                 </div>
             </div>
@@ -557,8 +686,12 @@ const ContractorReports: React.FC = () => {
                                     <Eye className="w-5 h-5" />
                                 </button>
                                 
-                                {/* Editar - solo si está enviado o aprobado */}
+                                {/* Editar - solo si está enviado o aprobado Y el usuario tiene permisos */}
                                 {(report.status === 'submitted' || report.status === 'approved') && (
+                                    (user?.role === 'admin' || 
+                                     (user?.role === 'subcontractor' && report.contractor.name === getUserContractorName(user.department))
+                                    )
+                                ) && (
                                     <button
                                         onClick={() => openEditModal(report)}
                                         className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-lg transition-colors"
@@ -568,8 +701,8 @@ const ContractorReports: React.FC = () => {
                                     </button>
                                 )}
                                 
-                                {/* Aprobar - solo si está enviado */}
-                                {report.status === 'submitted' && (
+                                {/* Aprobar - solo admin y si está enviado */}
+                                {report.status === 'submitted' && user?.role === 'admin' && (
                                     <button
                                         onClick={() => {
                                             setSelectedReport(report);
@@ -582,8 +715,8 @@ const ContractorReports: React.FC = () => {
                                     </button>
                                 )}
 
-                                {/* Rechazar - solo si está enviado */}
-                                {report.status === 'submitted' && (
+                                {/* Rechazar - solo admin y si está enviado */}
+                                {report.status === 'submitted' && user?.role === 'admin' && (
                                     <button
                                         onClick={() => {
                                             setSelectedReport(report);
@@ -603,7 +736,23 @@ const ContractorReports: React.FC = () => {
                 {filteredReports.length === 0 && (
                     <div className="text-center py-8 text-gray-500">
                         <FileBarChart className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                        <p>No hay reportes que coincidan con los filtros seleccionados</p>
+                        {roleFilteredReports.length === 0 ? (
+                            <div>
+                                <p className="text-lg font-medium mb-2">No hay reportes disponibles</p>
+                                {user?.role === 'subcontractor' ? (
+                                    <p className="text-sm">
+                                        No se han encontrado reportes para {user.department}. 
+                                        Los reportes aparecerán aquí cuando el administrador los solicite.
+                                    </p>
+                                ) : (
+                                    <p className="text-sm">
+                                        Usa el botón "Solicitar Reporte" para comenzar a gestionar reportes de subcontratistas.
+                                    </p>
+                                )}
+                            </div>
+                        ) : (
+                            <p>No hay reportes que coincidan con los filtros seleccionados</p>
+                        )}
                     </div>
                 )}
             </div>

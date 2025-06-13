@@ -26,6 +26,18 @@ export interface RFI extends BaseEntity {
     estimatedCost?: number;
     impactLevel?: 'low' | 'medium' | 'high';
     tags: string[];
+    privacy?: 'publico' | 'privado';
+    company?: string;
+    createdByCompany?: string;
+    emailData?: {
+        sentAsEmail: boolean;
+        para: string;
+        asunto: string;
+        cc?: string[];
+        otherEmails?: string;
+        sentAt: string;
+        texto?: string;
+    };
 }
 
 export interface RFIComment extends BaseEntity {

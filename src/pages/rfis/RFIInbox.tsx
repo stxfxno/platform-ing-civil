@@ -1,6 +1,7 @@
 // src/pages/rfis/RFIInbox.tsx
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import {
     ArrowLeft,
     Search,
@@ -70,6 +71,7 @@ interface EditModalData {
 }
 
 const RFIInbox: React.FC = () => {
+    const { user } = useAuth();
     const [filters, setFilters] = useState<RFIFilters>({
         status: [],
         priority: [],
@@ -152,9 +154,47 @@ const RFIInbox: React.FC = () => {
         low: { label: 'Baja', color: 'bg-green-100 text-green-800' }
     };
 
+    // Mapeo de departamentos del usuario a nombres de empresa
+    const getUserCompany = (userDepartment: string): string => {
+        switch (userDepartment) {
+            case 'Mecánicas':
+                return 'Fernández Mecánicas S.A.C.';
+            case 'Plomería':
+                return 'Vargas Plomería Industrial';
+            case 'Eléctricas':
+                return 'Electro Instalaciones Torres';
+            default:
+                return 'Constructora Principal'; // Para admin y otros casos
+        }
+    };
+
     // Filter and sort RFIs
     const filteredAndSortedRFIs = useMemo(() => {
+        // Función para verificar si el usuario puede ver un RFI
+        const canUserViewRFI = (rfi: RFI): boolean => {
+            if (!user) return false;
+
+            // El admin puede ver todos los RFIs
+            if (user.role === 'admin') {
+                return true;
+            }
+
+            // Para subcontratistas: solo pueden ver RFIs de su propia empresa
+            if (user.role === 'subcontractor') {
+                const userCompany = getUserCompany(user.department);
+                // Verificar si el RFI pertenece a la misma empresa (tanto company como createdByCompany)
+                return rfi.company === userCompany || rfi.createdByCompany === userCompany;
+            }
+
+            return false;
+        };
+
         const filtered = rfis.filter(rfi => {
+            // Primero verificar permisos de privacidad
+            if (!canUserViewRFI(rfi)) {
+                return false;
+            }
+
             // Search term filter
             if (filters.searchTerm) {
                 const searchLower = filters.searchTerm.toLowerCase();
@@ -214,7 +254,7 @@ const RFIInbox: React.FC = () => {
         });
 
         return filtered;
-    }, [rfis, filters, sortField, sortDirection]);
+    }, [rfis, filters, sortField, sortDirection, user]);
 
     const handleFilterChange = (filterType: keyof RFIFilters, value: string | string[]) => {
         setFilters(prev => ({
@@ -280,7 +320,7 @@ const RFIInbox: React.FC = () => {
                 description: rfi.description || '',
                 priority: rfi.priority || 'media',
                 dueDate: rfi.dueDate || '',
-                privacy: (rfi as any).privacy || 'publico',
+                privacy: rfi.privacy || 'publico',
                 location: rfi.location || '',
                 category: rfi.category || ''
             },
@@ -319,15 +359,15 @@ const RFIInbox: React.FC = () => {
                 priority: editModal.formData.priority as RFI['priority'],
                 dueDate: editModal.formData.dueDate || undefined,
                 location: editModal.formData.location.trim() || undefined,
-                category: editModal.formData.category || undefined,
+                category: editModal.formData.category,
                 updatedAt: new Date().toISOString(),
                 // Agregar el campo privacy como propiedad extendida
-                ...({ privacy: editModal.formData.privacy } as any)
+                privacy: editModal.formData.privacy as 'publico' | 'privado'
             };
 
             // Actualizar en localStorage si es una RFI guardada localmente
             const storedRFIs = JSON.parse(localStorage.getItem('civil_eng_rfis') || '[]');
-            const rfiIndex = storedRFIs.findIndex((r: any) => r.id === editModal.rfi!.id);
+            const rfiIndex = storedRFIs.findIndex((r: RFI) => r.id === editModal.rfi!.id);
             if (rfiIndex !== -1) {
                 storedRFIs[rfiIndex] = updatedRFI;
                 localStorage.setItem('civil_eng_rfis', JSON.stringify(storedRFIs));
@@ -403,7 +443,7 @@ const RFIInbox: React.FC = () => {
 
             // Actualizar en localStorage si es una RFI guardada localmente
             const storedRFIs = JSON.parse(localStorage.getItem('civil_eng_rfis') || '[]');
-            const rfiIndex = storedRFIs.findIndex((r: any) => r.id === replyModal.rfi!.id);
+            const rfiIndex = storedRFIs.findIndex((r: RFI) => r.id === replyModal.rfi!.id);
             if (rfiIndex !== -1) {
                 storedRFIs[rfiIndex] = updatedRFI;
                 localStorage.setItem('civil_eng_rfis', JSON.stringify(storedRFIs));
@@ -739,7 +779,7 @@ const RFIInbox: React.FC = () => {
                                 const daysUntilDue = getDaysUntilDue(rfi.dueDate);
                                 const isOverdue = daysUntilDue !== null && daysUntilDue < 0;
                                 const isDueSoon = daysUntilDue !== null && daysUntilDue <= 3 && daysUntilDue >= 0;
-                                const privacy = (rfi as any).privacy || 'publico';
+                                const privacy = rfi.privacy || 'publico';
 
                                 return (
                                     <tr key={rfi.id} className="hover:bg-gray-50">
@@ -1001,9 +1041,9 @@ const RFIInbox: React.FC = () => {
                                         <div>
                                             <span className="text-sm font-medium text-gray-500">Visibilidad:</span>
                                             <div className="mt-1">
-                                                <span className={`inline-flex items-center space-x-1 px-2 py-1 text-xs font-semibold rounded-full ${getPrivacyColor((viewModal.rfi as any).privacy || 'publico')}`}>
-                                                    {getPrivacyIcon((viewModal.rfi as any).privacy || 'publico')}
-                                                    <span>{(viewModal.rfi as any).privacy === 'privado' ? 'Privado' : 'Público'}</span>
+                                                <span className={`inline-flex items-center space-x-1 px-2 py-1 text-xs font-semibold rounded-full ${getPrivacyColor(viewModal.rfi.privacy || 'publico')}`}>
+                                                    {getPrivacyIcon(viewModal.rfi.privacy || 'publico')}
+                                                    <span>{viewModal.rfi.privacy === 'privado' ? 'Privado' : 'Público'}</span>
                                                 </span>
                                             </div>
                                         </div>

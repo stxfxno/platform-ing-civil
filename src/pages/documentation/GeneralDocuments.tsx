@@ -533,164 +533,204 @@ const GeneralDocuments: React.FC = () => {
 
             {/* Modal */}
             {selectedModule && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
-                        {/* Modal Header */}
-                        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                            <div className="flex items-center space-x-3">
-                                <div className={`${selectedModule.color} p-2 rounded-lg`}>
-                                    <selectedModule.icon className="w-5 h-5 text-white" />
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+                        {/* Header del Modal */}
+                        <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-4 rounded-t-xl">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                    <div className="bg-white bg-opacity-20 p-2 rounded-lg">
+                                        <BarChart3 className="w-5 h-5 text-white" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-xl font-bold text-white">Historial de Descargas</h2>
+                                        <p className="text-purple-100 text-sm">{selectedModule.title}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h2 className="text-xl font-semibold text-gray-900">Historial de Descargas</h2>
-                                    <p className="text-gray-600">{selectedModule.title}</p>
-                                </div>
+                                <button
+                                    onClick={closeModal}
+                                    className="text-white hover:bg-white hover:bg-opacity-20 p-2 rounded-lg transition-colors"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
                             </div>
-                            <button
-                                onClick={closeModal}
-                                className="text-gray-400 hover:text-gray-600 p-1"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
                         </div>
 
-                        {/* Stats Cards */}
-                        <div className="p-6 bg-gray-50">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div className="bg-blue-50 rounded-lg p-4 text-center">
-                                    <Download className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                                    <p className="text-2xl font-bold text-blue-600">{selectedModule.downloads.length}</p>
-                                    <p className="text-sm text-blue-600">Total Descargas</p>
+                        {/* Contenido del Modal */}
+                        <div className="p-6 overflow-y-auto max-h-[80vh]">
+                            {/* Estadísticas */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                <div className="bg-blue-50 rounded-lg p-4 text-center border border-blue-200">
+                                    <div className="flex items-center justify-center mb-2">
+                                        <Download className="w-6 h-6 text-blue-600" />
+                                    </div>
+                                    <div className="text-3xl font-bold text-blue-600">
+                                        {selectedModule.downloads.length}
+                                    </div>
+                                    <div className="text-sm text-gray-600 font-medium">Total Descargas</div>
                                 </div>
-                                <div className="bg-green-50 rounded-lg p-4 text-center">
-                                    <User className="w-6 h-6 text-green-600 mx-auto mb-2" />
-                                    <p className="text-2xl font-bold text-green-600">
+                                <div className="bg-green-50 rounded-lg p-4 text-center border border-green-200">
+                                    <div className="flex items-center justify-center mb-2">
+                                        <User className="w-6 h-6 text-green-600" />
+                                    </div>
+                                    <div className="text-3xl font-bold text-green-600">
                                         {new Set(selectedModule.downloads.map(d => d.downloadedBy)).size}
-                                    </p>
-                                    <p className="text-sm text-green-600">Usuarios Únicos</p>
+                                    </div>
+                                    <div className="text-sm text-gray-600 font-medium">Usuarios Únicos</div>
                                 </div>
-                                <div className="bg-purple-50 rounded-lg p-4 text-center">
-                                    <Calendar className="w-6 h-6 text-purple-600 mx-auto mb-2" />
-                                    <p className="text-2xl font-bold text-purple-600">
+                                <div className="bg-purple-50 rounded-lg p-4 text-center border border-purple-200">
+                                    <div className="flex items-center justify-center mb-2">
+                                        <Calendar className="w-6 h-6 text-purple-600" />
+                                    </div>
+                                    <div className="text-lg font-bold text-purple-600">
                                         {selectedModule.downloads.length > 0 
-                                            ? formatDateTime(selectedModule.downloads[0].downloadedAt).date.split('/')[0] + '/' + formatDateTime(selectedModule.downloads[0].downloadedAt).date.split('/')[1] + '/' + formatDateTime(selectedModule.downloads[0].downloadedAt).date.split('/')[2]
+                                            ? formatDateTime(selectedModule.downloads[0].downloadedAt).date
                                             : 'N/A'
                                         }
-                                    </p>
-                                    <p className="text-sm text-purple-600">Última Descarga</p>
+                                    </div>
+                                    <div className="text-sm text-gray-600 font-medium">Última Descarga</div>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Controls */}
-                        <div className="p-6 border-b border-gray-200">
-                            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-                                <div className="flex-1 max-w-md">
-                                    <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                        <input
-                                            type="text"
-                                            placeholder="Buscar descargas..."
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                                        />
+                            {/* Controles */}
+                            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                                    <div className="flex-1 max-w-md">
+                                        <div className="relative">
+                                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                            <input
+                                                type="text"
+                                                placeholder="Buscar descargas..."
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                            />
+                                        </div>
                                     </div>
-                                </div>
-
-                                <div className="flex items-center space-x-3">
-                                    <button
-                                        onClick={() => setShowUserSummary(!showUserSummary)}
-                                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-                                    >
-                                        <User className="w-4 h-4" />
-                                        <span>{showUserSummary ? 'Ver Registro' : 'Resumen por Usuario'}</span>
-                                    </button>
-                                    <button
-                                        onClick={() => exportModuleReport(selectedModule)}
-                                        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
-                                    >
-                                        <BarChart3 className="w-4 h-4" />
-                                        <span>Exportar</span>
-                                    </button>
+                                    <div className="flex items-center space-x-3">
+                                        <button
+                                            onClick={() => setShowUserSummary(!showUserSummary)}
+                                            className={`px-4 py-2 rounded-lg transition-colors flex items-center space-x-2 font-medium ${
+                                                showUserSummary 
+                                                    ? 'bg-purple-600 text-white hover:bg-purple-700' 
+                                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                            }`}
+                                        >
+                                            <User className="w-4 h-4" />
+                                            <span>{showUserSummary ? 'Ver Registro' : 'Resumen por Usuario'}</span>
+                                        </button>
+                                        <button
+                                            onClick={() => exportModuleReport(selectedModule)}
+                                            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2 font-medium"
+                                        >
+                                            <BarChart3 className="w-4 h-4" />
+                                            <span>Exportar</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Content */}
-                        <div className="p-6">
-                            {showUserSummary ? (
-                                // User Summary View
-                                <div>
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Resumen por Usuario</h3>
-                                    <div className="space-y-3">
-                                        {getUserSummary(selectedModule).map(({ user, count, lastDownload, company }, index) => (
-                                            <div key={user} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                                                <div className="flex items-center space-x-3">
-                                                    <div className="bg-blue-100 text-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-sm font-medium">
-                                                        #{index + 1}
-                                                    </div>
-                                                    <div>
-                                                        <div className="font-medium text-gray-900">{user}</div>
-                                                        <div className="text-sm text-gray-500 flex items-center">
-                                                            <Building className="w-3 h-3 mr-1" />
-                                                            {company}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="text-right">
-                                                    <div className="text-lg font-bold text-blue-600">{count} descargas</div>
-                                                    <div className="text-sm text-gray-500">Última: {formatDateTime(lastDownload).date}</div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ) : (
-                                // Downloads Log View
-                                <div>
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Registro de Descargas</h3>
-                                    <div className="space-y-3">
-                                        {getFilteredDownloads(selectedModule.downloads).map((download, index) => {
-                                            const { date, time } = formatDateTime(download.downloadedAt);
-                                            return (
-                                                <div key={download.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            {/* Contenido Principal */}
+                            <div className="bg-gray-50 rounded-lg p-4">
+                                {showUserSummary ? (
+                                    // Vista de Resumen por Usuario
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                            <BarChart3 className="w-5 h-5 mr-2 text-gray-600" />
+                                            Resumen por Usuario ({new Set(selectedModule.downloads.map(d => d.downloadedBy)).size})
+                                        </h3>
+                                        <div className="space-y-3 max-h-96 overflow-y-auto">
+                                            {getUserSummary(selectedModule).map(({ user, count, lastDownload, company }, ) => (
+                                                <div key={user} className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-100 hover:border-purple-200 transition-colors">
                                                     <div className="flex items-center space-x-3">
-                                                        <div className="bg-blue-100 text-blue-600 rounded-full w-8 h-8 flex items-center justify-center text-sm font-medium">
-                                                            #{index + 1}
+                                                        <div className="bg-purple-100 p-2 rounded-full">
+                                                            <User className="w-4 h-4 text-purple-600" />
                                                         </div>
-                                                        <User className="w-5 h-5 text-gray-400" />
                                                         <div>
-                                                            <div className="font-medium text-gray-900">{download.downloadedBy}</div>
-                                                            <div className="text-sm text-gray-500 flex items-center">
+                                                            <span className="text-sm font-medium text-gray-900">{user}</span>
+                                                            <div className="text-xs text-gray-500 flex items-center">
                                                                 <Building className="w-3 h-3 mr-1" />
-                                                                {download.company}
-                                                                {download.ipAddress && (
-                                                                    <>
-                                                                        <span className="mx-2">•</span>
-                                                                        <span>IP: {download.ipAddress}</span>
-                                                                    </>
-                                                                )}
+                                                                {company}
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div className="text-right">
-                                                        <div className="text-sm font-medium text-gray-900">{date}</div>
-                                                        <div className="text-sm text-gray-500">{time}</div>
+                                                        <span className="text-sm font-bold text-purple-600 flex items-center">
+                                                            <Download className="w-4 h-4 mr-1" />
+                                                            {count} descarga{count !== 1 ? 's' : ''}
+                                                        </span>
+                                                        <div className="text-xs text-gray-500">
+                                                            Última: {formatDateTime(lastDownload).date}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            );
-                                        })}
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                ) : (
+                                    // Vista de Registro de Descargas
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                            <User className="w-5 h-5 mr-2 text-gray-600" />
+                                            Detalle de Descargas ({getFilteredDownloads(selectedModule.downloads).length})
+                                        </h3>
+                                        <div className="space-y-3 max-h-96 overflow-y-auto">
+                                            {getFilteredDownloads(selectedModule.downloads).map((download, index) => {
+                                                const { date, time } = formatDateTime(download.downloadedAt);
+                                                return (
+                                                    <div key={download.id} className="bg-white rounded-lg p-4 border border-gray-200 hover:border-purple-300 hover:shadow-sm transition-all">
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex items-center space-x-3">
+                                                                <div className="bg-gradient-to-br from-purple-100 to-purple-200 p-2 rounded-full">
+                                                                    <User className="w-4 h-4 text-purple-600" />
+                                                                </div>
+                                                                <div>
+                                                                    <p className="font-medium text-gray-900 flex items-center">
+                                                                        {download.downloadedBy}
+                                                                        <span className="ml-2 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                                                                            #{index + 1}
+                                                                        </span>
+                                                                    </p>
+                                                                    <div className="flex items-center space-x-2 mt-1">
+                                                                        <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium flex items-center">
+                                                                            <Building className="w-3 h-3 mr-1" />
+                                                                            {download.company}
+                                                                        </span>
+                                                                        {download.ipAddress && (
+                                                                            <span className="text-xs text-gray-500 flex items-center">
+                                                                                🌐 {download.ipAddress}
+                                                                            </span>
+                                                                        )}
+                                                                        <span className="text-xs text-gray-500 flex items-center">
+                                                                            📄 {download.documentTitle}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <p className="text-sm font-medium text-gray-900 flex items-center justify-end">
+                                                                    <Calendar className="w-4 h-4 mr-1" />
+                                                                    {date}
+                                                                </p>
+                                                                <p className="text-xs text-gray-500 flex items-center justify-end">
+                                                                    <Download className="w-3 h-3 mr-1" />
+                                                                    {time} • {download.fileSize}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-
-                        {/* Modal Footer */}
-                        <div className="flex justify-end p-6 border-t border-gray-200">
+                        
+                        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end">
                             <button
                                 onClick={closeModal}
-                                className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+                                className="px-6 py-2 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all duration-200 font-medium shadow-lg hover:shadow-xl"
                             >
                                 Cerrar
                             </button>

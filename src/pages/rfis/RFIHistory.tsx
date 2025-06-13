@@ -1,6 +1,7 @@
 // src/pages/rfis/RFIHistory.tsx
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import {
     ArrowLeft,
     History,
@@ -21,7 +22,8 @@ import {
     EyeOff,
     Download,
     Users,
-    Building
+    Building,
+    FileText
 } from 'lucide-react';
 import type { RFI } from '../../types/rfi';
 import { MEP_DISCIPLINES } from '../../types/common';
@@ -101,6 +103,7 @@ const generateDownloadHistory = (rfiId: string, attachmentCount: number): Downlo
 };
 
 const RFIHistory: React.FC = () => {
+    const { user } = useAuth();
     const [filters, setFilters] = useState<HistoryFilters>({
         status: [],
         discipline: [],
@@ -158,9 +161,37 @@ const RFIHistory: React.FC = () => {
         closed: { label: 'Cerrada', color: 'bg-gray-100 text-gray-800', icon: XCircle }
     };
 
+    // Mapeo de departamentos del usuario a nombres de empresa
+    const getUserCompany = (userDepartment: string): string => {
+        switch (userDepartment) {
+            case 'Mecánicas':
+                return 'Fernández Mecánicas S.A.C.';
+            case 'Plomería':
+                return 'Vargas Plomería Industrial';
+            case 'Eléctricas':
+                return 'Electro Instalaciones Torres';
+            default:
+                return 'Constructora Principal'; // Para admin y otros casos
+        }
+    };
+
     // Filter RFIs based on current filters
     const filteredRFIs = useMemo(() => {
         return rfis.filter(rfi => {
+            // Primero verificar permisos de visibilidad
+            if (user) {
+                if (user.role === 'admin') {
+                    // El admin puede ver todos los RFIs
+                } else if (user.role === 'subcontractor') {
+                    // Los subcontratistas solo pueden ver RFIs de su propia empresa
+                    const userCompany = getUserCompany(user.department);
+                    const isOwn = rfi.company === userCompany || rfi.createdByCompany === userCompany;
+                    if (!isOwn) {
+                        return false;
+                    }
+                }
+            }
+
             // Search term filter
             if (filters.searchTerm) {
                 const searchLower = filters.searchTerm.toLowerCase();
@@ -196,7 +227,7 @@ const RFIHistory: React.FC = () => {
 
             return true;
         }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    }, [rfis, filters]);
+    }, [rfis, filters, user]);
 
     const toggleFilter = (filterType: keyof HistoryFilters, value: string) => {
         if (filterType === 'dateRange' || filterType === 'searchTerm') {
@@ -452,7 +483,7 @@ const RFIHistory: React.FC = () => {
                 // List View
                 <div className="space-y-4">
                     {filteredRFIs.map((rfi) => {
-                        const privacy = (rfi as any).privacy || 'publico';
+                        const privacy = rfi.privacy || 'publico';
                         const totalDownloads = getTotalDownloads(rfi.id);
                         const uniqueDownloaders = getUniqueDownloaders(rfi.id);
                         const lastDownload = getLastDownload(rfi.id);
@@ -567,7 +598,7 @@ const RFIHistory: React.FC = () => {
 
                         <div className="space-y-8">
                             {filteredRFIs.map((rfi) => {
-                                const privacy = (rfi as any).privacy || 'publico';
+                                const privacy = rfi.privacy || 'publico';
                                 const totalDownloads = getTotalDownloads(rfi.id);
                                 const uniqueDownloaders = getUniqueDownloaders(rfi.id);
 
@@ -765,9 +796,9 @@ const RFIHistory: React.FC = () => {
                                         <div>
                                             <span className="text-sm font-medium text-gray-500">Visibilidad:</span>
                                             <div className="mt-1">
-                                                <span className={`inline-flex items-center space-x-1 px-2 py-1 text-xs font-semibold rounded-full ${getPrivacyColor((viewModal.rfi as any).privacy || 'publico')}`}>
-                                                    {getPrivacyIcon((viewModal.rfi as any).privacy || 'publico')}
-                                                    <span>{(viewModal.rfi as any).privacy === 'privado' ? 'Privado' : 'Público'}</span>
+                                                <span className={`inline-flex items-center space-x-1 px-2 py-1 text-xs font-semibold rounded-full ${getPrivacyColor(viewModal.rfi.privacy || 'publico')}`}>
+                                                    {getPrivacyIcon(viewModal.rfi.privacy || 'publico')}
+                                                    <span>{viewModal.rfi.privacy === 'privado' ? 'Privado' : 'Público'}</span>
                                                 </span>
                                             </div>
                                         </div>
@@ -910,40 +941,40 @@ const RFIHistory: React.FC = () => {
 
 
                             {/* Email Data if sent as email */}
-                            {(viewModal.rfi as any).emailData && (viewModal.rfi as any).emailData.sentAsEmail && (
+                            {viewModal.rfi.emailData && viewModal.rfi.emailData.sentAsEmail && (
                                 <div>
                                     <h3 className="text-lg font-medium text-gray-900 mb-3">Información del Correo</h3>
                                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                                             <div>
                                                 <span className="font-medium text-blue-900">Para:</span>
-                                                <p className="text-blue-800">{(viewModal.rfi as any).emailData.para}</p>
+                                                <p className="text-blue-800">{viewModal.rfi.emailData.para}</p>
                                             </div>
                                             <div>
                                                 <span className="font-medium text-blue-900">Asunto:</span>
-                                                <p className="text-blue-800">{(viewModal.rfi as any).emailData.asunto}</p>
+                                                <p className="text-blue-800">{viewModal.rfi.emailData.asunto}</p>
                                             </div>
-                                            {(viewModal.rfi as any).emailData.cc && (viewModal.rfi as any).emailData.cc.length > 0 && (
+                                            {viewModal.rfi.emailData.cc && viewModal.rfi.emailData.cc.length > 0 && (
                                                 <div className="md:col-span-2">
                                                     <span className="font-medium text-blue-900">CC:</span>
-                                                    <p className="text-blue-800">{(viewModal.rfi as any).emailData.cc.join(', ')}</p>
+                                                    <p className="text-blue-800">{viewModal.rfi.emailData.cc.join(', ')}</p>
                                                 </div>
                                             )}
-                                            {(viewModal.rfi as any).emailData.otherEmails && (
+                                            {viewModal.rfi.emailData.otherEmails && (
                                                 <div className="md:col-span-2">
                                                     <span className="font-medium text-blue-900">Otros emails:</span>
-                                                    <p className="text-blue-800">{(viewModal.rfi as any).emailData.otherEmails}</p>
+                                                    <p className="text-blue-800">{viewModal.rfi.emailData.otherEmails}</p>
                                                 </div>
                                             )}
                                             <div className="md:col-span-2">
                                                 <span className="font-medium text-blue-900">Enviado:</span>
-                                                <p className="text-blue-800">{formatDate((viewModal.rfi as any).emailData.sentAt)}</p>
+                                                <p className="text-blue-800">{formatDate(viewModal.rfi.emailData.sentAt)}</p>
                                             </div>
                                         </div>
-                                        {(viewModal.rfi as any).emailData.texto && (
+                                        {viewModal.rfi.emailData.texto && (
                                             <div className="mt-3 pt-3 border-t border-blue-200">
                                                 <span className="font-medium text-blue-900">Mensaje del correo:</span>
-                                                <p className="text-blue-800 mt-1 whitespace-pre-wrap">{(viewModal.rfi as any).emailData.texto}</p>
+                                                <p className="text-blue-800 mt-1 whitespace-pre-wrap">{viewModal.rfi.emailData.texto}</p>
                                             </div>
                                         )}
                                     </div>
@@ -984,121 +1015,102 @@ const RFIHistory: React.FC = () => {
 
             {/* Download History Modal */}
             {downloadHistoryModal.isOpen && downloadHistoryModal.rfi && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[80vh] overflow-hidden">
-                        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                            <div>
-                                <h3 className="text-lg font-semibold text-gray-900">Historial de Descargas - RFI</h3>
-                                <p className="text-sm text-gray-600">{downloadHistoryModal.rfi.rfiNumber} - {downloadHistoryModal.rfi.title}</p>
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden">
+                        {/* Header */}
+                        <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                    <div className="p-2 bg-white/20 rounded-lg">
+                                        <Download className="w-6 h-6 text-white" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-xl font-bold text-white">Historial de Descargas</h2>
+                                        <p className="text-blue-100 text-sm">{downloadHistoryModal.rfi.rfiNumber} - {downloadHistoryModal.rfi.title}</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={closeDownloadHistoryModal}
+                                    className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                                >
+                                    <X className="w-6 h-6 text-white" />
+                                </button>
                             </div>
-                            <button
-                                onClick={closeDownloadHistoryModal}
-                                className="text-gray-400 hover:text-gray-600 text-2xl"
-                            >
-                                ×
-                            </button>
                         </div>
 
-                        <div className="p-6 overflow-y-auto max-h-[60vh]">
-                            {/* Summary Stats */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                                <div className="bg-blue-50 p-4 rounded-lg">
-                                    <div className="flex items-center space-x-2">
-                                        <Download className="w-5 h-5 text-blue-600" />
-                                        <span className="text-sm text-blue-600">Total Descargas</span>
-                                    </div>
-                                    <p className="text-2xl font-bold text-blue-900">{getTotalDownloads(downloadHistoryModal.rfi.id)}</p>
-                                </div>
-                                <div className="bg-green-50 p-4 rounded-lg">
-                                    <div className="flex items-center space-x-2">
-                                        <Users className="w-5 h-5 text-green-600" />
-                                        <span className="text-sm text-green-600">Usuarios Únicos</span>
-                                    </div>
-                                    <p className="text-2xl font-bold text-green-900">
-                                        {getUniqueDownloaders(downloadHistoryModal.rfi.id)}
-                                    </p>
-                                </div>
-                                <div className="bg-purple-50 p-4 rounded-lg">
-                                    <div className="flex items-center space-x-2">
-                                        <Calendar className="w-5 h-5 text-purple-600" />
-                                        <span className="text-sm text-purple-600">Última Descarga</span>
-                                    </div>
-                                    <p className="text-sm font-medium text-purple-900">
-                                        {getLastDownload(downloadHistoryModal.rfi.id) ?
-                                            formatDateTime(getLastDownload(downloadHistoryModal.rfi.id)!.downloadDate) :
-                                            'Sin descargas'
-                                        }
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Download History Table */}
-                            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                                <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
-                                    <h4 className="text-sm font-medium text-gray-900">Registro de Descargas</h4>
-                                </div>
-
-                                {(!rfiDownloadHistory[downloadHistoryModal.rfi.id] || rfiDownloadHistory[downloadHistoryModal.rfi.id].length === 0) ? (
-                                    <div className="p-8 text-center">
-                                        <Download className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                                        <p className="text-gray-500">No hay registros de descarga para esta RFI</p>
-                                    </div>
-                                ) : (
-                                    <div className="divide-y divide-gray-200">
-                                        {rfiDownloadHistory[downloadHistoryModal.rfi.id].map((record, index) => (
-                                            <div key={record.id} className="p-4 hover:bg-gray-50">
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-center space-x-4">
-                                                        <div className="flex-shrink-0">
-                                                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                                                <span className="text-lg">{getDocumentTypeIcon(record.documentType)}</span>
-                                                            </div>
-                                                        </div>
-                                                        <div>
-                                                            <div className="flex items-center space-x-2">
-                                                                <p className="text-sm font-medium text-gray-900">
-                                                                    {record.userName}
-                                                                </p>
-                                                                <span className="text-xs text-gray-500">#{index + 1}</span>
-                                                                <span className="inline-flex px-2 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-800">
-                                                                    {getDocumentTypeLabel(record.documentType)}
-                                                                </span>
-                                                            </div>
-                                                            <div className="flex items-center space-x-4 mt-1">
-                                                                <span className="flex items-center text-xs text-gray-500">
-                                                                    <Building className="w-3 h-3 mr-1" />
-                                                                    {record.userCompany}
-                                                                </span>
-                                                                <span className="text-xs text-gray-500">
-                                                                    📄 {record.documentName}
-                                                                </span>
-                                                                {record.ipAddress && (
-                                                                    <span className="text-xs text-gray-500">
-                                                                        IP: {record.ipAddress}
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="text-right">
-                                                        <div className="flex items-center text-sm text-gray-500">
-                                                            <Calendar className="w-4 h-4 mr-1" />
-                                                            {formatDateTime(record.downloadDate)}
-                                                        </div>
-                                                    </div>
-                                                </div>
+                        <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+                            {/* Statistics Cards */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <div className="flex items-center space-x-2 mb-2">
+                                                <Download className="w-5 h-5 text-blue-600" />
+                                                <p className="text-blue-700 font-medium text-sm">Total Descargas</p>
                                             </div>
-                                        ))}
+                                            <p className="text-3xl font-bold text-blue-900">{getTotalDownloads(downloadHistoryModal.rfi.id)}</p>
+                                            <p className="text-blue-600 text-xs mt-1">Documentos RFI</p>
+                                        </div>
+                                        <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
+                                            <Download className="w-6 h-6 text-white" />
+                                        </div>
                                     </div>
-                                )}
+                                </div>
+
+                                <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <div className="flex items-center space-x-2 mb-2">
+                                                <Users className="w-5 h-5 text-green-600" />
+                                                <p className="text-green-700 font-medium text-sm">Usuarios Únicos</p>
+                                            </div>
+                                            <p className="text-3xl font-bold text-green-900">
+                                                {getUniqueDownloaders(downloadHistoryModal.rfi.id)}
+                                            </p>
+                                            <p className="text-green-600 text-xs mt-1">Personas diferentes</p>
+                                        </div>
+                                        <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center">
+                                            <Users className="w-6 h-6 text-white" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <div className="flex items-center space-x-2 mb-2">
+                                                <Calendar className="w-5 h-5 text-purple-600" />
+                                                <p className="text-purple-700 font-medium text-sm">Última Descarga</p>
+                                            </div>
+                                            <p className="text-lg font-bold text-purple-900">
+                                                {getLastDownload(downloadHistoryModal.rfi.id) ?
+                                                    formatDateTime(getLastDownload(downloadHistoryModal.rfi.id)!.downloadDate).split(' ')[0] :
+                                                    'Nunca'
+                                                }
+                                            </p>
+                                            <p className="text-purple-600 text-xs mt-1">
+                                                {getLastDownload(downloadHistoryModal.rfi.id) ?
+                                                    formatDateTime(getLastDownload(downloadHistoryModal.rfi.id)!.downloadDate).split(' ')[1] :
+                                                    'Sin actividad'
+                                                }
+                                            </p>
+                                        </div>
+                                        <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center">
+                                            <Calendar className="w-6 h-6 text-white" />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             {/* User Summary */}
                             {rfiDownloadHistory[downloadHistoryModal.rfi.id] && rfiDownloadHistory[downloadHistoryModal.rfi.id].length > 0 && (
-                                <div className="mt-6">
-                                    <h4 className="text-sm font-medium text-gray-900 mb-3">Resumen por Usuario</h4>
-                                    <div className="bg-gray-50 rounded-lg p-4">
-                                        <div className="space-y-2">
+                                <div className="mb-8">
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                        <Users className="w-5 h-5 mr-2 text-gray-600" />
+                                        Resumen por Usuario
+                                    </h3>
+                                    <div className="bg-gray-50 rounded-xl p-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             {Object.entries(
                                                 rfiDownloadHistory[downloadHistoryModal.rfi.id].reduce((acc, record) => {
                                                     if (!acc[record.userId]) {
@@ -1118,22 +1130,33 @@ const RFIHistory: React.FC = () => {
                                                     return acc;
                                                 }, {} as Record<string, { name: string; company: string; count: number; lastDownload: string; documents: Set<string> }>)
                                             ).map(([userId, userInfo]) => (
-                                                <div key={userId} className="flex items-center justify-between p-2 bg-white rounded border">
-                                                    <div>
-                                                        <span className="text-sm font-medium text-gray-900">{userInfo.name}</span>
-                                                        <span className="text-xs text-gray-500 ml-2">({userInfo.company})</span>
-                                                        <div className="flex items-center space-x-1 mt-1">
-                                                            {Array.from(userInfo.documents).map(docType => (
-                                                                <span key={docType} className="inline-flex px-1 py-0.5 text-xs rounded bg-gray-100 text-gray-600">
-                                                                    {getDocumentTypeIcon(docType)} {getDocumentTypeLabel(docType)}
+                                                <div key={userId} className="bg-white rounded-lg border p-4 hover:shadow-sm transition-shadow">
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center space-x-3">
+                                                            <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center">
+                                                                <span className="text-blue-700 font-semibold text-sm">
+                                                                    {userInfo.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
                                                                 </span>
-                                                            ))}
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-medium text-gray-900">{userInfo.name}</p>
+                                                                <p className="text-sm text-gray-500">{userInfo.company}</p>
+                                                                <div className="flex items-center space-x-1 mt-1">
+                                                                    {Array.from(userInfo.documents).map(docType => (
+                                                                        <span key={docType} className="inline-flex px-1 py-0.5 text-xs rounded bg-gray-100 text-gray-600">
+                                                                            {getDocumentTypeIcon(docType)} {getDocumentTypeLabel(docType)}
+                                                                        </span>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                    <div className="text-right">
-                                                        <span className="text-sm font-medium text-blue-600">{userInfo.count} descargas</span>
-                                                        <div className="text-xs text-gray-500">
-                                                            Última: {formatDate(userInfo.lastDownload)}
+                                                        <div className="text-right">
+                                                            <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                                {userInfo.count} {userInfo.count === 1 ? 'descarga' : 'descargas'}
+                                                            </div>
+                                                            <p className="text-xs text-gray-500 mt-1">
+                                                                {formatDate(userInfo.lastDownload)}
+                                                            </p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1145,34 +1168,97 @@ const RFIHistory: React.FC = () => {
 
                             {/* Document Type Summary */}
                             {rfiDownloadHistory[downloadHistoryModal.rfi.id] && rfiDownloadHistory[downloadHistoryModal.rfi.id].length > 0 && (
-                                <div className="mt-6">
-                                    <h4 className="text-sm font-medium text-gray-900 mb-3">Descargas por Tipo de Documento</h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div className="mb-8">
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                        <FileText className="w-5 h-5 mr-2 text-gray-600" />
+                                        Descargas por Tipo de Documento
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         {Object.entries(
                                             rfiDownloadHistory[downloadHistoryModal.rfi.id].reduce((acc, record) => {
                                                 acc[record.documentType] = (acc[record.documentType] || 0) + 1;
                                                 return acc;
                                             }, {} as Record<string, number>)
                                         ).map(([docType, count]) => (
-                                            <div key={docType} className="bg-white border rounded-lg p-3 text-center">
-                                                <div className="text-2xl mb-1">{getDocumentTypeIcon(docType)}</div>
-                                                <div className="text-sm font-medium text-gray-900">{getDocumentTypeLabel(docType)}</div>
-                                                <div className="text-lg font-bold text-blue-600">{count}</div>
-                                                <div className="text-xs text-gray-500">descargas</div>
+                                            <div key={docType} className="bg-white border border-gray-200 rounded-xl p-4 text-center hover:shadow-sm transition-shadow">
+                                                <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                                    <span className="text-xl">{getDocumentTypeIcon(docType)}</span>
+                                                </div>
+                                                <div className="text-sm font-medium text-gray-900 mb-1">{getDocumentTypeLabel(docType)}</div>
+                                                <div className="text-2xl font-bold text-blue-600 mb-1">{count}</div>
+                                                <div className="text-xs text-gray-500">{count === 1 ? 'descarga' : 'descargas'}</div>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
                             )}
-                        </div>
 
-                        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end">
-                            <button
-                                onClick={closeDownloadHistoryModal}
-                                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                            >
-                                Cerrar
-                            </button>
+                            {/* Detailed Download Log */}
+                            <div>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                    <History className="w-5 h-5 mr-2 text-gray-600" />
+                                    Registro Detallado
+                                </h3>
+                                
+                                {(!rfiDownloadHistory[downloadHistoryModal.rfi.id] || rfiDownloadHistory[downloadHistoryModal.rfi.id].length === 0) ? (
+                                    <div className="bg-gray-50 rounded-xl p-12 text-center">
+                                        <Download className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                                        <h4 className="text-lg font-medium text-gray-900 mb-2">Sin Descargas Registradas</h4>
+                                        <p className="text-gray-500">Esta RFI aún no ha sido descargada por ningún usuario.</p>
+                                    </div>
+                                ) : (
+                                    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                                        <div className="divide-y divide-gray-100">
+                                            {rfiDownloadHistory[downloadHistoryModal.rfi.id].map((record, index) => (
+                                                <div key={record.id} className="p-4 hover:bg-gray-50 transition-colors">
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center space-x-4">
+                                                            <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center">
+                                                                <span className="text-blue-700 font-semibold text-sm">
+                                                                    {record.userName.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                                                                </span>
+                                                            </div>
+                                                            <div>
+                                                                <div className="flex items-center space-x-3">
+                                                                    <p className="font-medium text-gray-900">{record.userName}</p>
+                                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                                                        #{index + 1}
+                                                                    </span>
+                                                                    <span className="inline-flex px-2 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-800">
+                                                                        {getDocumentTypeIcon(record.documentType)} {getDocumentTypeLabel(record.documentType)}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="flex items-center space-x-4 mt-1 text-sm text-gray-500">
+                                                                    <span className="flex items-center">
+                                                                        <Building className="w-4 h-4 mr-1" />
+                                                                        {record.userCompany}
+                                                                    </span>
+                                                                    <span className="flex items-center">
+                                                                        <FileText className="w-4 h-4 mr-1" />
+                                                                        {record.documentName}
+                                                                    </span>
+                                                                    {record.ipAddress && (
+                                                                        <span className="flex items-center">
+                                                                            <Globe className="w-4 h-4 mr-1" />
+                                                                            {record.ipAddress}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <div className="flex items-center text-sm text-gray-900 font-medium">
+                                                                <Calendar className="w-4 h-4 mr-2" />
+                                                                {formatDateTime(record.downloadDate)}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

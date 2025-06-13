@@ -1,11 +1,11 @@
 // src/pages/schedules/MasterScheduleUpload.tsx
 import React, { useState } from 'react';
-import { 
-    Upload, 
-    FileText, 
-    Calendar, 
-    AlertCircle, 
-    CheckCircle, 
+import {
+    Upload,
+    FileText,
+    Calendar,
+    AlertCircle,
+    CheckCircle,
     Download,
     RefreshCw,
     Target,
@@ -14,8 +14,8 @@ import {
     History,
     Users,
     Building,
-    User,
-    X
+    X,
+    Globe
 } from 'lucide-react';
 
 interface DownloadRecord {
@@ -493,7 +493,7 @@ const MasterScheduleUpload: React.FC = () => {
     const handleFileUpload = (files: File[]) => {
         const supportedTypes = [
             'application/vnd.ms-project',
-            'application/xml', 
+            'application/xml',
             'text/xml',
             'application/x-primavera',
             'text/csv',
@@ -504,7 +504,7 @@ const MasterScheduleUpload: React.FC = () => {
 
         files.forEach(file => {
             const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
-            
+
             if (supportedTypes.includes(file.type) || supportedExtensions.includes(fileExtension)) {
                 uploadFile(file);
             } else {
@@ -532,7 +532,7 @@ const MasterScheduleUpload: React.FC = () => {
         // Simular el proceso de subida con diferentes etapas
         setTimeout(() => {
             // Cambiar a "procesando"
-            setUploadingFiles(prev => 
+            setUploadingFiles(prev =>
                 prev.map(f => f.name === file.name ? { ...f, status: 'processing' } : f)
             );
 
@@ -594,7 +594,7 @@ const MasterScheduleUpload: React.FC = () => {
             downloadHistory: [...(file.downloadHistory || []), newDownloadRecord]
         };
 
-        setUploadedFiles(prevFiles => 
+        setUploadedFiles(prevFiles =>
             prevFiles.map(f => f.name === file.name ? updatedFile : f)
         );
 
@@ -626,7 +626,7 @@ const MasterScheduleUpload: React.FC = () => {
     // Función para obtener la última descarga
     const getLastDownload = (downloadHistory: DownloadRecord[] = []): DownloadRecord | null => {
         if (downloadHistory.length === 0) return null;
-        return downloadHistory.reduce((latest, current) => 
+        return downloadHistory.reduce((latest, current) =>
             new Date(current.downloadDate) > new Date(latest.downloadDate) ? current : latest
         );
     };
@@ -748,13 +748,12 @@ const MasterScheduleUpload: React.FC = () => {
             {/* Upload Area */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Cargar Nuevo Cronograma</h2>
-                
+
                 <div
-                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-                        dragOver 
-                            ? 'border-blue-400 bg-blue-50' 
+                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${dragOver
+                            ? 'border-blue-400 bg-blue-50'
                             : 'border-gray-300 hover:border-gray-400'
-                    }`}
+                        }`}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
@@ -774,7 +773,7 @@ const MasterScheduleUpload: React.FC = () => {
                         onChange={handleFileSelect}
                         className="hidden"
                     />
-                    <button 
+                    <button
                         onClick={() => document.getElementById('file-upload')?.click()}
                         className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                     >
@@ -871,7 +870,7 @@ const MasterScheduleUpload: React.FC = () => {
                     {uploadedFiles.map((file, index) => {
                         const uniqueDownloaders = getUniqueDownloaders(file.downloadHistory);
                         const lastDownload = getLastDownload(file.downloadHistory);
-                        
+
                         return (
                             <div key={index} className="border border-gray-200 rounded-lg p-4">
                                 <div className="flex items-center justify-between">
@@ -911,7 +910,7 @@ const MasterScheduleUpload: React.FC = () => {
                                                     </>
                                                 )}
                                             </div>
-                                            
+
                                             {/* Download Statistics */}
                                             {(file.downloadCount || 0) > 0 && (
                                                 <div className="flex items-center space-x-4 text-sm mt-2">
@@ -939,12 +938,12 @@ const MasterScheduleUpload: React.FC = () => {
                                             )}
                                         </div>
                                     </div>
-                                    
+
                                     <div className="flex items-center space-x-2">
                                         <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(file.status)}`}>
                                             {file.status === 'completed' ? 'Completado' :
-                                             file.status === 'processing' ? 'Procesando' :
-                                             file.status === 'uploading' ? 'Cargando' : 'Error'}
+                                                file.status === 'processing' ? 'Procesando' :
+                                                    file.status === 'uploading' ? 'Cargando' : 'Error'}
                                         </span>
                                         <button
                                             onClick={() => showEditModal(file)}
@@ -1021,85 +1020,211 @@ const MasterScheduleUpload: React.FC = () => {
 
             {/* Download History Modal */}
             {downloadHistoryModal.isOpen && downloadHistoryModal.file && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-900">
-                                Historial de Descargas - {downloadHistoryModal.file.name}
-                            </h3>
-                            <button
-                                onClick={() => setDownloadHistoryModal({ isOpen: false, file: null })}
-                                className="p-2 hover:bg-gray-100 rounded-lg"
-                            >
-                                <X className="w-5 h-5 text-gray-500" />
-                            </button>
-                        </div>
-
-                        <div className="mb-6">
-                            <div className="grid grid-cols-3 gap-4 text-sm">
-                                <div className="bg-blue-50 p-3 rounded-lg">
-                                    <p className="text-blue-600 font-medium">Total Descargas</p>
-                                    <p className="text-2xl font-bold text-blue-900">{downloadHistoryModal.file.downloadCount || 0}</p>
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden">
+                        {/* Header */}
+                        <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                    <div className="p-2 bg-white/20 rounded-lg">
+                                        <Download className="w-6 h-6 text-white" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-xl font-bold text-white">Historial de Descargas</h2>
+                                        <p className="text-blue-100 text-sm">{downloadHistoryModal.file.name}</p>
+                                    </div>
                                 </div>
-                                <div className="bg-green-50 p-3 rounded-lg">
-                                    <p className="text-green-600 font-medium">Usuarios Únicos</p>
-                                    <p className="text-2xl font-bold text-green-900">
-                                        {getUniqueDownloaders(downloadHistoryModal.file.downloadHistory)}
-                                    </p>
-                                </div>
-                                <div className="bg-purple-50 p-3 rounded-lg">
-                                    <p className="text-purple-600 font-medium">Última Descarga</p>
-                                    <p className="text-sm font-bold text-purple-900">
-                                        {getLastDownload(downloadHistoryModal.file.downloadHistory)
-                                            ? formatDateTime(getLastDownload(downloadHistoryModal.file.downloadHistory)!.downloadDate)
-                                            : 'Nunca'
-                                        }
-                                    </p>
-                                </div>
+                                <button
+                                    onClick={() => setDownloadHistoryModal({ isOpen: false, file: null })}
+                                    className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                                >
+                                    <X className="w-6 h-6 text-white" />
+                                </button>
                             </div>
                         </div>
 
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="px-4 py-3 text-left font-medium text-gray-900">Usuario</th>
-                                        <th className="px-4 py-3 text-left font-medium text-gray-900">Empresa</th>
-                                        <th className="px-4 py-3 text-left font-medium text-gray-900">Fecha y Hora</th>
-                                        <th className="px-4 py-3 text-left font-medium text-gray-900">IP</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-200">
-                                    {downloadHistoryModal.file.downloadHistory?.map((record, index) => (
-                                        <tr key={record.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                            <td className="px-4 py-3">
-                                                <div className="flex items-center">
-                                                    <User className="w-4 h-4 text-gray-400 mr-2" />
-                                                    <span className="font-medium text-gray-900">{record.userName}</span>
+                        <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+                            {/* Statistics Cards */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <div className="flex items-center space-x-2 mb-2">
+                                                <Download className="w-5 h-5 text-blue-600" />
+                                                <p className="text-blue-700 font-medium text-sm">Total Descargas</p>
+                                            </div>
+                                            <p className="text-3xl font-bold text-blue-900">{downloadHistoryModal.file.downloadCount || 0}</p>
+                                            <p className="text-blue-600 text-xs mt-1">Archivo completo</p>
+                                        </div>
+                                        <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
+                                            <Download className="w-6 h-6 text-white" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <div className="flex items-center space-x-2 mb-2">
+                                                <Users className="w-5 h-5 text-green-600" />
+                                                <p className="text-green-700 font-medium text-sm">Usuarios Únicos</p>
+                                            </div>
+                                            <p className="text-3xl font-bold text-green-900">
+                                                {getUniqueDownloaders(downloadHistoryModal.file.downloadHistory)}
+                                            </p>
+                                            <p className="text-green-600 text-xs mt-1">Personas diferentes</p>
+                                        </div>
+                                        <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center">
+                                            <Users className="w-6 h-6 text-white" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-6">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <div className="flex items-center space-x-2 mb-2">
+                                                <Calendar className="w-5 h-5 text-purple-600" />
+                                                <p className="text-purple-700 font-medium text-sm">Última Descarga</p>
+                                            </div>
+                                            <p className="text-lg font-bold text-purple-900">
+                                                {getLastDownload(downloadHistoryModal.file.downloadHistory)
+                                                    ? formatDateTime(getLastDownload(downloadHistoryModal.file.downloadHistory)!.downloadDate).split(' ')[0]
+                                                    : 'Nunca'
+                                                }
+                                            </p>
+                                            <p className="text-purple-600 text-xs mt-1">
+                                                {getLastDownload(downloadHistoryModal.file.downloadHistory)
+                                                    ? formatDateTime(getLastDownload(downloadHistoryModal.file.downloadHistory)!.downloadDate).split(' ')[1]
+                                                    : 'Sin actividad'
+                                                }
+                                            </p>
+                                        </div>
+                                        <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center">
+                                            <Calendar className="w-6 h-6 text-white" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* User Summary */}
+                            {downloadHistoryModal.file.downloadHistory && downloadHistoryModal.file.downloadHistory.length > 0 && (
+                                <div className="mb-8">
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                        <Users className="w-5 h-5 mr-2 text-gray-600" />
+                                        Resumen por Usuario
+                                    </h3>
+                                    <div className="bg-gray-50 rounded-xl p-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {Object.entries(
+                                                downloadHistoryModal.file.downloadHistory.reduce((acc, record) => {
+                                                    if (!acc[record.userId]) {
+                                                        acc[record.userId] = {
+                                                            name: record.userName,
+                                                            company: record.userCompany,
+                                                            count: 0,
+                                                            lastDownload: record.downloadDate
+                                                        };
+                                                    }
+                                                    acc[record.userId].count++;
+                                                    if (new Date(record.downloadDate) > new Date(acc[record.userId].lastDownload)) {
+                                                        acc[record.userId].lastDownload = record.downloadDate;
+                                                    }
+                                                    return acc;
+                                                }, {} as Record<string, { name: string; company: string; count: number; lastDownload: string }>)
+                                            ).map(([userId, userInfo]) => (
+                                                <div key={userId} className="bg-white rounded-lg border p-4 hover:shadow-sm transition-shadow">
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center space-x-3">
+                                                            <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center">
+                                                                <span className="text-blue-700 font-semibold text-sm">
+                                                                    {userInfo.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                                                                </span>
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-medium text-gray-900">{userInfo.name}</p>
+                                                                <p className="text-sm text-gray-500">{userInfo.company}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                                {userInfo.count} {userInfo.count === 1 ? 'descarga' : 'descargas'}
+                                                            </div>
+                                                            <p className="text-xs text-gray-500 mt-1">
+                                                                {formatDateTime(userInfo.lastDownload).split(' ')[0]}
+                                                            </p>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <div className="flex items-center">
-                                                    <Building className="w-4 h-4 text-gray-400 mr-2" />
-                                                    <span className="text-gray-700">{record.userCompany}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-4 py-3 text-gray-900">
-                                                {formatDateTime(record.downloadDate)}
-                                            </td>
-                                            <td className="px-4 py-3 text-gray-500">
-                                                {record.ipAddress || 'N/A'}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                            {(!downloadHistoryModal.file.downloadHistory || downloadHistoryModal.file.downloadHistory.length === 0) && (
-                                <div className="text-center py-8 text-gray-500">
-                                    <Download className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                                    <p>No hay descargas registradas para este cronograma</p>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             )}
+
+                            {/* Detailed Download Log */}
+                            <div>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                    <FileText className="w-5 h-5 mr-2 text-gray-600" />
+                                    Registro Detallado
+                                </h3>
+
+                                {(!downloadHistoryModal.file.downloadHistory || downloadHistoryModal.file.downloadHistory.length === 0) ? (
+                                    <div className="bg-gray-50 rounded-xl p-12 text-center">
+                                        <Download className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                                        <h4 className="text-lg font-medium text-gray-900 mb-2">Sin Descargas Registradas</h4>
+                                        <p className="text-gray-500">Este cronograma aún no ha sido descargado por ningún usuario.</p>
+                                    </div>
+                                ) : (
+                                    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                                        <div className="divide-y divide-gray-100">
+                                            {downloadHistoryModal.file.downloadHistory.map((record, index) => (
+                                                <div key={record.id} className="p-4 hover:bg-gray-50 transition-colors">
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center space-x-4">
+                                                            <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center">
+                                                                <span className="text-blue-700 font-semibold text-sm">
+                                                                    {record.userName.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                                                                </span>
+                                                            </div>
+                                                            <div>
+                                                                <div className="flex items-center space-x-3">
+                                                                    <p className="font-medium text-gray-900">{record.userName}</p>
+                                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                                                        #{index + 1}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="flex items-center space-x-4 mt-1 text-sm text-gray-500">
+                                                                    <span className="flex items-center">
+                                                                        <Building className="w-4 h-4 mr-1" />
+                                                                        {record.userCompany}
+                                                                    </span>
+                                                                    <span className="flex items-center">
+                                                                        <FileText className="w-4 h-4 mr-1" />
+                                                                        {downloadHistoryModal.file?.name || 'Archivo'}
+                                                                    </span>
+                                                                    {record.ipAddress && (
+                                                                        <span className="flex items-center">
+                                                                            <Globe className="w-4 h-4 mr-1" />
+                                                                            {record.ipAddress}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <div className="flex items-center text-sm text-gray-900 font-medium">
+                                                                <Calendar className="w-4 h-4 mr-2" />
+                                                                {formatDateTime(record.downloadDate)}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

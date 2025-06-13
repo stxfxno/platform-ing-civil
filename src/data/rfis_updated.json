@@ -3,18 +3,20 @@
         {
             "id": "rfi-001",
             "rfiNumber": "RFI-2025-001",
-            "title": "Clarificación sobre instalaciones eléctricas en Piso 3",            "description": "Necesitamos clarificación sobre la ubicación exacta de los tableros eléctricos en el Piso 3, específicamente en las áreas de oficinas. Los planos actuales muestran conflictos con las instalaciones de HVAC.",
-            "discipline": "electricas",
+            "title": "Clarificación sobre instalaciones eléctricas en Piso 3",
+            "description": "Necesitamos clarificación sobre la ubicación exacta de los tableros eléctricos en el Piso 3, específicamente en las áreas de oficinas. Los planos actuales muestran conflictos con las instalaciones de HVAC.",
+            "discipline": "electrical",
             "priority": "high",
             "status": "open",
             "category": "Clarificación Técnica",
             "location": "Piso 3, Área Oficinas",
             "drawingReference": "E-003, E-004",
             "assignedTo": "ing-maria-gonzalez",
-            "requestedBy": "user-001",            "dueDate": "2025-05-30",
+            "requestedBy": "user-001",
+            "dueDate": "2025-05-30",
             "privacy": "publico",
-            "company": "Electro Instalaciones Torres",
-            "createdByCompany": "Electro Instalaciones Torres",
+            "company": "Constructora Principal",
+            "createdByCompany": "Constructora Principal",
             "attachments": [
                 {
                     "id": "att-001",
@@ -35,11 +37,13 @@
             "createdAt": "2025-05-23T09:00:00Z",
             "updatedAt": "2025-05-23T09:00:00Z",
             "createdBy": "user-001"
-        },        {
+        },
+        {
             "id": "rfi-002",
             "rfiNumber": "RFI-2025-002",
-            "title": "Especificaciones de ductos mecánicos en zona A",            "description": "Requerimos especificaciones detalladas sobre el tipo de ductos a utilizar en la zona A del sótano. Los documentos actuales no especifican si deben ser galvanizados o de acero inoxidable.",
-            "discipline": "mecanicas",
+            "title": "Especificaciones de ductos HVAC en zona A",
+            "description": "Requerimos especificaciones detalladas sobre el tipo de ductos a utilizar en la zona A del sótano. Los documentos actuales no especifican si deben ser galvanizados o de acero inoxidable.",
+            "discipline": "hvac",
             "priority": "medium",
             "status": "in_review",
             "category": "Especificaciones",
@@ -52,32 +56,22 @@
             "createdByCompany": "Fernández Mecánicas S.A.C.",
             "dueDate": "2025-06-28",
             "attachments": [],
-            "comments": [
-                {
-                    "id": "comment-001",
-                    "rfiId": "rfi-002",
-                    "comment": "Revisando especificaciones con el proveedor",
-                    "author": "ing-luis-torres",
-                    "isInternal": false,
-                    "createdAt": "2025-05-23T10:30:00Z",
-                    "updatedAt": "2025-05-23T10:30:00Z",
-                    "createdBy": "ing-luis-torres"
-                }
-            ],
+            "comments": [],
             "tags": [
                 "hvac",
-                "materiales",
+                "ductos",
                 "especificaciones"
             ],
-            "createdAt": "2025-05-22T14:00:00Z",
-            "updatedAt": "2025-05-23T10:30:00Z",
+            "createdAt": "2025-05-22T14:30:00Z",
+            "updatedAt": "2025-05-23T08:15:00Z",
             "createdBy": "user-002"
         },
         {
             "id": "rfi-003",
             "rfiNumber": "RFI-2025-003",
-            "title": "Coordinación de tuberías de plomería con estructura",            "description": "Las tuberías de agua fría en el Piso 2 presentan interferencia con las vigas estructurales según el modelo BIM. Necesitamos definir la ruta alternativa.",
-            "discipline": "plomeria",
+            "title": "Interferencia entre tuberías de plomería y estructura",
+            "description": "Se detectó interferencia entre las tuberías de agua caliente del Piso 2 con las vigas estructurales. Necesitamos definir nueva ruta o modificaciones estructurales.",
+            "discipline": "plumbing",
             "priority": "critical",
             "status": "responded",
             "category": "Coordinación",
@@ -113,21 +107,24 @@
             "createdAt": "2025-05-21T11:00:00Z",
             "updatedAt": "2025-05-24T16:00:00Z",
             "createdBy": "user-003"
-        },        {
+        },
+        {
             "id": "rfi-004",
             "rfiNumber": "RFI-2025-004",
-            "title": "Instalación de sistema eléctrico para rociadores",            "description": "Confirmación de especificaciones eléctricas para el sistema de rociadores en áreas de almacenamiento. Necesitamos saber los requerimientos de alimentación eléctrica.",
-            "discipline": "electricas",
+            "title": "Materiales para sistema contra incendios",
+            "description": "Confirmación de materiales específicos para el sistema de rociadores en áreas de almacenamiento. Necesitamos saber si se requieren rociadores de respuesta rápida.",
+            "discipline": "fire_protection",
             "priority": "high",
             "status": "open",
             "category": "Materiales",
             "location": "Piso 1, Área de Almacenamiento",
-            "drawingReference": "E-101",
-            "assignedTo": "ing-maria-gonzalez",
-            "requestedBy": "user-004",            "dueDate": "2025-06-27",
+            "drawingReference": "FP-101",
+            "assignedTo": "ing-sofia-ramirez",
+            "requestedBy": "user-004",
+            "dueDate": "2025-06-27",
             "privacy": "publico",
-            "company": "Electro Instalaciones Torres",
-            "createdByCompany": "Electro Instalaciones Torres",
+            "company": "Constructora Principal",
+            "createdByCompany": "Constructora Principal",
             "attachments": [],
             "comments": [],
             "tags": [
@@ -142,8 +139,9 @@
         {
             "id": "rfi-005",
             "rfiNumber": "RFI-2025-005",
-            "title": "Instalación de equipos mecánicos en azotea",            "description": "Aclaración sobre el procedimiento de izaje e instalación de los equipos de aire acondicionado en la azotea. Coordinar con grúa y permisos municipales.",
-            "discipline": "mecanicas",
+            "title": "Instalación de equipos mecánicos en azotea",
+            "description": "Aclaración sobre el procedimiento de izaje e instalación de los equipos de aire acondicionado en la azotea. Coordinar con grúa y permisos municipales.",
+            "discipline": "mechanical",
             "priority": "medium",
             "status": "closed",
             "category": "Instalación",
@@ -154,38 +152,38 @@
             "privacy": "privado",
             "company": "Fernández Mecánicas S.A.C.",
             "createdByCompany": "Fernández Mecánicas S.A.C.",
-            "dueDate": "2025-06-22",
-            "responseDate": "2025-05-22T14:00:00Z",
-            "response": "Procedimiento aprobado. Izaje programado para el 29 de mayo. Permisos ya gestionados.",
+            "dueDate": "2025-06-15",
+            "responseDate": "2025-06-12T10:00:00Z",
+            "response": "Coordinado con la municipalidad. Izaje programado para el viernes 14 de junio a las 6:00 AM.",
             "responseBy": "ing-carlos-perez",
-            "attachments": [],
-            "comments": [
+            "attachments": [
                 {
-                    "id": "comment-002",
-                    "rfiId": "rfi-005",
-                    "comment": "Confirmado con municipalidad",
-                    "author": "ing-carlos-perez",
-                    "isInternal": true,
-                    "createdAt": "2025-05-22T12:00:00Z",
-                    "updatedAt": "2025-05-22T12:00:00Z",
-                    "createdBy": "ing-carlos-perez"
+                    "id": "att-003",
+                    "name": "Permiso_Izaje_Municipal.pdf",
+                    "size": 1024000,
+                    "type": "application/pdf",
+                    "url": "/files/permiso-izaje.pdf",
+                    "uploadedAt": "2025-06-10T15:00:00Z",
+                    "uploadedBy": "user-005"
                 }
             ],
+            "comments": [],
             "tags": [
                 "mecánico",
                 "izaje",
                 "permisos",
                 "completado"
             ],
-            "createdAt": "2025-05-19T16:00:00Z",
-            "updatedAt": "2025-05-22T14:00:00Z",
+            "createdAt": "2025-06-08T13:45:00Z",
+            "updatedAt": "2025-06-12T10:00:00Z",
             "createdBy": "user-005"
         },
         {
             "id": "rfi-006",
             "rfiNumber": "RFI-2025-006",
-            "title": "Coordinación de conexiones eléctricas para bombas",            "description": "Consulta sobre las especificaciones eléctricas para la conexión de las bombas de agua potable y contra incendios en el cuarto de máquinas.",
-            "discipline": "electricas",
+            "title": "Coordinación de conexiones eléctricas para bombas",
+            "description": "Consulta sobre las especificaciones eléctricas para la conexión de las bombas de agua potable y contra incendios en el cuarto de máquinas.",
+            "discipline": "electrical",
             "priority": "high",
             "status": "open",
             "category": "Coordinación",
@@ -212,8 +210,9 @@
         {
             "id": "rfi-007",
             "rfiNumber": "RFI-2025-007",
-            "title": "Detalles de conexión de gas natural",            "description": "Solicitud de detalles específicos para la conexión de gas natural en la cocina del comedor empresarial. Verificar presiones y diámetros requeridos.",
-            "discipline": "plomeria",
+            "title": "Detalles de conexión de gas natural",
+            "description": "Solicitud de detalles específicos para la conexión de gas natural en la cocina del comedor empresarial. Verificar presiones y diámetros requeridos.",
+            "discipline": "plumbing",
             "priority": "medium",
             "status": "in_review",
             "category": "Instalación",
@@ -250,8 +249,9 @@
         {
             "id": "rfi-008",
             "rfiNumber": "RFI-2025-008",
-            "title": "Vibración en equipos de ventilación",            "description": "Consulta sobre medidas para reducir la vibración de los equipos de ventilación que afectan las oficinas del piso superior.",
-            "discipline": "mecanicas",
+            "title": "Vibración en equipos de ventilación",
+            "description": "Consulta sobre medidas para reducir la vibración de los equipos de ventilación que afectan las oficinas del piso superior.",
+            "discipline": "hvac",
             "priority": "high",
             "status": "responded",
             "category": "Solución de Problemas",
@@ -267,8 +267,9 @@
             "company": "Constructora Principal",
             "createdByCompany": "Fernández Mecánicas S.A.C.",
             "attachments": [],
-            "comments": [],            "tags": [
-                "mecánico",
+            "comments": [],
+            "tags": [
+                "hvac",
                 "vibraciones",
                 "equipos",
                 "resuelto"
@@ -276,88 +277,6 @@
             "createdAt": "2025-06-26T08:30:00Z",
             "updatedAt": "2025-06-29T16:45:00Z",
             "createdBy": "user-008"
-        },
-        {
-            "id": "rfi-009",
-            "rfiNumber": "RFI-2025-009",
-            "title": "Especificaciones de tableros eléctricos principales",            "description": "Consulta sobre las especificaciones técnicas de los tableros eléctricos principales. Necesitamos confirmar amperaje y tipo de protecciones requeridas.",
-            "discipline": "electricas",
-            "priority": "high",
-            "status": "open",
-            "category": "Especificaciones",
-            "location": "Sótano, Cuarto Eléctrico",
-            "drawingReference": "E-001, E-002",
-            "assignedTo": "ing-maria-gonzalez",
-            "requestedBy": "user-009",
-            "dueDate": "2025-07-10",
-            "privacy": "privado",
-            "company": "Electro Instalaciones Torres",
-            "createdByCompany": "Electro Instalaciones Torres",
-            "attachments": [
-                {
-                    "id": "att-005",
-                    "name": "Especificaciones_Tableros.pdf",
-                    "size": 2048000,
-                    "type": "application/pdf",
-                    "url": "/files/especificaciones-tableros.pdf",
-                    "uploadedAt": "2025-07-01T10:00:00Z",
-                    "uploadedBy": "user-009"
-                }
-            ],
-            "comments": [],
-            "tags": [
-                "eléctrico",
-                "tableros",
-                "especificaciones",
-                "amperaje"
-            ],
-            "createdAt": "2025-07-01T10:00:00Z",
-            "updatedAt": "2025-07-01T10:00:00Z",
-            "createdBy": "user-009"
-        }
-    ],
-    "users": [
-        {
-            "id": "user-001",
-            "name": "Ing. Roberto Silva",
-            "email": "roberto.silva@proyecto.com",
-            "role": "engineer",
-            "department": "Coordinación MEP"
-        },
-        {
-            "id": "ing-maria-gonzalez",
-            "name": "Ing. María González",
-            "email": "maria.gonzalez@proyecto.com",
-            "role": "engineer",
-            "department": "Eléctrico"
-        },
-        {
-            "id": "ing-luis-torres",
-            "name": "Ing. Luis Torres",
-            "email": "luis.torres@proyecto.com",
-            "role": "engineer",
-            "department": "HVAC"
-        },
-        {
-            "id": "ing-ana-lopez",
-            "name": "Ing. Ana López",
-            "email": "ana.lopez@proyecto.com",
-            "role": "engineer",
-            "department": "Plomería"
-        },
-        {
-            "id": "ing-sofia-ramirez",
-            "name": "Ing. Sofia Ramírez",
-            "email": "sofia.ramirez@proyecto.com",
-            "role": "engineer",
-            "department": "Protección Contra Incendios"
-        },
-        {
-            "id": "ing-carlos-perez",
-            "name": "Ing. Carlos Pérez",
-            "email": "carlos.perez@proyecto.com",
-            "role": "engineer",
-            "department": "Mecánico"
         }
     ]
 }
