@@ -188,7 +188,6 @@ const WeeklyActivities: React.FC = () => {
     
 
     const [activities, setActivities] = useState<WeeklyActivityData[]>(mockActivities);
-    const [selectedWeek] = useState('2025-05-26/2025-06-01');
     const [filterDiscipline, setFilterDiscipline] = useState<string>('');
     const [filterStatus, setFilterStatus] = useState<string>('');
     const [searchTerm, setSearchTerm] = useState('');
@@ -238,12 +237,7 @@ const WeeklyActivities: React.FC = () => {
     // Funciones para las nuevas funcionalidades
     const handleEditActivity = (activity: WeeklyActivityData) => {
         setSelectedActivity(activity);
-        setEditFormData({
-            ...activity,
-            equipment: activity.equipment || [],
-            materials: activity.materials || [],
-            dependencies: activity.dependencies || []
-        });
+        setEditFormData(activity);
         setShowEditModal(true);
         setActionMenuOpen(null);
     };
@@ -257,10 +251,7 @@ const WeeklyActivities: React.FC = () => {
             title: `${activity.title} (Copia)`,
             status: 'planned',
             progress: 0,
-            actualHours: 0,
-            equipment: activity.equipment || [],
-            materials: activity.materials || [],
-            dependencies: activity.dependencies || []
+            actualHours: 0
         });
         setShowDuplicateModal(true);
         setActionMenuOpen(null);
@@ -356,9 +347,8 @@ const WeeklyActivities: React.FC = () => {
                 plannedHours: template.plannedHours,
                 actualHours: 0,
                 location: '',
-                equipment: template.equipment || [],
-                materials: template.materials || [],
-                dependencies: []
+                equipment: template.equipment,
+                materials: template.materials
             };
             setEditFormData(newActivity);
             setShowTemplatesModal(false);
@@ -689,24 +679,14 @@ const WeeklyActivities: React.FC = () => {
                 </div>
             </div>
 
-            {/* Week Selector and Stats */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                        <Calendar className="w-5 h-5 text-gray-500" />
-                        <h2 className="text-lg font-semibold text-gray-900">Semana: {selectedWeek}</h2>
-                        <select className="px-3 py-1 border border-gray-300 rounded-lg text-sm">
-                            <option value="2025-05-26/2025-06-01">26 Mayo - 01 Junio 2025</option>
-                            <option value="2025-06-02/2025-06-08">02 Junio - 08 Junio 2025</option>
-                            <option value="2025-06-09/2025-06-15">09 Junio - 15 Junio 2025</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
             {/* Filters and Search */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                 <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex items-center space-x-2">
+                        <Calendar className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm font-medium text-gray-700">{new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                    </div>
+                    
                     <div className="flex items-center space-x-2">
                         <Search className="w-4 h-4 text-gray-500" />
                         <input
