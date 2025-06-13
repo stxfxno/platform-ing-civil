@@ -12,16 +12,36 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Usuario mock para desarrollo
-const MOCK_USER: User = {
-    id: '1',
-    name: 'Ing. Carlos Rodríguez',
-    email: 'carlos.rodriguez@ingenieriacivil.com',
-    role: 'engineer',
-    department: 'Gestión de Proyectos MEP',
-    avatar: '/avatar-placeholder.jpg',
-    isActive: true,
-};
+// Usuarios mock para desarrollo
+const MOCK_USERS: User[] = [
+    {
+        id: '1',
+        name: 'Alexandra Torres',
+        email: 'alexandra.torres@ingenieriacivil.com',
+        role: 'admin',
+        department: 'Gestión de Proyectos MEP',
+        avatar: '/avatar-placeholder.jpg',
+        isActive: true,
+    },
+    {
+        id: '2',
+        name: 'Piero Fernández',
+        email: 'piero.fernandez@subcontratista.com',
+        role: 'subcontractor',
+        department: 'Sistemas Mecánicos',
+        avatar: '/avatar-placeholder.jpg',
+        isActive: true,
+    },
+    {
+        id: '3',
+        name: 'Bryan Vargas',
+        email: 'bryan.vargas@subcontratista.com',
+        role: 'subcontractor',
+        department: 'Plomería',
+        avatar: '/avatar-placeholder.jpg',
+        isActive: true,
+    }
+];
 
 interface AuthProviderProps {
     children: ReactNode;
@@ -57,10 +77,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // Simular llamada a API
         return new Promise((resolve) => {
             setTimeout(() => {
-                // Validación simple para demo
-                if (email === 'admin@civil.com' && password === 'admin123') {
-                    setUser(MOCK_USER);
-                    localStorage.setItem('civil_eng_user', JSON.stringify(MOCK_USER));
+                // Buscar usuario por email
+                let selectedUser = null;
+                
+                if (email === 'alexandra.torres@ingenieriacivil.com' && password === 'admin123') {
+                    selectedUser = MOCK_USERS[0]; // Alexandra (admin)
+                } else if (email === 'piero.fernandez@subcontratista.com' && password === 'sub123') {
+                    selectedUser = MOCK_USERS[1]; // Piero (subcontractor)
+                } else if (email === 'bryan.vargas@subcontratista.com' && password === 'sub123') {
+                    selectedUser = MOCK_USERS[2]; // Bryan (subcontractor)
+                } else if (email === 'admin@civil.com' && password === 'admin123') {
+                    selectedUser = MOCK_USERS[0]; // Default admin
+                }
+
+                if (selectedUser) {
+                    setUser(selectedUser);
+                    localStorage.setItem('civil_eng_user', JSON.stringify(selectedUser));
                     setIsLoading(false);
                     resolve(true);
                 } else {

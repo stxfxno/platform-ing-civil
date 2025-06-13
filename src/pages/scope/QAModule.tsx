@@ -1,6 +1,7 @@
 // src/pages/scope/QAModule.tsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import {
     HelpCircle,
     Plus,
@@ -99,7 +100,7 @@ const mockQAItems: QAItem[] = [
         priority: 'low',
         status: 'answered',
         bidPackageId: 'BP-2025-004',
-        bidPackageName: 'Plomería y Sanitarios - Pisos 1-5',
+        bidPackageName: 'Plomería - Pisos 1-5',
         answer: 'El aislamiento térmico es requerido únicamente en tuberías expuestas en áreas con aire acondicionado para prevenir condensación. Espesor mínimo: 1/2" para tuberías hasta 2" y 3/4" para tuberías mayores. Ver plano de detalles PL-DET-003.',
         answeredBy: 'Ing. Ana López',
         answeredAt: '2025-05-20T15:45:00Z',
@@ -137,10 +138,40 @@ const mockQAItems: QAItem[] = [
         isPublic: true,
         createdAt: '2025-05-23T11:00:00Z',
         category: 'Alcance'
+    },
+    {
+        id: 'qa-007',
+        questionId: 'Q-2025-007',
+        question: '¿Cuáles son las penalidades específicas por retraso en la entrega de documentos as-built? ¿Existe algún incentivo por entrega anticipada?',
+        askedBy: 'Ing. Ricardo Salinas',
+        company: 'Constructora Lima Norte',
+        discipline: 'Gestión',
+        priority: 'medium',
+        status: 'answered',
+        answer: 'Las penalidades por retraso en documentos as-built son del 0.5% del valor del contrato por cada día de retraso, máximo 10%. No existen incentivos por entrega anticipada. Ver cláusula 15.3 del contrato principal.',
+        answeredBy: 'Alexandra Torres',
+        answeredAt: '2025-05-23T16:20:00Z',
+        isPublic: false,
+        createdAt: '2025-05-23T09:45:00Z',
+        category: 'Contractual'
+    },
+    {
+        id: 'qa-008',
+        questionId: 'Q-2025-008',
+        question: '¿Los precios unitarios incluyen todos los impuestos? ¿Cómo se manejan las variaciones de tipo de cambio para materiales importados?',
+        askedBy: 'Ing. Patricia Vega',
+        company: 'Importaciones MEP SAC',
+        discipline: 'Comercial',
+        priority: 'high',
+        status: 'pending',
+        isPublic: false,
+        createdAt: '2025-05-24T08:30:00Z',
+        category: 'Presupuesto'
     }
 ];
 
 const QAModule: React.FC = () => {
+    const { user } = useAuth();
     const [qaItems, setQaItems] = useState<QAItem[]>(mockQAItems);
     const [selectedStatus, setSelectedStatus] = useState<string>('all');
     const [selectedDiscipline, setSelectedDiscipline] = useState<string>('all');
@@ -148,6 +179,9 @@ const QAModule: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [showFilters, setShowFilters] = useState(false);
     const [showPublicOnly,] = useState(false);
+
+    // Verificar si el usuario actual es contratista principal (admin)
+    const isMainContractor = user?.role === 'admin' || user?.role === 'contractor';
 
     // Estados para modales
     const [showNewQuestionModal, setShowNewQuestionModal] = useState(false);
@@ -249,7 +283,7 @@ const QAModule: React.FC = () => {
             status: 'pending',
             bidPackageId: newQuestion.bidPackageId || undefined,
             bidPackageName: newQuestion.bidPackageId ? `Paquete ${newQuestion.bidPackageId}` : undefined,
-            isPublic: newQuestion.isPublic,
+            isPublic: isMainContractor ? newQuestion.isPublic : true, // Forzar público para subcontratistas
             createdAt: new Date().toISOString(),
             category: newQuestion.category
         };
@@ -261,7 +295,7 @@ const QAModule: React.FC = () => {
             category: '',
             priority: 'medium',
             bidPackageId: '',
-            isPublic: true,
+            isPublic: true, // Siempre público para subcontratistas
             company: 'Mi Empresa SAC',
             askedBy: 'Usuario Actual'
         });
@@ -311,14 +345,20 @@ const QAModule: React.FC = () => {
         const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
         const matchesVisibility = !showPublicOnly || item.isPublic;
 
-        return matchesSearch && matchesStatus && matchesDiscipline && matchesCategory && matchesVisibility;
+        // Filtro de permisos: Solo contratista principal puede ver preguntas privadas
+        const hasPermission = item.isPublic || isMainContractor;
+
+        return matchesSearch && matchesStatus && matchesDiscipline && matchesCategory && matchesVisibility && hasPermission;
     });
 
+    // Filtrar preguntas según permisos para estadísticas
+    const visibleQAItems = qaItems.filter(item => item.isPublic || isMainContractor);
+
     const statusCounts = {
-        all: qaItems.length,
-        pending: qaItems.filter(q => q.status === 'pending').length,
-        answered: qaItems.filter(q => q.status === 'answered').length,
-        clarified: qaItems.filter(q => q.status === 'clarified').length
+        all: visibleQAItems.length,
+        pending: visibleQAItems.filter(q => q.status === 'pending').length,
+        answered: visibleQAItems.filter(q => q.status === 'answered').length,
+        clarified: visibleQAItems.filter(q => q.status === 'clarified').length
     };
 
     const categories = [...new Set(qaItems.map(item => item.category))];
@@ -349,7 +389,7 @@ const QAModule: React.FC = () => {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className={`grid grid-cols-1 gap-4 ${isMainContractor ? 'md:grid-cols-5' : 'md:grid-cols-4'}`}>
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                     <div className="flex items-center justify-between">
                         <div>
@@ -383,15 +423,53 @@ const QAModule: React.FC = () => {
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-gray-600">Públicas</p>
+                            <p className="text-sm text-gray-600">
+                                {isMainContractor ? 'Públicas' : 'Visibles'}
+                            </p>
                             <p className="text-2xl font-bold text-blue-600">
-                                {qaItems.filter(q => q.isPublic).length}
+                                {isMainContractor 
+                                    ? qaItems.filter(q => q.isPublic).length
+                                    : visibleQAItems.length
+                                }
                             </p>
                         </div>
                         <Globe className="w-8 h-8 text-blue-500" />
                     </div>
                 </div>
+
+                {/* Estadística adicional para contratista principal */}
+                {isMainContractor && (
+                    <div className="bg-white p-4 rounded-lg border border-gray-200">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm text-gray-600">Privadas</p>
+                                <p className="text-2xl font-bold text-orange-600">
+                                    {qaItems.filter(q => !q.isPublic).length}
+                                </p>
+                            </div>
+                            <Lock className="w-8 h-8 text-orange-500" />
+                        </div>
+                    </div>
+                )}
             </div>
+
+            {/* Mensaje informativo sobre permisos */}
+            {!isMainContractor && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                    <div className="flex items-start space-x-3">
+                        <Lock className="w-5 h-5 text-amber-600 mt-0.5" />
+                        <div>
+                            <h3 className="text-sm font-medium text-amber-900 mb-1">
+                                Acceso a Preguntas
+                            </h3>
+                            <p className="text-sm text-amber-800">
+                                Como subcontratista, solo puedes ver las preguntas marcadas como <strong>públicas</strong>. 
+                                Las preguntas privadas son visibles únicamente para el contratista principal.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Search and Filters */}
             <div className="bg-white rounded-lg border border-gray-200 p-4">
@@ -577,7 +655,7 @@ const QAModule: React.FC = () => {
                                 </div>
 
                                 <div className="flex items-center space-x-2">
-                                    {item.status === 'pending' && (
+                                    {item.status === 'pending' && isMainContractor && (
                                         <button
                                             onClick={() => openResponseModal(item)}
                                             className="px-3 py-1 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-1"
@@ -585,6 +663,11 @@ const QAModule: React.FC = () => {
                                             <Send className="w-3 h-3" />
                                             <span>Responder</span>
                                         </button>
+                                    )}
+                                    {item.status === 'pending' && !isMainContractor && (
+                                        <span className="px-3 py-1 bg-gray-100 text-gray-500 text-xs rounded-lg">
+                                            Pendiente de respuesta
+                                        </span>
                                     )}
                                 </div>
                             </div>
@@ -746,17 +829,31 @@ const QAModule: React.FC = () => {
 
                             {/* Visibilidad */}
                             <div>
-                                <label className="flex items-center space-x-3">
-                                    <input
-                                        type="checkbox"
-                                        checked={newQuestion.isPublic}
-                                        onChange={(e) => setNewQuestion({ ...newQuestion, isPublic: e.target.checked })}
-                                        className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                                    />
-                                    <span className="text-sm text-gray-700">
-                                        Hacer esta pregunta pública (visible para todos los participantes)
-                                    </span>
-                                </label>
+                                {isMainContractor ? (
+                                    <label className="flex items-center space-x-3">
+                                        <input
+                                            type="checkbox"
+                                            checked={newQuestion.isPublic}
+                                            onChange={(e) => setNewQuestion({ ...newQuestion, isPublic: e.target.checked })}
+                                            className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                                        />
+                                        <span className="text-sm text-gray-700">
+                                            Hacer esta pregunta pública (visible para todos los participantes)
+                                        </span>
+                                    </label>
+                                ) : (
+                                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                        <div className="flex items-center space-x-2">
+                                            <Globe className="w-4 h-4 text-blue-600" />
+                                            <span className="text-sm font-medium text-blue-900">
+                                                Pregunta pública
+                                            </span>
+                                        </div>
+                                        <p className="text-sm text-blue-800 mt-1">
+                                            Como subcontratista, tus preguntas son automáticamente públicas y visibles para todos.
+                                        </p>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Botones */}

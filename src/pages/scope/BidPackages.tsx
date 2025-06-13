@@ -93,9 +93,9 @@ const mockBidPackages: BidPackage[] = [
     {
         id: 'bp-004',
         packageId: 'BP-2025-004',
-        title: 'Plomería y Sanitarios - Pisos 1-5',
+        title: 'Plomería - Pisos 1-5',
         discipline: 'Plomería',
-        description: 'Instalación completa de sistemas de plomería y sanitarios para pisos 1 al 5, incluyendo tuberías, accesorios, bombas y equipos de tratamiento.',
+        description: 'Instalación completa de sistemas de plomería para pisos 1 al 5, incluyendo tuberías, accesorios, bombas y equipos de tratamiento.',
         status: 'closed',
         deadline: '2025-05-15',
         publishDate: '2025-03-20',

@@ -200,6 +200,25 @@ const Login: React.FC = () => {
                             )}
                         </button>
 
+                        {/* Demo Users Info */}
+                        <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+                            <h4 className="text-sm font-medium text-slate-900 mb-3">Usuarios de prueba disponibles:</h4>
+                            <div className="space-y-2 text-xs">
+                                <div className="flex justify-between">
+                                    <span className="text-slate-600">Alexandra Torres (Contratista Principal):</span>
+                                    <span className="font-mono text-slate-900">alexandra.torres@ingenieriacivil.com / admin123</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-slate-600">Piero Fernández (Subcontratista):</span>
+                                    <span className="font-mono text-slate-900">piero.fernandez@subcontratista.com / sub123</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-slate-600">Bryan Vargas (Subcontratista):</span>
+                                    <span className="font-mono text-slate-900">bryan.vargas@subcontratista.com / sub123</span>
+                                </div>
+                            </div>
+                        </div>
+
                         {/* Demo Fill Button 
                         <button
                             type="button"

@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import App from './App';
 import Login from './pages/auth/Login';
+import Profile from './pages/auth/Profile';
 import Dashboard from './pages/dashboard/Dashboard';
 
 // RFIs
@@ -84,6 +85,10 @@ export const router = createBrowserRouter([
             {
                 path: 'dashboard',
                 element: <Dashboard />,
+            },
+            {
+                path: 'perfil',
+                element: <Profile />,
             },
 
             // ==================== RFIs Routes ====================

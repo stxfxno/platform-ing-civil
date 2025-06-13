@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import {
     DollarSign,
     Plus,
@@ -43,16 +44,16 @@ const mockBudgets: Budget[] = [
         budgetNumber: 'PRES-2025-001',
         title: 'Sistema HVAC - Área Administrativa',
         description: 'Presupuesto para instalación completa del sistema HVAC en área administrativa incluyendo ductos, equipos principales y controles automáticos.',
-        requestedBy: 'Ing. Carlos Mendoza',
-        company: 'HVAC Solutions S.A.C.',
-        subcontractor: 'Climatización Total SAC',
+        requestedBy: 'Piero Fernández',
+        company: 'Sistemas Mecánicos Perú SAC',
+        subcontractor: 'Piero Fernández',
         discipline: 'mecanica',
         destinatario: 'Gerencia de Proyectos',
         location: 'Piso 3, Área Administrativa',
         requestReason: 'Expansión del sistema de climatización según nuevos requerimientos del cliente',
         priority: 'alta',
         status: 'pending',
-        dueDate: '2025-06-06',
+        dueDate: '2025-06-30', // En unas semanas
         createdAt: '2025-06-03T10:30:00Z',
         estimatedValue: 85000,
         currency: 'USD'
@@ -71,7 +72,7 @@ const mockBudgets: Budget[] = [
         requestReason: 'Falla crítica detectada en sistema de respaldo eléctrico durante inspección preventiva',
         priority: 'urgente',
         status: 'approved',
-        dueDate: '2025-06-04',
+        dueDate: '2025-06-05', // Esta será la única vencida
         createdAt: '2025-06-03T08:15:00Z',
         estimatedValue: 32000,
         currency: 'USD'
@@ -81,16 +82,16 @@ const mockBudgets: Budget[] = [
         budgetNumber: 'PRES-2025-003',
         title: 'Sistema de Plomería - Expansión',
         description: 'Presupuesto para extensión del sistema de plomería hacia nueva área de laboratorios según especificaciones técnicas actualizadas.',
-        requestedBy: 'Ing. Ana López',
+        requestedBy: 'Bryan Vargas',
         company: 'Plomería Industrial SAC',
-        subcontractor: 'Instalaciones Hidráulicas Perú',
+        subcontractor: 'Bryan Vargas',
         discipline: 'plomeria',
         destinatario: 'Coordinación MEP',
         location: 'Piso 2, Área Laboratorios',
         requestReason: 'Adecuación de instalaciones para cumplir con nuevas normativas sanitarias',
         priority: 'media',
         status: 'rejected',
-        dueDate: '2025-06-08',
+        dueDate: '2025-07-15', // En unas semanas
         createdAt: '2025-06-03T14:20:00Z',
         estimatedValue: 45000,
         currency: 'USD'
@@ -100,29 +101,115 @@ const mockBudgets: Budget[] = [
         budgetNumber: 'PRES-2025-004',
         title: 'Equipos Mecánicos - Sala de Máquinas',
         description: 'Presupuesto para instalación de nuevos equipos mecánicos en sala de máquinas incluyendo bombas y sistemas auxiliares.',
-        requestedBy: 'Ing. Carlos Pérez',
-        company: 'MEP Contractors Inc.',
-        subcontractor: 'Mecánica Industrial Perú',
+        requestedBy: 'Piero Fernández',
+        company: 'Sistemas Mecánicos Perú SAC',
+        subcontractor: 'Piero Fernández',
         discipline: 'mecanica',
         destinatario: 'Administración General',
         location: 'Sótano, Sala de Máquinas',
         requestReason: 'Renovación de equipos obsoletos para mejorar eficiencia energética',
         priority: 'baja',
         status: 'pending',
-        dueDate: '2025-06-10',
+        dueDate: '2025-06-25', // En unas semanas
         createdAt: '2025-06-03T16:45:00Z',
         estimatedValue: 68000,
+        currency: 'USD'
+    },
+    {
+        id: 'budget-005',
+        budgetNumber: 'PRES-2025-005',
+        title: 'Instalaciones Sanitarias - Planta Baja',
+        description: 'Presupuesto para renovación completa de instalaciones sanitarias en planta baja, incluyendo tuberías, accesorios y equipos.',
+        requestedBy: 'Bryan Vargas',
+        company: 'Plomería Industrial SAC',
+        subcontractor: 'Bryan Vargas',
+        discipline: 'plomeria',
+        destinatario: 'Gerencia de Infraestructura',
+        location: 'Planta Baja, Área Común',
+        requestReason: 'Modernización de instalaciones sanitarias para mejorar eficiencia hídrica',
+        priority: 'media',
+        status: 'approved',
+        dueDate: '2025-07-10',
+        createdAt: '2025-06-04T09:15:00Z',
+        estimatedValue: 28000,
+        currency: 'USD'
+    },
+    {
+        id: 'budget-006',
+        budgetNumber: 'PRES-2025-006',
+        title: 'Sistema de Ventilación Mecánica',
+        description: 'Cotización para instalación de sistema de ventilación mecánica en área de producción según normas de seguridad industrial.',
+        requestedBy: 'Piero Fernández',
+        company: 'Sistemas Mecánicos Perú SAC',
+        subcontractor: 'Piero Fernández',
+        discipline: 'mecanica',
+        destinatario: 'Jefe de Producción',
+        location: 'Piso 1, Área de Producción',
+        requestReason: 'Cumplimiento de normativas de seguridad e higiene ocupacional',
+        priority: 'alta',
+        status: 'pending',
+        dueDate: '2025-06-28',
+        createdAt: '2025-06-05T11:30:00Z',
+        estimatedValue: 52000,
+        currency: 'USD'
+    },
+    {
+        id: 'budget-007',
+        budgetNumber: 'PRES-2025-007',
+        title: 'Red de Agua Contra Incendios',
+        description: 'Presupuesto para instalación de red húmeda contra incendios en todos los pisos del edificio según normativa NFPA.',
+        requestedBy: 'Bryan Vargas',
+        company: 'Plomería Industrial SAC',
+        subcontractor: 'Bryan Vargas',
+        discipline: 'plomeria',
+        destinatario: 'Coordinación de Seguridad',
+        location: 'Todos los pisos',
+        requestReason: 'Implementación obligatoria de sistema contra incendios según normativa vigente',
+        priority: 'urgente',
+        status: 'pending',
+        dueDate: '2025-06-20',
+        createdAt: '2025-06-06T08:45:00Z',
+        estimatedValue: 75000,
         currency: 'USD'
     }
 ];
 
 const Budgets: React.FC = () => {
+    const { user } = useAuth();
     const [budgets, setBudgets] = useState<Budget[]>(mockBudgets);
     const [selectedStatus, setSelectedStatus] = useState<string>('all');
     const [selectedPriority, setSelectedPriority] = useState<string>('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [showFilters, setShowFilters] = useState(false);
     const [showNewBudgetModal, setShowNewBudgetModal] = useState(false);
+
+    // Verificar si el usuario actual es contratista principal
+    const isMainContractor = user?.role === 'admin' || user?.role === 'contractor';
+    
+    // Determinar la disciplina del subcontratista
+    const getUserDiscipline = (): Budget['discipline'] | null => {
+        if (isMainContractor) return null;
+        
+        switch (user?.department) {
+            case 'Sistemas Mecánicos': return 'mecanica';
+            case 'Plomería': return 'plomeria';
+            case 'Instalaciones Eléctricas': return 'electrica';
+            default: return null;
+        }
+    };
+
+    const userDiscipline = getUserDiscipline();
+
+    // Inicializar el formulario correctamente según el tipo de usuario
+    useEffect(() => {
+        if (!isMainContractor && userDiscipline) {
+            setFormData(prev => ({
+                ...prev,
+                discipline: userDiscipline,
+                subcontractor: user?.name || ''
+            }));
+        }
+    }, [isMainContractor, userDiscipline, user?.name]);
 
     // Form state
     const [formData, setFormData] = useState({
@@ -133,7 +220,9 @@ const Budgets: React.FC = () => {
         destinatario: '',
         location: '',
         requestReason: '',
-        priority: 'media' as Budget['priority']
+        priority: 'media' as Budget['priority'],
+        estimatedValue: 0,
+        currency: 'USD'
     });
 
     const getStatusColor = (status: string) => {
@@ -240,14 +329,26 @@ const Budgets: React.FC = () => {
         const matchesStatus = selectedStatus === 'all' || budget.status === selectedStatus;
         const matchesPriority = selectedPriority === 'all' || budget.priority === selectedPriority;
 
-        return matchesSearch && matchesStatus && matchesPriority;
+        // Control de permisos: subcontratistas solo ven sus propios presupuestos
+        const hasPermission = isMainContractor || 
+                            (userDiscipline && budget.discipline === userDiscipline) ||
+                            budget.subcontractor === user?.name;
+
+        return matchesSearch && matchesStatus && matchesPriority && hasPermission;
+    });
+
+    // Filtrar presupuestos según permisos para estadísticas
+    const visibleBudgets = budgets.filter(budget => {
+        return isMainContractor || 
+               (userDiscipline && budget.discipline === userDiscipline) ||
+               budget.subcontractor === user?.name;
     });
 
     const statusCounts = {
-        all: budgets.length,
-        pending: budgets.filter(b => b.status === 'pending').length,
-        approved: budgets.filter(b => b.status === 'approved').length,
-        rejected: budgets.filter(b => b.status === 'rejected').length
+        all: visibleBudgets.length,
+        pending: visibleBudgets.filter(b => b.status === 'pending').length,
+        approved: visibleBudgets.filter(b => b.status === 'approved').length,
+        rejected: visibleBudgets.filter(b => b.status === 'rejected').length
     };
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -255,13 +356,21 @@ const Budgets: React.FC = () => {
         const newBudget: Budget = {
             id: `budget-${Date.now()}`,
             budgetNumber: `PRES-2025-${String(budgets.length + 1).padStart(3, '0')}`,
-            ...formData,
-            requestedBy: 'Ing. Carlos Rodríguez', // Usuario actual
-            company: 'Plataforma Civil', // Empresa actual
+            title: formData.title,
+            description: formData.description,
+            requestedBy: user?.name || 'Usuario Actual',
+            company: isMainContractor ? 'Plataforma Civil' : (user?.name || 'Usuario Actual'),
+            subcontractor: isMainContractor ? formData.subcontractor : (user?.name || 'Usuario Actual'),
+            discipline: isMainContractor ? formData.discipline : (userDiscipline || 'mecanica'),
+            destinatario: formData.destinatario,
+            location: formData.location,
+            requestReason: formData.requestReason,
+            priority: formData.priority,
+            estimatedValue: formData.estimatedValue,
             dueDate: calculateDueDate(formData.priority),
             createdAt: new Date().toISOString(),
             status: 'pending',
-            currency: 'USD'
+            currency: formData.currency
         };
         
         setBudgets(prev => [newBudget, ...prev]);
@@ -272,11 +381,13 @@ const Budgets: React.FC = () => {
             title: '',
             description: '',
             subcontractor: '',
-            discipline: 'mecanica',
+            discipline: isMainContractor ? 'mecanica' : (userDiscipline || 'mecanica'),
             destinatario: '',
             location: '',
             requestReason: '',
-            priority: 'media'
+            priority: 'media',
+            estimatedValue: 0,
+            currency: 'USD'
         });
     };
 
@@ -354,6 +465,25 @@ const Budgets: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Mensaje informativo sobre permisos */}
+            {!isMainContractor && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-start space-x-3">
+                        <Building className="w-5 h-5 text-blue-600 mt-0.5" />
+                        <div>
+                            <h3 className="text-sm font-medium text-blue-900 mb-1">
+                                Acceso a Presupuestos
+                            </h3>
+                            <p className="text-sm text-blue-800">
+                                Como subcontratista de <strong>{user?.department}</strong>, solo puedes ver los presupuestos 
+                                relacionados con tu disciplina {userDiscipline && `(${getDisciplineLabel(userDiscipline)})`}. 
+                                El contratista principal puede ver todos los presupuestos.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Search and Filters */}
             <div className="bg-white rounded-lg border border-gray-200 p-4">
@@ -668,15 +798,24 @@ const Budgets: React.FC = () => {
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Disciplina <span className="text-red-500">*</span>
                                 </label>
-                                <select
-                                    value={formData.discipline}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, discipline: e.target.value as Budget['discipline'] }))}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                >
-                                    <option value="mecanica">Mecánica</option>
-                                    <option value="electrica">Eléctrica</option>
-                                    <option value="plomeria">Plomería</option>
-                                </select>
+                                {isMainContractor ? (
+                                    <select
+                                        value={formData.discipline}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, discipline: e.target.value as Budget['discipline'] }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                    >
+                                        <option value="mecanica">Mecánica</option>
+                                        <option value="electrica">Eléctrica</option>
+                                        <option value="plomeria">Plomería</option>
+                                    </select>
+                                ) : (
+                                    <div className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-700">
+                                        {getDisciplineLabel(userDiscipline || 'mecanica')}
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Solo puedes crear presupuestos para tu disciplina
+                                        </p>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Destinatario */}
@@ -742,6 +881,39 @@ const Budgets: React.FC = () => {
                                 <p className="text-sm text-gray-500 mt-1">
                                     Fecha límite: {formatDate(calculateDueDate(formData.priority))}
                                 </p>
+                            </div>
+
+                            {/* Monto Estimado y Moneda */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Monto Estimado <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="number"
+                                        required
+                                        min="0"
+                                        step="0.01"
+                                        value={formData.estimatedValue}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, estimatedValue: parseFloat(e.target.value) || 0 }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                        placeholder="0.00"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Moneda <span className="text-red-500">*</span>
+                                    </label>
+                                    <select
+                                        value={formData.currency}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, currency: e.target.value }))}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                    >
+                                        <option value="USD">USD - Dólares</option>
+                                        <option value="PEN">PEN - Soles</option>
+                                        <option value="EUR">EUR - Euros</option>
+                                    </select>
+                                </div>
                             </div>
 
                             {/* Buttons */}

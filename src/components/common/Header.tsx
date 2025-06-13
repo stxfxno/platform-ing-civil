@@ -1,7 +1,8 @@
 // src/components/common/Header.tsx
 import React, { useState } from 'react';
-import { Bell, User, Settings, LogOut } from 'lucide-react';
+import { Bell, User, LogOut } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import type { Notification } from '../../types/common';
 
 
@@ -41,10 +42,16 @@ const mockNotifications: Notification[] = [
 
 const Header: React.FC = () => {
     const { user, logout } = useAuth();
+    const navigate = useNavigate();
     const [showNotifications, setShowNotifications] = useState(false);
     const [showUserMenu, setShowUserMenu] = useState(false);
 
     const unreadCount = mockNotifications.filter(n => !n.isRead).length;
+
+    const handleProfileClick = () => {
+        setShowUserMenu(false);
+        navigate('/perfil');
+    };
 
     const getNotificationIcon = (type: string) => {
         const colors = {
@@ -148,13 +155,12 @@ const Header: React.FC = () => {
                         {showUserMenu && (
                             <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                                 <div className="py-1">
-                                    <button className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <button 
+                                        onClick={handleProfileClick}
+                                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                    >
                                         <User className="w-4 h-4 mr-3" />
                                         Mi Perfil
-                                    </button>
-                                    <button className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                        <Settings className="w-4 h-4 mr-3" />
-                                        Configuración
                                     </button>
                                     <hr className="my-1" />
                                     <button
