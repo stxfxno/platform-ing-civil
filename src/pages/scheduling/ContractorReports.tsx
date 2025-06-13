@@ -268,6 +268,16 @@ const ContractorReports: React.FC = () => {
         console.log('🔍 DEBUGGING - Reportes totales:', reports.length);
         console.log('🔍 DEBUGGING - Reportes filtrados por rol:', roleFilteredReports.length);
         console.log('🔍 DEBUGGING - roleFilteredReports:', roleFilteredReports);
+        
+        if (user?.role === 'subcontractor') {
+            const userContractorName = getUserContractorName(user.department);
+            console.log('🔍 DEBUGGING - Departamento del usuario:', user.department);
+            console.log('🔍 DEBUGGING - Nombre de empresa esperado:', userContractorName);
+            console.log('🔍 DEBUGGING - Reportes disponibles:');
+            reports.forEach((report, index) => {
+                console.log(`  ${index + 1}. ${report.contractor.name} (coincide: ${report.contractor.name === userContractorName})`);
+            });
+        }
     }, [user, reports, roleFilteredReports]);
 
     const stats = {
@@ -741,7 +751,7 @@ const ContractorReports: React.FC = () => {
                                 <p className="text-lg font-medium mb-2">No hay reportes disponibles</p>
                                 {user?.role === 'subcontractor' ? (
                                     <p className="text-sm">
-                                        No se han encontrado reportes para {user.department}. 
+                                        No se han encontrado reportes para {getUserContractorName(user.department)}. 
                                         Los reportes aparecerán aquí cuando el administrador los solicite.
                                     </p>
                                 ) : (
