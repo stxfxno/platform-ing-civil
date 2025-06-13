@@ -30,7 +30,7 @@ interface WeeklyActivityData {
     subcontractor: string;
     startDate: string;
     endDate: string;
-    status: 'not_started' | 'in_progress' | 'completed' | 'delayed' | 'planned';
+    status: 'in_progress' | 'completed' | 'delayed' | 'planned';
     progress: number;
     priority: 'low' | 'medium' | 'high' | 'critical';
     plannedHours: number;
@@ -123,7 +123,7 @@ const mockActivities: WeeklyActivityData[] = [
         subcontractor: 'Fire Protection Corp.',
         startDate: '2025-05-28',
         endDate: '2025-06-03',
-        status: 'not_started',
+        status: 'planned',
         progress: 0,
         priority: 'high',
         plannedHours: 90,
@@ -168,7 +168,6 @@ const disciplineOptions = [
 ];
 
 const statusOptions = [
-    { value: 'not_started', label: 'No Iniciada', color: 'bg-gray-100 text-gray-800' },
     { value: 'planned', label: 'Planificada', color: 'bg-blue-100 text-blue-800' },
     { value: 'in_progress', label: 'En Progreso', color: 'bg-yellow-100 text-yellow-800' },
     { value: 'completed', label: 'Completada', color: 'bg-green-100 text-green-800' },
@@ -239,7 +238,12 @@ const WeeklyActivities: React.FC = () => {
     // Funciones para las nuevas funcionalidades
     const handleEditActivity = (activity: WeeklyActivityData) => {
         setSelectedActivity(activity);
-        setEditFormData(activity);
+        setEditFormData({
+            ...activity,
+            equipment: activity.equipment || [],
+            materials: activity.materials || [],
+            dependencies: activity.dependencies || []
+        });
         setShowEditModal(true);
         setActionMenuOpen(null);
     };
@@ -253,7 +257,10 @@ const WeeklyActivities: React.FC = () => {
             title: `${activity.title} (Copia)`,
             status: 'planned',
             progress: 0,
-            actualHours: 0
+            actualHours: 0,
+            equipment: activity.equipment || [],
+            materials: activity.materials || [],
+            dependencies: activity.dependencies || []
         });
         setShowDuplicateModal(true);
         setActionMenuOpen(null);
@@ -349,13 +356,39 @@ const WeeklyActivities: React.FC = () => {
                 plannedHours: template.plannedHours,
                 actualHours: 0,
                 location: '',
-                equipment: template.equipment,
-                materials: template.materials
+                equipment: template.equipment || [],
+                materials: template.materials || [],
+                dependencies: []
             };
             setEditFormData(newActivity);
             setShowTemplatesModal(false);
             setShowCreateModal(true);
         }
+    };
+
+    // Función para inicializar el formulario de creación
+    const handleCreateActivity = () => {
+        setEditFormData({
+            id: `act-${Date.now()}`,
+            activityId: '',
+            title: '',
+            description: '',
+            discipline: 'hvac',
+            assignedTo: '',
+            subcontractor: '',
+            startDate: '',
+            endDate: '',
+            status: 'planned',
+            progress: 0,
+            priority: 'medium',
+            plannedHours: 0,
+            actualHours: 0,
+            location: '',
+            equipment: [],
+            materials: [],
+            dependencies: []
+        });
+        setShowCreateModal(true);
     };
 
     const renderActionMenu = (activity: WeeklyActivityData) => (
@@ -528,6 +561,93 @@ const WeeklyActivities: React.FC = () => {
                     </select>
                 </div>
             </div>
+
+            {/* Equipos y Materiales */}
+            <div className="space-y-4">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Equipos Necesarios</label>
+                    <div className="space-y-2">
+                        {(formData.equipment || []).map((equipment, index) => (
+                            <div key={index} className="flex items-center space-x-2">
+                                <input
+                                    type="text"
+                                    value={equipment}
+                                    onChange={(e) => {
+                                        const newEquipment = [...(formData.equipment || [])];
+                                        newEquipment[index] = e.target.value;
+                                        setFormData({ ...formData, equipment: newEquipment });
+                                    }}
+                                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                    placeholder="Nombre del equipo"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const newEquipment = (formData.equipment || []).filter((_, i) => i !== index);
+                                        setFormData({ ...formData, equipment: newEquipment });
+                                    }}
+                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                        ))}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                const newEquipment = [...(formData.equipment || []), ''];
+                                setFormData({ ...formData, equipment: newEquipment });
+                            }}
+                            className="w-full px-3 py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-green-400 hover:text-green-600 transition-colors"
+                        >
+                            <Plus className="w-4 h-4 inline mr-2" />
+                            Agregar Equipo
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Materiales Necesarios</label>
+                    <div className="space-y-2">
+                        {(formData.materials || []).map((material, index) => (
+                            <div key={index} className="flex items-center space-x-2">
+                                <input
+                                    type="text"
+                                    value={material}
+                                    onChange={(e) => {
+                                        const newMaterials = [...(formData.materials || [])];
+                                        newMaterials[index] = e.target.value;
+                                        setFormData({ ...formData, materials: newMaterials });
+                                    }}
+                                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                    placeholder="Nombre del material"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const newMaterials = (formData.materials || []).filter((_, i) => i !== index);
+                                        setFormData({ ...formData, materials: newMaterials });
+                                    }}
+                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                        ))}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                const newMaterials = [...(formData.materials || []), ''];
+                                setFormData({ ...formData, materials: newMaterials });
+                            }}
+                            className="w-full px-3 py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-green-400 hover:text-green-600 transition-colors"
+                        >
+                            <Plus className="w-4 h-4 inline mr-2" />
+                            Agregar Material
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 
@@ -560,7 +680,7 @@ const WeeklyActivities: React.FC = () => {
                         Importar
                     </button>
                     <button
-                        onClick={() => setShowCreateModal(true)}
+                        onClick={handleCreateActivity}
                         className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center"
                     >
                         <Plus className="w-4 h-4 mr-2" />
