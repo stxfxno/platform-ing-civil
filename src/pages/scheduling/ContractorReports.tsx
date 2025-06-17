@@ -1053,7 +1053,6 @@ const ContractorReports: React.FC = () => {
                                     onClick={() => {
                                         setShowEditModal(false);
                                         setSelectedReport(null);
-                                        setEditProgress(0);
                                         setEditFiles([]);
                                         setEditExistingFiles([]);
                                     }}
