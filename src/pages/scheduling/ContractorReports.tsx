@@ -26,7 +26,6 @@ interface ContractorReport {
         discipline: string;
         contact: string;
     };
-    overallProgress: number;
     submittedAt: string;
     submittedBy: string;
     status: 'pending' | 'submitted' | 'approved' | 'rejected';
@@ -50,7 +49,6 @@ const initialReports: ContractorReport[] = [
             discipline: 'Mecánicas',
             contact: 'Ing. Piero Fernández'
         },
-        overallProgress: 75,
         submittedAt: '2025-05-26T16:30:00Z',
         submittedBy: 'Piero Fernández',
         status: 'submitted',
@@ -67,7 +65,6 @@ const initialReports: ContractorReport[] = [
             discipline: 'Plomería',
             contact: 'Ing. Bryan Vargas'
         },
-        overallProgress: 45,
         submittedAt: '2025-05-26T14:45:00Z',
         submittedBy: 'Bryan Vargas',
         status: 'approved',
@@ -84,7 +81,6 @@ const initialReports: ContractorReport[] = [
             discipline: 'Eléctricas',
             contact: 'Ing. Carlos Torres'
         },
-        overallProgress: 35,
         submittedAt: '2025-05-26T18:15:00Z',
         submittedBy: 'Carlos Torres',
         status: 'submitted',
@@ -101,7 +97,6 @@ const initialReports: ContractorReport[] = [
             discipline: 'Mecánicas',
             contact: 'Ing. Piero Fernández'
         },
-        overallProgress: 85,
         submittedAt: '2025-06-02T17:00:00Z',
         submittedBy: 'Piero Fernández',
         status: 'approved',
@@ -118,7 +113,6 @@ const initialReports: ContractorReport[] = [
             discipline: 'Plomería',
             contact: 'Ing. Bryan Vargas'
         },
-        overallProgress: 60,
         submittedAt: '2025-06-02T15:30:00Z',
         submittedBy: 'Bryan Vargas',
         status: 'submitted',
@@ -161,11 +155,9 @@ const ContractorReports: React.FC = () => {
     const [rejectionReason, setRejectionReason] = useState('');
     const [requestMessage, setRequestMessage] = useState('');
     const [requestProblem, setRequestProblem] = useState('');
-    const [requestProgress, setRequestProgress] = useState(0);
     const [requestFiles, setRequestFiles] = useState<File[]>([]);
     
     // Estados para edición
-    const [editProgress, setEditProgress] = useState(0);
     const [editFiles, setEditFiles] = useState<File[]>([]);
     const [editExistingFiles, setEditExistingFiles] = useState<string[]>([]);
 
@@ -384,7 +376,6 @@ const ContractorReports: React.FC = () => {
                 discipline: getDisciplineFromContractor(selectedContractor),
                 contact: getContactFromContractor(selectedContractor)
             },
-            overallProgress: requestProgress,
             submittedAt: new Date().toISOString(),
             submittedBy: getContactFromContractor(selectedContractor),
             status: 'submitted', // Cambiado de 'pending' a 'submitted'
@@ -411,7 +402,6 @@ const ContractorReports: React.FC = () => {
         setSelectedContractor('');
         setRequestMessage('');
         setRequestProblem('');
-        setRequestProgress(0);
         setRequestFiles([]);
     };
 
@@ -427,7 +417,6 @@ const ContractorReports: React.FC = () => {
             r.id === selectedReport.id 
                 ? { 
                     ...r, 
-                    overallProgress: editProgress,
                     attachments: allAttachments.length > 0 ? allAttachments : ['/files/documento_prueba.docx']
                 }
                 : r
@@ -436,16 +425,14 @@ const ContractorReports: React.FC = () => {
         setReports(updatedReports);
         setShowEditModal(false);
         setSelectedReport(null);
-        setEditProgress(0);
         setEditFiles([]);
         setEditExistingFiles([]);
-        alert('Reporte actualizado correctamente');
+        alert('Archivos del reporte actualizados correctamente');
     };
 
     // Función para abrir modal de edición
     const openEditModal = (report: ContractorReport) => {
         setSelectedReport(report);
-        setEditProgress(report.overallProgress);
         setEditExistingFiles(report.attachments || []);
         setEditFiles([]);
         setShowEditModal(true);
@@ -594,14 +581,10 @@ const ContractorReports: React.FC = () => {
                                         </span>
                                     </div>
 
-                                    <div className="grid grid-cols-3 gap-4 mb-4 text-sm">
+                                    <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
                                         <div>
                                             <span className="text-gray-500">Contacto:</span>
                                             <p className="font-medium">{report.contractor.contact}</p>
-                                        </div>
-                                        <div>
-                                            <span className="text-gray-500">Progreso:</span>
-                                            <p className="font-medium">{report.overallProgress}%</p>
                                         </div>
                                         <div>
                                             <span className="text-gray-500">
@@ -615,20 +598,6 @@ const ContractorReports: React.FC = () => {
                                                         'Sin enviar'
                                                 }
                                             </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Progress Bar */}
-                                    <div className="mb-3">
-                                        <div className="w-full bg-gray-200 rounded-full h-2">
-                                            <div
-                                                className={`h-2 rounded-full ${
-                                                    report.status === 'approved' ? 'bg-green-500' :
-                                                    report.status === 'submitted' ? 'bg-blue-500' :
-                                                    report.status === 'rejected' ? 'bg-red-500' : 'bg-gray-400'
-                                                }`}
-                                                style={{ width: `${report.overallProgress}%` }}
-                                            ></div>
                                         </div>
                                     </div>
 
@@ -705,7 +674,7 @@ const ContractorReports: React.FC = () => {
                                     <button
                                         onClick={() => openEditModal(report)}
                                         className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-100 rounded-lg transition-colors"
-                                        title="Editar progreso y archivos"
+                                        title="Editar archivos"
                                     >
                                         <Edit className="w-5 h-5" />
                                     </button>
@@ -792,17 +761,6 @@ const ContractorReports: React.FC = () => {
 
                             <div>
                                 <h3 className="font-medium text-gray-900 mb-2">Estado: {statusLabels[selectedReport.status]}</h3>
-                                <div className="w-full bg-gray-200 rounded-full h-3">
-                                    <div
-                                        className={`h-3 rounded-full ${
-                                            selectedReport.status === 'approved' ? 'bg-green-500' :
-                                            selectedReport.status === 'submitted' ? 'bg-blue-500' :
-                                            selectedReport.status === 'rejected' ? 'bg-red-500' : 'bg-gray-400'
-                                        }`}
-                                        style={{ width: `${selectedReport.overallProgress}%` }}
-                                    ></div>
-                                </div>
-                                <p className="text-sm text-gray-600 mt-1">Progreso: {selectedReport.overallProgress}%</p>
                             </div>
 
                             {selectedReport.status === 'submitted' && selectedReport.requestMessage && (
@@ -1027,23 +985,6 @@ const ContractorReports: React.FC = () => {
 
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Progreso Reportado (%)
-                                </label>
-                                <div className="flex items-center space-x-3">
-                                    <input
-                                        type="range"
-                                        min="0"
-                                        max="100"
-                                        value={requestProgress}
-                                        onChange={(e) => setRequestProgress(parseInt(e.target.value))}
-                                        className="flex-1"
-                                    />
-                                    <span className="text-sm font-medium text-gray-700 w-12">{requestProgress}%</span>
-                                </div>
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Archivos Adjuntos
                                 </label>
                                 <input
@@ -1081,7 +1022,6 @@ const ContractorReports: React.FC = () => {
                                         setSelectedContractor('');
                                         setRequestMessage('');
                                         setRequestProblem('');
-                                        setRequestProgress(0);
                                         setRequestFiles([]);
                                     }}
                                     className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
@@ -1108,7 +1048,7 @@ const ContractorReports: React.FC = () => {
                     <div className="bg-white rounded-lg max-w-md w-full">
                         <div className="p-6 border-b border-gray-200">
                             <div className="flex items-center justify-between">
-                                <h2 className="text-xl font-semibold text-gray-900">Editar Reporte</h2>
+                                <h2 className="text-xl font-semibold text-gray-900">Editar Archivos del Reporte</h2>
                                 <button 
                                     onClick={() => {
                                         setShowEditModal(false);
@@ -1127,29 +1067,6 @@ const ContractorReports: React.FC = () => {
                             <div>
                                 <h3 className="font-medium text-gray-900 mb-2">Subcontratista</h3>
                                 <p>{selectedReport.contractor.name} - {selectedReport.contractor.discipline}</p>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Progreso (%)
-                                </label>
-                                <div className="flex items-center space-x-3">
-                                    <input
-                                        type="range"
-                                        min="0"
-                                        max="100"
-                                        value={editProgress}
-                                        onChange={(e) => setEditProgress(parseInt(e.target.value))}
-                                        className="flex-1"
-                                    />
-                                    <span className="text-sm font-medium text-gray-700 w-12">{editProgress}%</span>
-                                </div>
-                                <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                                    <div
-                                        className="h-2 rounded-full bg-blue-500"
-                                        style={{ width: `${editProgress}%` }}
-                                    ></div>
-                                </div>
                             </div>
 
                             <div>
@@ -1212,7 +1129,6 @@ const ContractorReports: React.FC = () => {
                                     onClick={() => {
                                         setShowEditModal(false);
                                         setSelectedReport(null);
-                                        setEditProgress(0);
                                         setEditFiles([]);
                                         setEditExistingFiles([]);
                                     }}
@@ -1225,7 +1141,7 @@ const ContractorReports: React.FC = () => {
                                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
                                 >
                                     <Edit className="w-4 h-4 mr-2" />
-                                    Guardar Cambios
+                                    Guardar Archivos
                                 </button>
                             </div>
                         </div>

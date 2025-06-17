@@ -186,7 +186,7 @@ const weeklyData: Record<number, WeekData> = {
         weekNumber: 15,
         dateRange: '19 Mayo - 25 Mayo 2025',
         ppcDay: 'Viernes',
-        ppcPercentage: 95,
+        ppcPercentage: 100,
         activities: [
             {
                 id: 'prog-015-001',
@@ -194,9 +194,9 @@ const weeklyData: Record<number, WeekData> = {
                 title: 'Instalación unidades manejadoras - Azotea',
                 discipline: 'HVAC',
                 subcontractor: 'HVAC Solutions S.A.C.',
-                plannedProgress: 95,
+                plannedProgress: 100,
                 actualProgress: 95,
-                variance: 0,
+                variance: -5,
                 status: 'completed',
                 lastUpdate: '2025-05-24T13:45:00Z',
                 issues: [],
@@ -232,9 +232,9 @@ const weeklyData: Record<number, WeekData> = {
                 title: 'Conexionado de tableros secundarios - Piso 3',
                 discipline: 'Eléctrico',
                 subcontractor: 'Electro Instalaciones Perú',
-                plannedProgress: 95,
+                plannedProgress: 100,
                 actualProgress: 95,
-                variance: 0,
+                variance: -5,
                 status: 'completed',
                 lastUpdate: '2025-05-24T15:30:00Z',
                 issues: [],
@@ -259,9 +259,9 @@ const weeklyData: Record<number, WeekData> = {
                 title: 'Tuberías principales agua potable - Todo edificio',
                 discipline: 'Plomería',
                 subcontractor: 'Plomería Industrial SAC',
-                plannedProgress: 95,
+                plannedProgress: 100,
                 actualProgress: 90,
-                variance: -5,
+                variance: -10,
                 status: 'on_track',
                 lastUpdate: '2025-05-23T18:00:00Z',
                 issues: [
@@ -298,9 +298,9 @@ const weeklyData: Record<number, WeekData> = {
                 title: 'Colocación de gabinetes contra incendios - Nivel 1',
                 discipline: 'Protección Contra Incendios',
                 subcontractor: 'Fire Protection Corp.',
-                plannedProgress: 95,
+                plannedProgress: 100,
                 actualProgress: 85,
-                variance: -10,
+                variance: -15,
                 status: 'delayed',
                 lastUpdate: '2025-05-24T11:00:00Z',
                 issues: [
@@ -337,9 +337,9 @@ const weeklyData: Record<number, WeekData> = {
                 title: 'Señalización de rutas de evacuación - Todos los pisos',
                 discipline: 'General',
                 subcontractor: 'Seguridad Total SAC',
-                plannedProgress: 95,
+                plannedProgress: 100,
                 actualProgress: 70,
-                variance: -25,
+                variance: -30,
                 status: 'at_risk',
                 lastUpdate: '2025-05-24T09:30:00Z',
                 issues: [
@@ -1341,7 +1341,7 @@ const ProgressTracking: React.FC = () => {
                     <div className={`text-center p-4 rounded-lg ${getPPCColor(currentWeekData.ppcPercentage)}`}>
                         <Calendar className="w-6 h-6 mx-auto mb-2" />
                         <p className="text-2xl font-bold">{currentWeekData.ppcPercentage}%</p>
-                        <p className="text-sm">PPC {currentWeekData.ppcDay}</p>
+                        <p className="text-sm">Objetivo de Avance</p>
                     </div>
                 </div>
             </div>
